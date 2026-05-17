@@ -155,7 +155,10 @@ export function AuthCard({ mode }: AuthCardProps) {
 
             {message ? (
               <div className="mt-5 rounded-xl border border-forest/20 bg-forest-lt px-4 py-3 text-sm leading-[1.65] text-forest">
-                {message}
+                <div>{message}</div>
+                <Link className="mt-3 inline-flex font-bold text-forest underline underline-offset-4" href="/tasks">
+                  先看任務白板 demo
+                </Link>
               </div>
             ) : (
               <p className="mt-5 text-sm leading-[1.65] text-light">{current.helper}</p>
