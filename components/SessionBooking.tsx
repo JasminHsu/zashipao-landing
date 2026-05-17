@@ -389,13 +389,12 @@ export function SessionBooking({ initialStep = "sessions" }: SessionBookingProps
               ))}
             </div>
             <div className="flex gap-2">
-              <button
-                className="flex-1 rounded-full bg-terracotta px-4 py-3 text-sm font-bold text-white hover:bg-terracotta-d"
-                type="button"
-                onClick={() => setStep("sessions")}
+              <Link
+                className="flex-1 rounded-full bg-terracotta px-4 py-3 text-center text-sm font-bold text-white no-underline hover:bg-terracotta-d"
+                href="/my-sessions"
               >
-                回場次
-              </button>
+                查看我的場次
+              </Link>
               <button
                 className="flex-1 rounded-full border border-border px-4 py-3 text-sm font-bold text-muted hover:border-muted hover:text-ink"
                 type="button"
