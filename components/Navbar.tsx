@@ -15,6 +15,9 @@ export function Navbar() {
         <a className="text-sm text-muted no-underline transition-colors hover:text-ink max-[720px]:hidden" href="#sessions">
           今日場次
         </a>
+        <a className="text-sm font-semibold text-terracotta no-underline transition-colors hover:text-terracotta-d max-[720px]:hidden" href="/tasks">
+          功能 Demo
+        </a>
         <ButtonLink href="/login" variant="outline" className="px-5 py-2 max-[520px]:hidden">
           登入
         </ButtonLink>
