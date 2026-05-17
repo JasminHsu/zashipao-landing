@@ -21,6 +21,7 @@ const sessions = [
     time: "22:00",
     day: "今晚",
     title: "睡前雜事清空場",
+    live: false,
     tags: [
       ["財務", "bg-terracotta-lt text-terracotta"],
       ["購物退款", "bg-cream-dd text-muted"]
@@ -34,6 +35,7 @@ const sessions = [
     time: "07:00",
     day: "明日早晨",
     title: "晨間衝刺 — 出門前做一件事",
+    live: false,
     tags: [
       ["文件行政", "bg-lavender-lt text-lavender"],
       ["家務", "bg-amberish-lt text-amberish"]
@@ -47,6 +49,7 @@ const sessions = [
     time: "12:00",
     day: "明日午休",
     title: "午休 50 分鐘 · 生活行政快攻",
+    live: false,
     tags: [
       ["健康醫療", "bg-forest-lt text-forest"],
       ["財務", "bg-terracotta-lt text-terracotta"]
@@ -60,6 +63,7 @@ const sessions = [
     time: "10:00",
     day: "週六早晨",
     title: "週末雜事大清倉 ✦ 限量 12 人",
+    live: false,
     tags: [
       ["家務", "bg-amberish-lt text-amberish"],
       ["文件", "bg-lavender-lt text-lavender"],
