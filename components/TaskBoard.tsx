@@ -224,9 +224,9 @@ export function TaskBoard() {
           <Logo />
           <nav className="flex items-center gap-3 text-sm">
             <Link className="rounded-full bg-terracotta-lt px-4 py-2 font-bold text-terracotta no-underline" href="/tasks">
-              清單
+              待辦事項
             </Link>
-            <Link className="rounded-full border border-border px-4 py-2 font-semibold text-muted no-underline hover:border-muted" href="/#sessions">
+            <Link className="rounded-full border border-border px-4 py-2 font-semibold text-muted no-underline hover:border-muted" href="/sessions">
               場次
             </Link>
           </nav>
