@@ -1,0 +1,952 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>雜事房 — 晚間雜事衝刺 #3</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;700;900&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --cream:#FAF7F2;--cream-d:#F0EBE0;--cream-dd:#E5DED3;
+  --border:#DDD6CB;--border-d:#C8C0B4;
+  --text:#1C1917;--muted:#6B6258;--light:#A89E95;
+  --tc:#C4603A;--tc-d:#A84E2E;--tc-lt:#F5E8E2;
+  --forest:#4A7260;--forest-lt:#DFF0E9;
+  --lav:#7062A3;--lav-lt:#EEEAF8;
+  --amber:#B87C20;--amber-lt:#F7EDD8;
+  /* Video dark theme */
+  --vid-bg:#16110E;--vid-card:#1F1612;--vid-border:rgba(255,255,255,.1);
+  --vid-text:rgba(255,255,255,.9);--vid-muted:rgba(255,255,255,.45);
+  --r:12px;--r-sm:8px;--r-lg:18px;--r-xl:24px;
+  --sh:0 2px 16px rgba(28,25,23,.08);--sh-lg:0 6px 32px rgba(28,25,23,.14);
+  --topbar:58px;--taskbar:320px;--chatbar:300px;
+}
+html,body{height:100%;overflow:hidden}
+body{font-family:'Noto Sans TC',sans-serif;background:var(--vid-bg);color:var(--text);display:flex;flex-direction:column}
+h1,h2,h3,h4{font-family:'Noto Serif TC',serif}
+
+/* ── TOPBAR ── */
+.topbar{
+  height:var(--topbar);flex-shrink:0;z-index:60;
+  background:rgba(22,17,14,.95);backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--vid-border);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 1.25rem;gap:1rem;
+}
+.logo{font-family:'Noto Serif TC',serif;font-size:1.05rem;font-weight:900;color:white;text-decoration:none;display:flex;align-items:center;gap:.4rem}
+.logo-mark{background:var(--tc);color:white;width:26px;height:26px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:900}
+.session-info{display:flex;align-items:center;gap:.75rem}
+.session-name{font-family:'Noto Serif TC',serif;font-size:.9rem;font-weight:700;color:white}
+.session-meta{font-size:.73rem;color:var(--vid-muted);display:flex;align-items:center;gap:.4rem}
+.dsep{width:3px;height:3px;border-radius:50%;background:rgba(255,255,255,.2)}
+.phase-badge{display:flex;align-items:center;gap:.4rem;font-size:.73rem;font-weight:600;padding:.2rem .65rem;border-radius:100px;background:rgba(74,114,96,.25);color:#6EC4A7;border:1px solid rgba(74,114,96,.35)}
+.phase-dot{width:6px;height:6px;border-radius:50%;background:currentColor;animation:blink 1.6s ease-in-out infinite}
+@keyframes blink{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.75)}}
+
+.timer-pill{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);color:white;border-radius:100px;padding:.28rem .9rem;display:flex;align-items:center;gap:.5rem;font-size:.78rem}
+.timer-digit{font-family:'Courier New',monospace;font-size:1.05rem;font-weight:700;letter-spacing:.04em}
+.timer-label{opacity:.45;font-size:.68rem}
+
+.topbar-r{display:flex;align-items:center;gap:.6rem}
+.tb-btn{width:32px;height:32px;border-radius:var(--r-sm);background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;font-size:.9rem;cursor:pointer;transition:background .15s;color:white}
+.tb-btn:hover{background:rgba(255,255,255,.14)}
+.tb-btn.danger:hover{background:rgba(193,59,59,.3);border-color:rgba(193,59,59,.5)}
+.btn-leave{background:transparent;color:rgba(255,255,255,.55);border:1px solid rgba(255,255,255,.18);padding:.32rem .85rem;border-radius:100px;font-size:.78rem;font-family:'Noto Sans TC',sans-serif;cursor:pointer;transition:all .18s}
+.btn-leave:hover{border-color:rgba(193,59,59,.6);color:#ff8888}
+
+/* ── BODY ── */
+.room-body{flex:1;display:flex;overflow:hidden;min-height:0}
+
+/* ── VIDEO AREA (center) ── */
+.video-area{
+  flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0;
+  background:var(--vid-bg);position:relative;
+}
+
+/* Video grid */
+.video-grid{
+  flex:1;padding:1rem;display:grid;gap:.75rem;overflow:hidden;
+  grid-template-columns:repeat(3,1fr);
+  grid-template-rows:repeat(2,1fr);
+  align-content:start;
+}
+
+/* Individual video tile */
+.vid-tile{
+  background:var(--vid-card);border-radius:var(--r-lg);
+  position:relative;overflow:hidden;
+  border:2px solid transparent;
+  transition:border-color .2s;cursor:default;
+  aspect-ratio:4/3;
+  display:flex;align-items:center;justify-content:center;
+}
+.vid-tile.speaking{border-color:var(--tc)!important;box-shadow:0 0 0 3px rgba(196,96,58,.25)}
+.vid-tile.is-me{border-color:rgba(196,96,58,.5)}
+.vid-tile.done-tile{border-color:rgba(74,114,96,.5)}
+
+/* Fake video gradient bg */
+.vid-bg-grad{
+  position:absolute;inset:0;
+  background:linear-gradient(145deg,#2A1F1A 0%,#1A1310 60%,#231B15 100%);
+}
+.vid-bg-grad.g2{background:linear-gradient(145deg,#1A2420 0%,#131A18 60%,#1C2B25 100%)}
+.vid-bg-grad.g3{background:linear-gradient(145deg,#1E1C2E 0%,#15131F 60%,#231E35 100%)}
+.vid-bg-grad.g4{background:linear-gradient(145deg,#2B2010 0%,#1E1710 60%,#2A1F12 100%)}
+.vid-bg-grad.g5{background:linear-gradient(145deg,#1A2420 0%,#131A18 60%,#1E2B26 100%)}
+
+/* Camera off state — big avatar */
+.vid-avatar{
+  position:relative;z-index:2;
+  width:64px;height:64px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.4rem;font-weight:700;flex-shrink:0;
+  font-family:'Noto Sans TC',sans-serif;
+}
+
+/* Camera on state — simulated video (CSS animation) */
+.vid-canvas{
+  position:absolute;inset:0;z-index:1;
+  background:linear-gradient(145deg,#2A1F1A,#1A1310);
+  display:none;
+}
+.vid-tile.cam-on .vid-canvas{display:block}
+.vid-tile.cam-on .vid-avatar{display:none}
+
+/* Simulated "video noise" effect */
+.vid-canvas::after{
+  content:'';position:absolute;inset:0;
+  background:
+    radial-gradient(ellipse 60% 70% at 45% 40%, rgba(255,220,180,.06) 0%, transparent 70%),
+    radial-gradient(ellipse 40% 30% at 70% 70%, rgba(100,80,60,.05) 0%, transparent 60%);
+  animation:vcam 4s ease-in-out infinite alternate;
+}
+@keyframes vcam{0%{opacity:.7;transform:scale(1)}100%{opacity:1;transform:scale(1.015)}}
+
+/* Name bar overlay */
+.vid-nameplate{
+  position:absolute;bottom:0;left:0;right:0;z-index:10;
+  padding:.5rem .7rem;
+  background:linear-gradient(to top,rgba(0,0,0,.75) 0%,transparent 100%);
+  display:flex;align-items:flex-end;justify-content:space-between;
+}
+.vid-name{font-size:.78rem;font-weight:600;color:white;display:flex;align-items:center;gap:.4rem}
+.vid-me-tag{font-size:.58rem;background:var(--tc);color:white;padding:.06rem .35rem;border-radius:3px;font-weight:700}
+.vid-task-name{font-size:.65rem;color:rgba(255,255,255,.55);margin-top:.1rem;max-width:90%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.vid-delay-chip{font-size:.62rem;padding:.08rem .38rem;border-radius:3px;font-weight:600;white-space:nowrap}
+.delay-red{background:#4A1515;color:#FF9494}
+.delay-amber{background:#3A2800;color:#FFD07A}
+.delay-gray{background:rgba(255,255,255,.12);color:rgba(255,255,255,.5)}
+.delay-done{background:rgba(74,114,96,.4);color:#7EDBB8}
+
+/* Top-right icons on tile */
+.vid-topright{position:absolute;top:.5rem;right:.5rem;z-index:10;display:flex;gap:.35rem}
+.vid-icon{
+  width:24px;height:24px;border-radius:6px;background:rgba(0,0,0,.55);
+  display:flex;align-items:center;justify-content:center;font-size:.72rem;
+  backdrop-filter:blur(4px);
+}
+.vid-icon.muted{background:rgba(193,59,59,.45)}
+
+/* Speaking ring */
+.speaking-ring{
+  position:absolute;inset:-2px;border-radius:var(--r-lg);border:2px solid var(--tc);
+  animation:ring-pulse 1.5s ease-in-out infinite;pointer-events:none;z-index:20;
+  display:none;
+}
+.vid-tile.speaking .speaking-ring{display:block}
+@keyframes ring-pulse{0%,100%{opacity:.7;transform:scale(1)}50%{opacity:1;transform:scale(1.012)}}
+
+/* Done badge on tile */
+.done-badge{
+  position:absolute;top:.5rem;left:.5rem;z-index:10;
+  background:rgba(74,114,96,.8);color:#7EDBB8;
+  font-size:.65rem;font-weight:700;padding:.2rem .5rem;border-radius:100px;
+  backdrop-filter:blur(4px);display:flex;align-items:center;gap:.3rem;
+}
+
+/* My self-view (pip corner) */
+.self-view{
+  position:absolute;bottom:1.5rem;left:1.5rem;z-index:30;
+  width:160px;height:120px;border-radius:var(--r);
+  background:linear-gradient(145deg,#2A1F1A,#1A1310);
+  border:2px solid rgba(196,96,58,.5);
+  overflow:hidden;cursor:pointer;
+  box-shadow:0 4px 24px rgba(0,0,0,.5);
+  transition:transform .18s;
+}
+.self-view:hover{transform:scale(1.04)}
+.self-view-inner{
+  width:100%;height:100%;display:flex;align-items:center;justify-content:center;
+  position:relative;
+}
+.self-view-inner::after{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse 60% 70% at 45% 40%, rgba(255,220,180,.07) 0%, transparent 70%);
+  animation:vcam 3s ease-in-out infinite alternate;
+}
+.self-av{
+  width:48px;height:48px;border-radius:50%;
+  background:var(--tc-lt);color:var(--tc);
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.1rem;font-weight:700;z-index:1;
+  font-family:'Noto Sans TC',sans-serif;
+}
+.self-view-label{
+  position:absolute;bottom:0;left:0;right:0;
+  background:linear-gradient(to top,rgba(0,0,0,.8),transparent);
+  padding:.3rem .5rem;font-size:.65rem;color:rgba(255,255,255,.7);font-weight:500;
+}
+.self-view-label .self-me{font-weight:700;color:white}
+
+/* ── BOTTOM CONTROLS ── */
+.vid-controls{
+  height:72px;flex-shrink:0;
+  background:rgba(22,17,14,.9);border-top:1px solid var(--vid-border);
+  display:flex;align-items:center;justify-content:center;gap:.75rem;
+  padding:0 1.5rem;position:relative;
+}
+.vc-btn{
+  display:flex;flex-direction:column;align-items:center;gap:.25rem;
+  background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.12);
+  border-radius:var(--r);width:56px;height:52px;cursor:pointer;
+  transition:all .18s;color:white;font-family:'Noto Sans TC',sans-serif;
+}
+.vc-btn:hover{background:rgba(255,255,255,.17)}
+.vc-btn.active{background:rgba(196,96,58,.25);border-color:rgba(196,96,58,.5);color:var(--tc)}
+.vc-btn.danger{background:rgba(193,59,59,.2);border-color:rgba(193,59,59,.4);color:#ff8888}
+.vc-btn.danger:hover{background:rgba(193,59,59,.35)}
+.vc-icon{font-size:1.15rem;margin-top:.55rem}
+.vc-label{font-size:.58rem;opacity:.6;margin-bottom:.3rem}
+.vc-btn.active .vc-label{opacity:.9;color:var(--tc)}
+
+.vid-controls-r{position:absolute;right:1.5rem;display:flex;align-items:center;gap:.5rem}
+.vc-end{background:rgba(193,59,59,.25);border:1px solid rgba(193,59,59,.4);color:#ff9999;border-radius:100px;padding:.42rem 1.1rem;font-size:.8rem;font-family:'Noto Sans TC',sans-serif;font-weight:600;cursor:pointer;transition:all .18s}
+.vc-end:hover{background:rgba(193,59,59,.45)}
+
+.vid-controls-l{position:absolute;left:1.5rem;display:flex;align-items:center;gap:.5rem}
+.prog-mini{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:var(--r-sm);padding:.35rem .7rem;display:flex;align-items:center;gap:.65rem}
+.prog-mini-label{font-size:.65rem;color:rgba(255,255,255,.45)}
+.prog-mini-segs{display:flex;gap:3px}
+.prog-mini-seg{width:22px;height:4px;border-radius:2px;background:rgba(255,255,255,.12)}
+.prog-mini-seg.done{background:var(--forest)}
+.prog-mini-seg.active{background:var(--tc)}
+
+/* ── RIGHT PANEL ── */
+.right-panel{
+  width:var(--taskbar);flex-shrink:0;
+  border-left:1px solid var(--vid-border);
+  background:var(--cream);display:flex;flex-direction:column;overflow:hidden;
+}
+
+/* Panel tabs */
+.panel-tabs{display:flex;border-bottom:1.5px solid var(--border);background:white}
+.ptab{flex:1;padding:.6rem .25rem;font-size:.73rem;font-weight:500;text-align:center;cursor:pointer;color:var(--light);border-bottom:2px solid transparent;transition:all .18s;background:none;border-top:none;border-left:none;border-right:none;font-family:'Noto Sans TC',sans-serif}
+.ptab.active{color:var(--tc);border-bottom-color:var(--tc)}
+.ptab:hover:not(.active){color:var(--muted)}
+.panel-content{flex:1;overflow-y:auto}
+
+/* Task pane */
+.task-pane{padding:1rem;display:flex;flex-direction:column;gap:.85rem}
+
+.my-task-card{
+  background:white;border:2px solid var(--tc);border-radius:var(--r-lg);
+  padding:1.1rem;
+}
+.mtc-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem}
+.mtc-label{font-size:.65rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--tc)}
+.mtc-status{display:flex;align-items:center;gap:.35rem;font-size:.72rem;color:var(--forest);font-weight:600}
+.mtc-title{font-family:'Noto Serif TC',serif;font-size:.95rem;font-weight:700;margin-bottom:.25rem}
+.mtc-delay{font-size:.75rem;color:var(--muted);margin-bottom:.85rem}
+.mtc-delay strong{color:#C13B3B}
+
+.checklist{list-style:none;display:flex;flex-direction:column;gap:.4rem;margin-bottom:.85rem}
+.cl-item{display:flex;align-items:flex-start;gap:.55rem;padding:.42rem .5rem;border-radius:var(--r-sm);background:var(--cream);cursor:pointer;transition:background .15s;user-select:none}
+.cl-item:hover{background:var(--cream-dd)}
+.cl-item.checked{background:var(--forest-lt)}
+.cl-check{width:16px;height:16px;border-radius:4px;border:2px solid var(--border-d);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .18s;margin-top:.1rem}
+.cl-item.checked .cl-check{background:var(--forest);border-color:var(--forest);color:white;font-size:.62rem}
+.cl-text{font-size:.78rem;line-height:1.4;transition:color .15s}
+.cl-item.checked .cl-text{text-decoration:line-through;color:var(--light)}
+
+.mtc-foot{display:flex;align-items:center;gap:.6rem}
+.btn-done{background:var(--tc);color:white;border:none;padding:.45rem 1.1rem;border-radius:100px;font-size:.8rem;font-family:'Noto Sans TC',sans-serif;font-weight:700;cursor:pointer;transition:all .18s;flex:1;justify-content:center;display:flex;align-items:center;gap:.4rem}
+.btn-done:hover{background:var(--tc-d)}
+.btn-done.all-done{background:var(--forest)}
+.btn-edit{background:transparent;color:var(--muted);border:1.5px solid var(--border);padding:.43rem .7rem;border-radius:100px;font-size:.75rem;font-family:'Noto Sans TC',sans-serif;cursor:pointer;white-space:nowrap}
+
+/* Others task list */
+.others-label{font-size:.65rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--light);margin-bottom:.5rem}
+.other-task-item{background:white;border:1.5px solid var(--border);border-radius:var(--r);padding:.7rem .85rem;margin-bottom:.4rem;transition:border-color .15s}
+.oti-top{display:flex;align-items:center;gap:.55rem;margin-bottom:.35rem}
+.oti-av{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.6rem;font-weight:700;flex-shrink:0}
+.oti-name{font-size:.78rem;font-weight:600}
+.oti-chip{margin-left:auto}
+.oti-task{font-size:.75rem;color:var(--muted);line-height:1.4}
+.oti-done{border-color:var(--forest);background:var(--forest-lt)}
+.oti-done .oti-task{color:var(--forest)}
+
+/* Progress strip */
+.prog-strip{background:white;border:1.5px solid var(--border);border-radius:var(--r);padding:.75rem 1rem;display:flex;align-items:center;gap:.75rem}
+.prog-strip-label{font-size:.68rem;color:var(--light);flex-shrink:0}
+.prog-segs{display:flex;gap:3px;flex:1}
+.prog-seg{height:5px;border-radius:3px;flex:1;background:var(--cream-d);overflow:hidden}
+.prog-seg-fill{height:100%;border-radius:3px;transition:width 1s ease}
+.seg-done-c{background:var(--forest)}
+.seg-active-c{background:var(--tc)}
+
+/* Chat pane */
+.chat-pane{display:flex;flex-direction:column;height:100%}
+.chat-messages{flex:1;overflow-y:auto;padding:.75rem;display:flex;flex-direction:column;gap:.5rem}
+.chat-msg{display:flex;align-items:flex-start;gap:.45rem}
+.chat-msg.system{justify-content:center;margin:.15rem 0}
+.cm-av{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.52rem;font-weight:700;flex-shrink:0;margin-top:.1rem}
+.cm-name{font-size:.65rem;font-weight:600;color:var(--muted);margin-bottom:.1rem}
+.cm-bubble{background:var(--cream);border-radius:var(--r-sm);padding:.35rem .55rem;font-size:.78rem;line-height:1.4;display:inline-block;max-width:180px}
+.chat-msg.me .cm-bubble{background:var(--tc-lt)}
+.system-msg{font-size:.68rem;color:var(--light);background:var(--cream-d);padding:.2rem .65rem;border-radius:100px}
+.react-row{display:flex;gap:.2rem;margin-top:.2rem}
+.react-pill{background:var(--cream-d);border:1px solid var(--border);border-radius:100px;padding:.08rem .38rem;font-size:.72rem;cursor:pointer;transition:background .15s;font-family:'Noto Sans TC',sans-serif}
+.react-pill:hover{background:var(--cream-dd)}
+.chat-input-area{border-top:1.5px solid var(--border);padding:.6rem;background:white}
+.chat-quick{display:flex;gap:.3rem;flex-wrap:wrap;margin-bottom:.45rem}
+.qbtn{background:var(--cream-d);border:1px solid var(--border);border-radius:100px;padding:.18rem .55rem;font-size:.68rem;cursor:pointer;font-family:'Noto Sans TC',sans-serif;color:var(--text);transition:background .15s}
+.qbtn:hover{background:var(--cream-dd)}
+.chat-field{display:flex;gap:.35rem}
+.chat-input{flex:1;background:var(--cream);border:1.5px solid var(--border);border-radius:var(--r-sm);padding:.38rem .6rem;font-size:.78rem;font-family:'Noto Sans TC',sans-serif;color:var(--text);outline:none;transition:border-color .18s}
+.chat-input:focus{border-color:var(--tc)}
+.chat-send{background:var(--tc);color:white;border:none;width:30px;height:30px;border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center;font-size:.82rem;cursor:pointer;flex-shrink:0;transition:background .18s}
+.chat-send:hover{background:var(--tc-d)}
+
+/* Stats pane */
+.stats-pane{padding:.85rem}
+.stat-block{background:white;border:1.5px solid var(--border);border-radius:var(--r);padding:.75rem .9rem;margin-bottom:.55rem}
+.stat-block-label{font-size:.63rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--light);margin-bottom:.45rem}
+.stat-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:.35rem}
+.stat-row:last-child{margin-bottom:0}
+.stat-name{font-size:.78rem;color:var(--muted)}
+.stat-value{font-size:.85rem;font-weight:700}
+.stat-value.green{color:var(--forest)}
+.streak-block{text-align:center;padding:.35rem 0}
+.streak-fire{font-size:2rem;line-height:1;margin-bottom:.15rem}
+.streak-num{font-family:'Noto Serif TC',serif;font-size:1.9rem;font-weight:900;color:var(--tc)}
+.streak-label{font-size:.75rem;color:var(--muted);margin-top:.1rem}
+
+/* ── DONE OVERLAY ── */
+.done-overlay{position:fixed;inset:0;background:rgba(22,17,14,.8);backdrop-filter:blur(8px);z-index:200;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .35s}
+.done-overlay.show{opacity:1;pointer-events:all}
+.done-card{background:white;border-radius:var(--r-xl);padding:2.25rem 2rem;max-width:380px;width:90%;text-align:center;box-shadow:0 24px 80px rgba(0,0,0,.4);transform:scale(.92) translateY(16px);transition:transform .35s cubic-bezier(.34,1.56,.64,1)}
+.done-overlay.show .done-card{transform:scale(1) translateY(0)}
+.done-emoji{font-size:3rem;margin-bottom:.75rem}
+.done-title{font-family:'Noto Serif TC',serif;font-size:1.4rem;font-weight:900;margin-bottom:.4rem}
+.done-sub{font-size:.88rem;color:var(--muted);line-height:1.6;margin-bottom:1.35rem}
+.done-stat-row{display:flex;justify-content:center;gap:1.75rem;margin-bottom:1.5rem}
+.done-stat-n{font-family:'Noto Serif TC',serif;font-size:1.6rem;font-weight:900;color:var(--tc)}
+.done-stat-l{font-size:.72rem;color:var(--light);margin-top:.1rem}
+.done-btns{display:flex;flex-direction:column;gap:.5rem}
+.btn-done-main{background:var(--tc);color:white;border:none;padding:.65rem 1.5rem;border-radius:100px;font-size:.88rem;font-family:'Noto Sans TC',sans-serif;font-weight:700;cursor:pointer;transition:background .18s}
+.btn-done-main:hover{background:var(--tc-d)}
+.btn-done-sec{background:transparent;color:var(--muted);border:1.5px solid var(--border);padding:.62rem 1.5rem;border-radius:100px;font-size:.85rem;font-family:'Noto Sans TC',sans-serif;cursor:pointer}
+.btn-done-sec:hover{border-color:var(--muted)}
+
+/* Confetti */
+.confetti-wrap{position:fixed;inset:0;pointer-events:none;z-index:210;overflow:hidden}
+.cf{position:absolute;top:-10px;width:8px;height:8px;border-radius:2px;animation:cffall linear forwards}
+@keyframes cffall{to{transform:translateY(110vh) rotate(720deg);opacity:0}}
+
+/* Toast */
+.toast{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%) translateY(12px);background:var(--text);color:white;padding:.5rem 1.1rem;border-radius:100px;font-size:.8rem;font-weight:500;white-space:nowrap;z-index:300;opacity:0;transition:all .3s cubic-bezier(.34,1.56,.64,1);pointer-events:none}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* Scrollbar */
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+</style>
+</head>
+<body>
+
+<!-- ── TOPBAR ── -->
+<div class="topbar">
+  <div style="display:flex;align-items:center;gap:1rem">
+    <a class="logo" href="#">
+      <div class="logo-mark">雜</div>雜事房
+    </a>
+    <div style="width:1px;height:22px;background:var(--vid-border)"></div>
+    <div class="session-info">
+      <div class="session-name">晚間雜事衝刺 #3</div>
+      <div class="session-meta">
+        <span>21:00 – 21:50</span>
+        <span class="dsep"></span>
+        <span id="people-count">6 / 8 人</span>
+      </div>
+    </div>
+    <div class="phase-badge">
+      <span class="phase-dot"></span>
+      專注工作中
+    </div>
+  </div>
+
+  <div class="timer-pill">
+    <span class="timer-label">剩餘</span>
+    <span class="timer-digit" id="main-timer">32:47</span>
+  </div>
+
+  <div class="topbar-r">
+    <div class="tb-btn" title="分享螢幕">🖥️</div>
+    <div class="tb-btn" title="成員">👥</div>
+    <div class="tb-btn" title="設定">⚙️</div>
+    <button class="btn-leave" onclick="showLeaveConfirm()">🚪 離開</button>
+  </div>
+</div>
+
+<!-- ── BODY ── -->
+<div class="room-body">
+
+  <!-- ── VIDEO AREA ── -->
+  <div class="video-area">
+
+    <!-- Video Grid -->
+    <div class="video-grid" id="video-grid">
+
+      <!-- Tile 1: 昱芯 (cam on) -->
+      <div class="vid-tile cam-on speaking" id="tile-xinxin">
+        <div class="vid-bg-grad g2"></div>
+        <div class="vid-canvas"></div>
+        <div class="vid-avatar" style="background:#1E3A30;color:#6EC4A7">芯</div>
+        <div class="speaking-ring"></div>
+        <div class="vid-topright">
+          <div class="vid-icon">📹</div>
+        </div>
+        <div class="vid-nameplate">
+          <div>
+            <div class="vid-name">昱芯</div>
+            <div class="vid-task-name">更新護照照片預約</div>
+          </div>
+          <div class="vid-delay-chip delay-amber">拖 22 天</div>
+        </div>
+      </div>
+
+      <!-- Tile 2: 家岳 (cam off) -->
+      <div class="vid-tile" id="tile-yueh">
+        <div class="vid-bg-grad g3"></div>
+        <div class="vid-avatar" style="background:#2A2445;color:#A99AD4">岳</div>
+        <div class="vid-topright">
+          <div class="vid-icon muted">🎤</div>
+          <div class="vid-icon">📵</div>
+        </div>
+        <div class="vid-nameplate">
+          <div>
+            <div class="vid-name">家岳</div>
+            <div class="vid-task-name">整理健保卡與家人保單</div>
+          </div>
+          <div class="vid-delay-chip delay-gray">拖 8 天</div>
+        </div>
+      </div>
+
+      <!-- Tile 3: 柏婷 (cam on, done) -->
+      <div class="vid-tile cam-on done-tile" id="tile-ting">
+        <div class="vid-bg-grad g4"></div>
+        <div class="vid-canvas"></div>
+        <div class="vid-avatar" style="background:#3A2A10;color:#D4A855">婷</div>
+        <div class="done-badge">✓ 已完成</div>
+        <div class="vid-topright">
+          <div class="vid-icon">📹</div>
+        </div>
+        <div class="vid-nameplate">
+          <div>
+            <div class="vid-name">柏婷</div>
+            <div class="vid-task-name">繳交國民年金逾期罰款</div>
+          </div>
+          <div class="vid-delay-chip delay-done">✓ 完成</div>
+        </div>
+      </div>
+
+      <!-- Tile 4: 彥廷 (cam on, speaking) -->
+      <div class="vid-tile cam-on" id="tile-yen">
+        <div class="vid-bg-grad"></div>
+        <div class="vid-canvas"></div>
+        <div class="vid-avatar" style="background:#3A1E15;color:#E8927A">彥</div>
+        <div class="vid-topright">
+          <div class="vid-icon">📹</div>
+        </div>
+        <div class="vid-nameplate">
+          <div>
+            <div class="vid-name">彥廷</div>
+            <div class="vid-task-name">更新勞保投保薪資</div>
+          </div>
+          <div class="vid-delay-chip delay-red">拖 31 天</div>
+        </div>
+      </div>
+
+      <!-- Tile 5: 怡祐 (cam off) -->
+      <div class="vid-tile" id="tile-yu">
+        <div class="vid-bg-grad g5"></div>
+        <div class="vid-avatar" style="background:#1A3028;color:#7EDBB8">祐</div>
+        <div class="vid-topright">
+          <div class="vid-icon">📹</div>
+        </div>
+        <div class="vid-nameplate">
+          <div>
+            <div class="vid-name">怡祐</div>
+            <div class="vid-task-name">回覆房東合約續簽信件</div>
+          </div>
+          <div class="vid-delay-chip delay-amber">拖 14 天</div>
+        </div>
+      </div>
+
+      <!-- Tile 6: empty -->
+      <div class="vid-tile" style="border-style:dashed;border:2px dashed rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:.4rem;background:rgba(255,255,255,.02)">
+        <div style="font-size:1.5rem;opacity:.2">＋</div>
+        <div style="font-size:.72rem;color:rgba(255,255,255,.2)">空位 · 尚可加入</div>
+      </div>
+
+    </div><!-- /video-grid -->
+
+    <!-- Self view PiP -->
+    <div class="self-view" title="點擊切換攝影機">
+      <div class="self-view-inner">
+        <div class="self-av">宇</div>
+      </div>
+      <div class="self-view-label"><span class="self-me">你</span> · 申辦節能補助</div>
+    </div>
+
+    <!-- Bottom controls -->
+    <div class="vid-controls">
+      <div class="vid-controls-l">
+        <div class="prog-mini">
+          <span class="prog-mini-label">進度</span>
+          <div class="prog-mini-segs">
+            <div class="prog-mini-seg active"></div>
+            <div class="prog-mini-seg"></div>
+            <div class="prog-mini-seg"></div>
+            <div class="prog-mini-seg"></div>
+            <div class="prog-mini-seg"></div>
+          </div>
+          <span style="font-size:.62rem;color:rgba(255,255,255,.35)">1/5</span>
+        </div>
+      </div>
+
+      <div class="vc-btn active" id="btn-mic" onclick="toggleCtrl(this,'mic')">
+        <div class="vc-icon">🎤</div>
+        <div class="vc-label">靜音</div>
+      </div>
+      <div class="vc-btn" id="btn-cam" onclick="toggleCam()">
+        <div class="vc-icon">📹</div>
+        <div class="vc-label">關閉鏡頭</div>
+      </div>
+      <div class="vc-btn" id="btn-screen" onclick="toggleCtrl(this,'screen')">
+        <div class="vc-icon">🖥️</div>
+        <div class="vc-label">分享螢幕</div>
+      </div>
+      <div class="vc-btn" id="btn-blur" onclick="toggleCtrl(this,'blur')">
+        <div class="vc-icon">🌫️</div>
+        <div class="vc-label">背景模糊</div>
+      </div>
+      <div class="vc-btn" id="btn-react" onclick="sendVideoReact()">
+        <div class="vc-icon">🎉</div>
+        <div class="vc-label">反應</div>
+      </div>
+
+      <div class="vid-controls-r">
+        <button class="vc-end" onclick="showLeaveConfirm()">結束並離開</button>
+      </div>
+    </div>
+
+  </div><!-- /video-area -->
+
+  <!-- ── RIGHT PANEL ── -->
+  <div class="right-panel">
+    <div class="panel-tabs">
+      <button class="ptab active" onclick="switchPanel(this,'task')">📋 任務</button>
+      <button class="ptab" onclick="switchPanel(this,'chat')">💬 聊天</button>
+      <button class="ptab" onclick="switchPanel(this,'stats')">📊 統計</button>
+    </div>
+
+    <!-- TASK PANE -->
+    <div class="panel-content" id="pane-task">
+      <div class="task-pane">
+
+        <!-- Progress -->
+        <div class="prog-strip">
+          <span class="prog-strip-label">場次</span>
+          <div class="prog-segs">
+            <div class="prog-seg"><div class="prog-seg-fill seg-active-c" style="width:65%"></div></div>
+            <div class="prog-seg"><div class="prog-seg-fill" style="width:0"></div></div>
+            <div class="prog-seg"><div class="prog-seg-fill" style="width:0"></div></div>
+            <div class="prog-seg"><div class="prog-seg-fill" style="width:0"></div></div>
+            <div class="prog-seg"><div class="prog-seg-fill" style="width:0"></div></div>
+          </div>
+          <span style="font-size:.65rem;color:var(--light);flex-shrink:0">第 1 / 5 段</span>
+        </div>
+
+        <!-- My task -->
+        <div class="my-task-card">
+          <div class="mtc-header">
+            <div class="mtc-label">📌 我的任務</div>
+            <div class="mtc-status"><span class="phase-dot" style="background:var(--forest)"></span>進行中</div>
+          </div>
+          <div class="mtc-title">申辦數位部節能補助</div>
+          <div class="mtc-delay">已拖延 <strong>45 天</strong> · 文件行政</div>
+          <ul class="checklist" id="cl">
+            <li class="cl-item checked" onclick="toggleCheck(this)">
+              <div class="cl-check">✓</div>
+              <div class="cl-text">找出節能評估報告</div>
+            </li>
+            <li class="cl-item checked" onclick="toggleCheck(this)">
+              <div class="cl-check">✓</div>
+              <div class="cl-text">確認補助資格</div>
+            </li>
+            <li class="cl-item" onclick="toggleCheck(this)">
+              <div class="cl-check"></div>
+              <div class="cl-text">填寫線上申請表格</div>
+            </li>
+            <li class="cl-item" onclick="toggleCheck(this)">
+              <div class="cl-check"></div>
+              <div class="cl-text">上傳用電帳單佐證</div>
+            </li>
+            <li class="cl-item" onclick="toggleCheck(this)">
+              <div class="cl-check"></div>
+              <div class="cl-text">送出申請並截圖確認</div>
+            </li>
+          </ul>
+          <div class="mtc-foot">
+            <button class="btn-done" id="done-btn" onclick="markDone()">🎉 完成任務！</button>
+            <button class="btn-edit">改</button>
+          </div>
+        </div>
+
+        <!-- Others -->
+        <div>
+          <div class="others-label">其他成員</div>
+          <div class="other-task-item">
+            <div class="oti-top">
+              <div class="oti-av" style="background:#DFF0E9;color:#4A7260">芯</div>
+              <div class="oti-name">昱芯</div>
+              <div class="oti-chip"><span class="vid-delay-chip delay-amber" style="font-size:.63rem;padding:.08rem .4rem;border-radius:3px;background:var(--amber-lt);color:var(--amber);font-weight:600">拖 22 天</span></div>
+            </div>
+            <div class="oti-task">更新護照照片預約，找到預約系統選好時段</div>
+          </div>
+          <div class="other-task-item oti-done">
+            <div class="oti-top">
+              <div class="oti-av" style="background:#F7EDD8;color:#B87C20">婷</div>
+              <div class="oti-name">柏婷</div>
+              <div class="oti-chip"><span style="font-size:.63rem;background:var(--forest-lt);color:var(--forest);padding:.08rem .4rem;border-radius:3px;font-weight:700">✓ 完成</span></div>
+            </div>
+            <div class="oti-task">繳交國民年金逾期罰款</div>
+          </div>
+          <div class="other-task-item">
+            <div class="oti-top">
+              <div class="oti-av" style="background:#EEEAF8;color:#7062A3">岳</div>
+              <div class="oti-name">家岳</div>
+              <div class="oti-chip"><span class="vid-delay-chip" style="font-size:.63rem;padding:.08rem .4rem;border-radius:3px;background:var(--cream-dd);color:var(--muted);font-weight:600">拖 8 天</span></div>
+            </div>
+            <div class="oti-task">整理健保卡與家人保單資料</div>
+          </div>
+          <div class="other-task-item">
+            <div class="oti-top">
+              <div class="oti-av" style="background:#F5E8E2;color:#C4603A">彥</div>
+              <div class="oti-name">彥廷</div>
+              <div class="oti-chip"><span style="font-size:.63rem;background:#FEE8E8;color:#C13B3B;padding:.08rem .4rem;border-radius:3px;font-weight:600">拖 31 天</span></div>
+            </div>
+            <div class="oti-task">更新勞保投保薪資資料</div>
+          </div>
+          <div class="other-task-item">
+            <div class="oti-top">
+              <div class="oti-av" style="background:#DFF0E9;color:#4A7260">祐</div>
+              <div class="oti-name">怡祐</div>
+              <div class="oti-chip"><span class="vid-delay-chip" style="font-size:.63rem;padding:.08rem .4rem;border-radius:3px;background:var(--amber-lt);color:var(--amber);font-weight:600">拖 14 天</span></div>
+            </div>
+            <div class="oti-task">回覆房東關於合約續簽的信件</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- CHAT PANE -->
+    <div class="panel-content" id="pane-chat" style="display:none">
+      <div class="chat-pane">
+        <div class="chat-messages" id="chat-msgs">
+          <div class="chat-msg system"><div class="system-msg">場次已開始，大家加油！💪</div></div>
+          <div class="chat-msg">
+            <div class="cm-av" style="background:#DFF0E9;color:#4A7260">芯</div>
+            <div class="cm-body">
+              <div class="cm-name">昱芯</div>
+              <div class="cm-bubble">護照系統有點慢，先填好表了👍</div>
+            </div>
+          </div>
+          <div class="chat-msg">
+            <div class="cm-av" style="background:#F7EDD8;color:#B87C20">婷</div>
+            <div class="cm-body">
+              <div class="cm-name">柏婷</div>
+              <div class="cm-bubble">繳完了！比我想的快多了 😭</div>
+              <div class="react-row">
+                <button class="react-pill" onclick="addReact(this,'🎉')">🎉 2</button>
+                <button class="react-pill" onclick="addReact(this,'👏')">👏 1</button>
+              </div>
+            </div>
+          </div>
+          <div class="chat-msg system"><div class="system-msg">🎊 柏婷 完成任務！</div></div>
+          <div class="chat-msg me">
+            <div class="cm-body" style="text-align:right">
+              <div class="cm-name" style="text-align:right">我</div>
+              <div class="cm-bubble">找到補助網站了，表格有點多</div>
+            </div>
+          </div>
+        </div>
+        <div class="chat-input-area">
+          <div class="chat-quick">
+            <button class="qbtn" onclick="quickSend(this)">加油💪</button>
+            <button class="qbtn" onclick="quickSend(this)">完成了🎉</button>
+            <button class="qbtn" onclick="quickSend(this)">還在搞…</button>
+            <button class="qbtn" onclick="quickSend(this)">👍</button>
+          </div>
+          <div class="chat-field">
+            <input class="chat-input" id="chat-inp" placeholder="說點什麼…" onkeydown="chatEnter(event)">
+            <button class="chat-send" onclick="sendMsg()">↑</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STATS PANE -->
+    <div class="panel-content" id="pane-stats" style="display:none">
+      <div class="stats-pane">
+        <div class="stat-block" style="text-align:center">
+          <div class="streak-fire">🔥</div>
+          <div class="streak-num">7</div>
+          <div class="streak-label">週連續完成記錄</div>
+        </div>
+        <div class="stat-block">
+          <div class="stat-block-label">本場次</div>
+          <div class="stat-row"><div class="stat-name">已參與時間</div><div class="stat-value">17 分鐘</div></div>
+          <div class="stat-row"><div class="stat-name">任務進度</div><div class="stat-value">2 / 5 項</div></div>
+        </div>
+        <div class="stat-block">
+          <div class="stat-block-label">累積成就</div>
+          <div class="stat-row"><div class="stat-name">歷史完成場次</div><div class="stat-value green">23 場</div></div>
+          <div class="stat-row"><div class="stat-name">完成雜事件數</div><div class="stat-value green">31 件</div></div>
+          <div class="stat-row"><div class="stat-name">平均拖延天數</div><div class="stat-value">18 天</div></div>
+        </div>
+        <div class="stat-block">
+          <div class="stat-block-label">本週進度</div>
+          <div class="stat-row"><div class="stat-name">週一</div><div class="stat-value green">✓ 1 件</div></div>
+          <div class="stat-row"><div class="stat-name">週三</div><div class="stat-value green">✓ 2 件</div></div>
+          <div class="stat-row"><div class="stat-name">今日</div><div class="stat-value" style="color:var(--tc)">進行中</div></div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /right-panel -->
+</div><!-- /room-body -->
+
+<!-- DONE OVERLAY -->
+<div class="done-overlay" id="done-overlay" onclick="closeDoneIfBg(event)">
+  <div class="done-card">
+    <div class="done-emoji">🎉</div>
+    <div class="done-title">任務完成！</div>
+    <div class="done-sub">申辦數位部節能補助<br>你拖了 <strong style="color:var(--tc)">45 天</strong>，今天搞定了。</div>
+    <div class="done-stat-row">
+      <div class="done-stat"><div class="done-stat-n">45</div><div class="done-stat-l">拖延天數</div></div>
+      <div class="done-stat"><div class="done-stat-n">23</div><div class="done-stat-l">歷史場次</div></div>
+      <div class="done-stat"><div class="done-stat-n">7🔥</div><div class="done-stat-l">週連勝</div></div>
+    </div>
+    <div class="done-btns">
+      <button class="btn-done-main" onclick="closeDone()">繼續陪大家到結束 💪</button>
+      <button class="btn-done-sec" onclick="leaveNow()">留下感言然後離開</button>
+    </div>
+  </div>
+</div>
+<div class="confetti-wrap" id="confetti"></div>
+<div class="toast" id="toast"></div>
+
+<script>
+// ── Timer ──
+let totalSecs = 32*60+47;
+const timerEl = document.getElementById('main-timer');
+setInterval(()=>{
+  if(totalSecs>0)totalSecs--;
+  const m=Math.floor(totalSecs/60),s=totalSecs%60;
+  timerEl.textContent=(m<10?'0':'')+m+':'+(s<10?'0':'')+s;
+},1000);
+
+// ── Checklist ──
+function toggleCheck(el){
+  el.classList.toggle('checked');
+  el.querySelector('.cl-check').textContent=el.classList.contains('checked')?'✓':'';
+  updateDoneBtn();
+}
+function updateDoneBtn(){
+  const all=document.querySelectorAll('.cl-item'),done=document.querySelectorAll('.cl-item.checked');
+  const btn=document.getElementById('done-btn');
+  if(done.length===all.length){btn.classList.add('all-done');btn.textContent='🎉 全部完成！送出';}
+  else{btn.classList.remove('all-done');btn.textContent='🎉 完成任務！';}
+}
+
+// ── Camera toggle ──
+let camOn=false;
+function toggleCam(){
+  camOn=!camOn;
+  const self=document.querySelector('.self-view .self-view-inner');
+  const btn=document.getElementById('btn-cam');
+  if(camOn){
+    self.style.background='linear-gradient(145deg,#2A1F1A,#1A1310)';
+    btn.querySelector('.vc-label').textContent='關閉鏡頭';
+    btn.classList.remove('active');
+    showToast('攝影機已開啟');
+  } else {
+    self.style.background='';
+    btn.querySelector('.vc-label').textContent='開啟鏡頭';
+    btn.classList.add('active');
+    showToast('攝影機已關閉');
+  }
+}
+
+// ── Generic control toggle ──
+function toggleCtrl(btn,type){
+  btn.classList.toggle('active');
+  const label=btn.querySelector('.vc-label');
+  const labels={
+    mic:{on:'取消靜音',off:'靜音'},
+    screen:{on:'停止分享',off:'分享螢幕'},
+    blur:{on:'取消模糊',off:'背景模糊'},
+  };
+  const isActive=btn.classList.contains('active');
+  if(labels[type]){
+    label.textContent=isActive?labels[type].on:labels[type].off;
+  }
+}
+
+// ── Video reactions ──
+const reacts=['🎉','👍','😅','💪','🔥','✅'];
+function sendVideoReact(){
+  const emoji=reacts[Math.floor(Math.random()*reacts.length)];
+  floatReact(emoji, '你');
+}
+function floatReact(emoji,name){
+  const wrap=document.getElementById('video-grid');
+  const el=document.createElement('div');
+  el.style.cssText=`position:absolute;left:${15+Math.random()*70}%;bottom:20%;z-index:50;font-size:2rem;pointer-events:none;animation:floatUp 2s ease-out forwards;`;
+  el.textContent=emoji;
+  wrap.appendChild(el);
+  setTimeout(()=>el.remove(),2100);
+}
+// Add keyframe for floating
+const style=document.createElement('style');
+style.textContent='@keyframes floatUp{0%{opacity:1;transform:translateY(0) scale(1)}100%{opacity:0;transform:translateY(-120px) scale(1.3)}}';
+document.head.appendChild(style);
+
+// ── Speaking indicator simulation ──
+const speakingTiles=['tile-xinxin','tile-yen','tile-yu'];
+let currentSpeaker=null;
+setInterval(()=>{
+  if(Math.random()>.55){
+    if(currentSpeaker){document.getElementById(currentSpeaker)?.classList.remove('speaking')}
+    const next=speakingTiles[Math.floor(Math.random()*speakingTiles.length)];
+    document.getElementById(next)?.classList.add('speaking');
+    currentSpeaker=next;
+  }
+},3500);
+
+// ── Mark Done ──
+function markDone(){
+  document.getElementById('done-overlay').classList.add('show');
+  launchConfetti();
+  addSystemMsg('🎊 你完成了任務！');
+  floatReact('🎉','你');
+}
+function closeDone(){document.getElementById('done-overlay').classList.remove('show');showToast('繼續加油！💪')}
+function closeDoneIfBg(e){if(e.target===document.getElementById('done-overlay'))closeDone()}
+function leaveNow(){closeDone();showToast('感謝參與，再見！')}
+function showLeaveConfirm(){if(confirm('確定要離開這個場次嗎？'))showToast('你已離開場次')}
+
+// ── Confetti ──
+function launchConfetti(){
+  const wrap=document.getElementById('confetti');wrap.innerHTML='';
+  const colors=['#C4603A','#4A7260','#7062A3','#B87C20','#FAF7F2'];
+  for(let i=0;i<60;i++){
+    const cf=document.createElement('div');cf.className='cf';
+    cf.style.left=Math.random()*100+'vw';
+    cf.style.background=colors[Math.floor(Math.random()*colors.length)];
+    cf.style.animationDuration=(Math.random()*1.5+1)+'s';
+    cf.style.animationDelay=(Math.random()*.8)+'s';
+    cf.style.width=(Math.random()*6+5)+'px';cf.style.height=cf.style.width;
+    wrap.appendChild(cf);
+  }
+  setTimeout(()=>wrap.innerHTML='',3000);
+}
+
+// ── Chat ──
+function chatEnter(e){if(e.key==='Enter')sendMsg()}
+function sendMsg(){
+  const inp=document.getElementById('chat-inp'),text=inp.value.trim();
+  if(!text)return;
+  addMsgToChat(text,true);inp.value='';
+  if(Math.random()>.5){
+    setTimeout(()=>{
+      const replies=['加油！','棒！','快了👍','厲害！','我也差不多了'];
+      const names=[{n:'昱芯',bg:'#DFF0E9',c:'#4A7260'},{n:'家岳',bg:'#EEEAF8',c:'#7062A3'}];
+      const r=names[Math.floor(Math.random()*names.length)];
+      addReplyMsg(r.n,r.bg,r.c,replies[Math.floor(Math.random()*replies.length)]);
+    },1500+Math.random()*2000);
+  }
+}
+function quickSend(btn){addMsgToChat(btn.textContent,true)}
+function addMsgToChat(text,isMe){
+  const msgs=document.getElementById('chat-msgs'),div=document.createElement('div');
+  div.className='chat-msg'+(isMe?' me':'');
+  div.innerHTML=isMe?`<div class="cm-body" style="text-align:right"><div class="cm-name" style="text-align:right">我</div><div class="cm-bubble">${text}</div></div>`:'';
+  msgs.appendChild(div);msgs.scrollTop=msgs.scrollHeight;
+}
+function addReplyMsg(name,bg,color,text){
+  const msgs=document.getElementById('chat-msgs'),div=document.createElement('div');
+  div.className='chat-msg';
+  div.innerHTML=`<div class="cm-av" style="background:${bg};color:${color}">${name[0]}</div><div class="cm-body"><div class="cm-name">${name}</div><div class="cm-bubble">${text}</div></div>`;
+  msgs.appendChild(div);msgs.scrollTop=msgs.scrollHeight;
+}
+function addSystemMsg(text){
+  const msgs=document.getElementById('chat-msgs'),div=document.createElement('div');
+  div.className='chat-msg system';div.innerHTML=`<div class="system-msg">${text}</div>`;
+  msgs.appendChild(div);msgs.scrollTop=msgs.scrollHeight;
+}
+function addReact(btn,emoji){
+  const num=parseInt(btn.textContent.replace(emoji,'').trim())+1;
+  btn.textContent=emoji+' '+num;
+}
+
+// ── Panel tabs ──
+function switchPanel(btn,pane){
+  document.querySelectorAll('.ptab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  ['task','chat','stats'].forEach(p=>document.getElementById('pane-'+p).style.display=p===pane?'':'none');
+}
+
+// ── Toast ──
+function showToast(msg){
+  const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2500);
+}
+
+// ── Simulate activity ──
+const simNames=[{name:'昱芯',bg:'#DFF0E9',c:'#4A7260'},{name:'家岳',bg:'#EEEAF8',c:'#7062A3'},{name:'彥廷',bg:'#F5E8E2',c:'#C4603A'}];
+const simMsgs=['快完成了！','找到了👍','這個比我想的複雜…','搞定一個步驟','等等有問題'];
+setInterval(()=>{
+  if(Math.random()>.65){
+    const p=simNames[Math.floor(Math.random()*simNames.length)];
+    addReplyMsg(p.name,p.bg,p.c,simMsgs[Math.floor(Math.random()*simMsgs.length)]);
+  }
+},14000);
+
+// Occasional reaction float
+setInterval(()=>{
+  if(Math.random()>.75){
+    const emojis=['💪','👍','😅'];
+    floatReact(emojis[Math.floor(Math.random()*emojis.length)],'');
+  }
+},18000);
+</script>
+</body>
+</html>
