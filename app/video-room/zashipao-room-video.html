@@ -351,6 +351,37 @@ h1,h2,h3,h4{font-family:'Noto Serif TC',serif}
 .btn-done-sec{background:transparent;color:var(--muted);border:1.5px solid var(--border);padding:.62rem 1.5rem;border-radius:100px;font-size:.85rem;font-family:'Noto Sans TC',sans-serif;cursor:pointer}
 .btn-done-sec:hover{border-color:var(--muted)}
 
+/* ── INVITE MODAL ── */
+.empty-seat{
+  border:2px dashed rgba(255,255,255,.16)!important;
+  background:rgba(255,255,255,.025)!important;
+  flex-direction:column;gap:.45rem;color:white;
+  cursor:pointer;appearance:none;font-family:'Noto Sans TC',sans-serif;
+}
+.empty-seat:hover{border-color:rgba(196,96,58,.55)!important;background:rgba(196,96,58,.08)!important}
+.empty-seat:focus-visible{outline:3px solid rgba(196,96,58,.45);outline-offset:3px}
+.empty-seat-plus{font-size:1.7rem;opacity:.35;line-height:1}
+.empty-seat-label{font-size:.76rem;color:rgba(255,255,255,.34);font-weight:600}
+.empty-seat:hover .empty-seat-plus,.empty-seat:hover .empty-seat-label{opacity:1;color:rgba(255,255,255,.86)}
+.invite-overlay{position:fixed;inset:0;background:rgba(22,17,14,.78);backdrop-filter:blur(10px);z-index:220;display:flex;align-items:center;justify-content:center;padding:1rem;opacity:0;pointer-events:none;transition:opacity .25s}
+.invite-overlay.show{opacity:1;pointer-events:all}
+.invite-card{width:min(420px,100%);background:var(--cream);border:1px solid rgba(255,255,255,.16);border-radius:var(--r-xl);box-shadow:0 24px 80px rgba(0,0,0,.42);padding:1.35rem;transform:translateY(12px) scale(.96);transition:transform .25s cubic-bezier(.34,1.56,.64,1)}
+.invite-overlay.show .invite-card{transform:translateY(0) scale(1)}
+.invite-top{display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;margin-bottom:.85rem}
+.invite-kicker{font-size:.68rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--tc);margin-bottom:.2rem}
+.invite-title{font-family:'Noto Serif TC',serif;font-size:1.25rem;font-weight:900;color:var(--text)}
+.invite-close{width:32px;height:32px;border-radius:50%;border:1.5px solid var(--border);background:white;color:var(--muted);font-size:1rem;cursor:pointer}
+.invite-close:hover{border-color:var(--tc);color:var(--tc)}
+.invite-copy{display:flex;gap:.45rem;background:white;border:1.5px solid var(--border);border-radius:var(--r);padding:.45rem;margin:.95rem 0}
+.invite-link{flex:1;border:none;background:transparent;color:var(--muted);font-size:.78rem;font-family:'Noto Sans TC',sans-serif;min-width:0;outline:none}
+.invite-copy-btn{background:var(--tc);color:white;border:none;border-radius:var(--r-sm);padding:.4rem .8rem;font-size:.78rem;font-weight:700;font-family:'Noto Sans TC',sans-serif;cursor:pointer;white-space:nowrap}
+.invite-copy-btn:hover{background:var(--tc-d)}
+.invite-note{font-size:.78rem;color:var(--muted);line-height:1.6}
+.invite-actions{display:flex;gap:.5rem;margin-top:1rem}
+.invite-action{flex:1;text-align:center;text-decoration:none;border-radius:100px;padding:.55rem .9rem;font-size:.82rem;font-weight:700;font-family:'Noto Sans TC',sans-serif}
+.invite-action.primary{background:var(--forest);color:white}
+.invite-action.secondary{background:white;color:var(--muted);border:1.5px solid var(--border)}
+
 /* Confetti */
 .confetti-wrap{position:fixed;inset:0;pointer-events:none;z-index:210;overflow:hidden}
 .cf{position:absolute;top:-10px;width:8px;height:8px;border-radius:2px;animation:cffall linear forwards}
@@ -498,10 +529,10 @@ h1,h2,h3,h4{font-family:'Noto Serif TC',serif}
       </div>
 
       <!-- Tile 6: empty -->
-      <div class="vid-tile" style="border-style:dashed;border:2px dashed rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:.4rem;background:rgba(255,255,255,.02)">
-        <div style="font-size:1.5rem;opacity:.2">＋</div>
-        <div style="font-size:.72rem;color:rgba(255,255,255,.2)">空位 · 尚可加入</div>
-      </div>
+      <button class="vid-tile empty-seat" type="button" onclick="openInviteModal()" aria-label="邀請朋友加入空位">
+        <div class="empty-seat-plus">＋</div>
+        <div class="empty-seat-label">空位 · 尚可加入</div>
+      </button>
 
     </div><!-- /video-grid -->
 
@@ -763,6 +794,28 @@ h1,h2,h3,h4{font-family:'Noto Serif TC',serif}
 <div class="confetti-wrap" id="confetti"></div>
 <div class="toast" id="toast"></div>
 
+<!-- INVITE MODAL -->
+<div class="invite-overlay" id="invite-overlay" onclick="closeInviteIfBg(event)">
+  <div class="invite-card" role="dialog" aria-modal="true" aria-labelledby="invite-title">
+    <div class="invite-top">
+      <div>
+        <div class="invite-kicker">Invite</div>
+        <div class="invite-title" id="invite-title">邀請朋友加入雜事房</div>
+      </div>
+      <button class="invite-close" type="button" onclick="closeInviteModal()" aria-label="關閉邀請視窗">×</button>
+    </div>
+    <p class="invite-note">把這個連結傳給朋友，他們就可以加入這場晚間雜事衝刺。</p>
+    <div class="invite-copy">
+      <input class="invite-link" id="invite-link" type="text" readonly value="">
+      <button class="invite-copy-btn" type="button" onclick="copyInviteLink()">複製</button>
+    </div>
+    <div class="invite-actions">
+      <a class="invite-action primary" id="invite-line" href="#" target="_blank" rel="noopener">用 LINE 傳送</a>
+      <a class="invite-action secondary" id="invite-mail" href="#">Email</a>
+    </div>
+  </div>
+</div>
+
 <script>
 // ── Timer ──
 let totalSecs = 32*60+47;
@@ -862,6 +915,31 @@ function closeDone(){document.getElementById('done-overlay').classList.remove('s
 function closeDoneIfBg(e){if(e.target===document.getElementById('done-overlay'))closeDone()}
 function leaveNow(){closeDone();showToast('感謝參與，再見！')}
 function showLeaveConfirm(){if(confirm('確定要離開這個場次嗎？'))showToast('你已離開場次')}
+
+// ── Invite modal ──
+function getInviteLink(){
+  const url=new URL(window.location.href);
+  url.searchParams.set('invite','room-3');
+  return url.toString();
+}
+function openInviteModal(){
+  const link=getInviteLink();
+  document.getElementById('invite-link').value=link;
+  document.getElementById('invite-line').href='https://line.me/R/share?text='+encodeURIComponent('一起來雜事房完成待辦：'+link);
+  document.getElementById('invite-mail').href='mailto:?subject='+encodeURIComponent('邀請你加入雜事房')+'&body='+encodeURIComponent('一起來雜事房完成待辦：\n'+link);
+  document.getElementById('invite-overlay').classList.add('show');
+}
+function closeInviteModal(){document.getElementById('invite-overlay').classList.remove('show')}
+function closeInviteIfBg(e){if(e.target===document.getElementById('invite-overlay'))closeInviteModal()}
+function copyInviteLink(){
+  const input=document.getElementById('invite-link');
+  input.select();input.setSelectionRange(0,99999);
+  const fallback=()=>{document.execCommand('copy');showToast('邀請連結已複製')};
+  if(navigator.clipboard&&window.isSecureContext){
+    navigator.clipboard.writeText(input.value).then(()=>showToast('邀請連結已複製')).catch(fallback);
+  }else fallback();
+}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeInviteModal()});
 
 // ── Confetti ──
 function launchConfetti(){
