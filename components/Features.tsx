@@ -26,10 +26,10 @@ const features = [
     badgeClass: "bg-lavender-lt text-lavender"
   },
   {
-    icon: "🗂",
+    icon: "🌿",
     iconClass: "bg-lavender-lt",
-    title: "雜事分類系統",
-    description: "文件行政、健康醫療、財務、家務、社交——找到跟你做同類型雜事的人一起衝。"
+    title: "短暫互相交代，主要時間安靜做",
+    description: "開場說一下這場要完成什麼，結束回報進度就能離開。想多聊的人，可以再留下來分享五分鐘。"
   },
   {
     icon: "🟢",
@@ -40,12 +40,10 @@ const features = [
     badgeClass: "bg-forest-lt text-forest"
   },
   {
-    icon: "🌙",
+    icon: "🪑",
     iconClass: "bg-cream-dd",
-    title: "台灣時區場次",
-    description: "早晨、午休、下班後、夜間四個時段，每天 10+ 場次，UTC+8 優先設計，不用配合美國時間。",
-    badge: "台灣在地",
-    badgeClass: "bg-forest-lt text-forest"
+    title: "每個人處理自己的事",
+    description: "同一個房間裡，不需要做同類型雜事。有人填表、有人預約、有人整理帳單，重點是一起開始。"
   }
 ];
 
@@ -55,12 +53,11 @@ export function Features() {
       <div className="mx-auto max-w-6xl">
         <SectionHeading
           label="雜事房專屬功能"
-          title="不只是共同工作空間"
+          title="不是工作生產力工具，是生活雜事的完成場"
           subtitle={
             <>
-              Flow Club 適合工作。雜事房專門為
-              <em className="font-bold not-italic">生活中被擠掉的那些事</em>
-              設計。
+              專門處理那些沒有天然 deadline、但一直卡在心裡的事：
+              <em className="font-bold not-italic">不難，卻很容易被生活擠掉。</em>
             </>
           }
         />
