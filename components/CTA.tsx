@@ -21,7 +21,7 @@ export function CTA() {
           <br />
           不需要下載 app，打開瀏覽器就能開始。
         </p>
-        <ButtonLink href="/signup" variant="white" className="px-9 py-3.5 text-base font-bold">
+        <ButtonLink href="/login" variant="white" className="px-9 py-3.5 text-base font-bold">
           免費加入，今晚就開始
         </ButtonLink>
         <div className="mt-4 text-sm text-white/60">完全免費 · 不需要信用卡 · 隨時可以取消</div>

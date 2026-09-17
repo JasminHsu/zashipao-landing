@@ -10,7 +10,7 @@ export function LineBand() {
           <div className="text-sm opacity-85">開場前 10 分鐘推播通知，從不讓你忘記自己預約的雜事時間</div>
         </div>
       </div>
-      <a href="/signup" className="whitespace-nowrap rounded-full bg-white px-5 py-2.5 text-sm font-bold text-[#06C755] no-underline">
+      <a href="/login" className="whitespace-nowrap rounded-full bg-white px-5 py-2.5 text-sm font-bold text-[#06C755] no-underline">
         加入 LINE 帳號
       </a>
     </div>

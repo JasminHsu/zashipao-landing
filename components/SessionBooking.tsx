@@ -13,10 +13,16 @@ type Session = {
   endTime: string;
   day: string;
   title: string;
-  tone: string;
   spots: string;
   status: "open" | "live" | "almost";
-  tags: string[];
+};
+
+type SessionTemplate = {
+  id: string;
+  time: string;
+  endTime: string;
+  title: string;
+  status: "open" | "live" | "almost";
 };
 
 type BookableTask = {
@@ -32,52 +38,54 @@ type SessionBookingProps = {
   initialStep?: BookingStep;
 };
 
-const sessions: Session[] = [
+const sessionTemplates: SessionTemplate[] = [
   {
     id: "evening-21",
     time: "21:00",
     endTime: "21:50",
-    day: "今晚",
     title: "晚間雜事衝刺",
-    tone: "下班後，把今天一直避開的事收掉",
-    spots: "6 / 8 人",
-    status: "open",
-    tags: ["文件行政", "健康醫療", "財務"]
+    status: "open"
   },
   {
     id: "night-22",
     time: "22:00",
     endTime: "22:50",
-    day: "今晚",
     title: "睡前清空場",
-    tone: "適合小事連發：預約、回覆、退款、整理",
-    spots: "3 / 8 人",
-    status: "open",
-    tags: ["購物退款", "家務整理"]
+    status: "open"
   },
   {
     id: "morning-07",
     time: "07:00",
     endTime: "07:50",
-    day: "明早",
     title: "出門前做一件事",
-    tone: "用一件小事開局，不把雜事帶進白天",
-    spots: "2 / 8 人",
-    status: "almost",
-    tags: ["文件行政", "家庭行政"]
+    status: "almost"
   },
   {
     id: "lunch-12",
     time: "12:00",
     endTime: "12:50",
-    day: "明日午休",
-    title: "午休生活行政快攻",
-    tone: "50 分鐘，處理那些要打電話或填表的事",
-    spots: "5 / 8 人",
-    status: "open",
-    tags: ["健康醫療", "財務"]
+    title: "午休雜事場",
+    status: "open"
   }
 ];
+
+const weekdayFormatter = new Intl.DateTimeFormat("zh-TW", { weekday: "short" });
+
+function getDateFilterLabel(offset: number) {
+  const date = new Date();
+  date.setDate(date.getDate() + offset);
+  const month = date.getMonth() + 1;
+  const day = date.getDate();
+  const weekday = weekdayFormatter.format(date);
+  const prefix = offset === 0 ? "今天" : offset === 1 ? "明天" : weekday;
+
+  return `${prefix} ${month}/${day}`;
+}
+
+function getSpots(templateIndex: number, dateOffset: number) {
+  const taken = ((templateIndex + dateOffset * 2) % 5) + 1;
+  return `${taken} / 6 人`;
+}
 
 const initialTasks: BookableTask[] = [
   {
@@ -123,11 +131,11 @@ const initialTasks: BookableTask[] = [
 ];
 
 const priorityStyle: Record<Priority, { label: string; className: string; sort: number }> = {
-  now: { label: "先做", className: "bg-terracotta-lt text-terracotta", sort: 1 },
-  soon: { label: "快到期", className: "bg-[#FCEBEB] text-[#E24B4A]", sort: 2 },
-  quick: { label: "順手", className: "bg-forest-lt text-forest", sort: 3 },
-  split: { label: "拆小", className: "bg-lavender-lt text-lavender", sort: 4 },
-  later: { label: "晚點", className: "bg-cream-dd text-muted", sort: 5 }
+  now: { label: "最急", className: "bg-[#FCEBEB] text-[#E24B4A]", sort: 1 },
+  soon: { label: "快到期", className: "bg-terracotta-lt text-terracotta", sort: 2 },
+  quick: { label: "期限較鬆", className: "bg-forest-lt text-forest", sort: 3 },
+  split: { label: "需要拆步驟", className: "bg-lavender-lt text-lavender", sort: 4 },
+  later: { label: "不急", className: "bg-cream-dd text-muted", sort: 5 }
 };
 
 const statusCopy = {
@@ -138,17 +146,32 @@ const statusCopy = {
 
 export function SessionBooking({ initialStep = "sessions" }: SessionBookingProps) {
   const [step, setStep] = useState<BookingStep>(initialStep);
-  const [selectedSessionId, setSelectedSessionId] = useState(sessions[0].id);
+  const [selectedSessionId, setSelectedSessionId] = useState(`${sessionTemplates[0].id}-0`);
+  const [selectedDateOffset, setSelectedDateOffset] = useState(0);
   const [tasks, setTasks] = useState(initialTasks);
   const [selectedTaskIds, setSelectedTaskIds] = useState<number[]>([1, 4]);
   const [adHocTitle, setAdHocTitle] = useState("");
   const [confirmed, setConfirmed] = useState(false);
 
-  const selectedSession = sessions.find((session) => session.id === selectedSessionId) ?? sessions[0];
+  const dateFilters = useMemo(
+    () => Array.from({ length: 14 }, (_, offset) => ({ id: offset, label: getDateFilterLabel(offset) })),
+    []
+  );
   const sortedTasks = useMemo(
     () => [...tasks].sort((a, b) => priorityStyle[a.priority].sort - priorityStyle[b.priority].sort),
     [tasks]
   );
+  const visibleSessions = useMemo(
+    () =>
+      sessionTemplates.map((session, index) => ({
+        ...session,
+        id: `${session.id}-${selectedDateOffset}`,
+        day: getDateFilterLabel(selectedDateOffset),
+        spots: getSpots(index, selectedDateOffset)
+      })),
+    [selectedDateOffset]
+  );
+  const selectedSession = visibleSessions.find((session) => session.id === selectedSessionId) ?? visibleSessions[0];
   const selectedTasks = tasks.filter((task) => selectedTaskIds.includes(task.id));
   const hardTaskSelected = selectedTasks.some((task) => task.priority === "split");
   const selectionFeelsHeavy = selectedTasks.length > 3 || (hardTaskSelected && selectedTasks.length > 1);
@@ -166,7 +189,7 @@ export function SessionBooking({ initialStep = "sessions" }: SessionBookingProps
     setStep("commitment");
   }
 
-  function addAdHocTask(event: FormEvent<HTMLFormElement>) {
+function addAdHocTask(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const trimmedTitle = adHocTitle.trim();
     if (!trimmedTitle) return;
@@ -184,6 +207,23 @@ export function SessionBooking({ initialStep = "sessions" }: SessionBookingProps
     setSelectedTaskIds((current) => [task.id, ...current]);
     setAdHocTitle("");
     setConfirmed(false);
+  }
+
+  function getGoogleCalendarUrl() {
+    const sessionDate = new Date();
+    sessionDate.setDate(sessionDate.getDate() + selectedDateOffset);
+    const [startHour, startMinute] = selectedSession.time.split(":").map(Number);
+    const [endHour, endMinute] = selectedSession.endTime.split(":").map(Number);
+    const start = new Date(sessionDate);
+    start.setHours(startHour, startMinute, 0, 0);
+    const end = new Date(sessionDate);
+    end.setHours(endHour, endMinute, 0, 0);
+    const format = (date: Date) => date.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}Z$/, "Z");
+    const details = selectedTasks.map((task) => `- ${task.title}`).join("\n");
+
+    return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(
+      `雜事房：${selectedSession.title}`
+    )}&dates=${format(start)}/${format(end)}&details=${encodeURIComponent(`本場想完成：\n${details}`)}`;
   }
 
   return (
@@ -216,16 +256,35 @@ export function SessionBooking({ initialStep = "sessions" }: SessionBookingProps
           <>
             <section className="mb-6">
               <div>
-                <div className="mb-2 text-xs font-bold uppercase tracking-[.1em] text-terracotta">預約場次</div>
                 <h1 className="font-serif text-4xl font-black leading-tight tracking-normal">先選你要出現的時間</h1>
                 <p className="mt-2 max-w-[650px] text-[.96rem] leading-[1.7] text-muted">
-                  選好場次後，下一步再挑這場要處理的雜事，也可以臨時加一件。
+                  先挑一個你願意出現的時段。選好後，再決定這場要處理哪件雜事。
                 </p>
               </div>
             </section>
 
+            <div className="mb-4 flex gap-2 overflow-x-auto pb-2">
+              {dateFilters.map((filter) => (
+                <button
+                  className={`shrink-0 rounded-full border px-4 py-2 text-sm font-bold transition-colors ${
+                    selectedDateOffset === filter.id
+                      ? "border-terracotta bg-terracotta text-white"
+                      : "border-border bg-white text-muted hover:border-muted"
+                  }`}
+                  type="button"
+                  onClick={() => {
+                    setSelectedDateOffset(filter.id);
+                    setConfirmed(false);
+                  }}
+                  key={filter.id}
+                >
+                  {filter.label}
+                </button>
+              ))}
+            </div>
+
             <section className="grid gap-3">
-              {sessions.map((session) => (
+              {visibleSessions.map((session) => (
                 <article className="rounded-2xl border-[1.5px] border-border bg-white p-5 transition-all hover:border-terracotta hover:shadow-soft" key={session.id}>
                   <div className="grid grid-cols-[76px_minmax(0,1fr)_auto] items-center gap-4 max-[640px]:grid-cols-[68px_minmax(0,1fr)]">
                     <div className="text-center">
@@ -238,14 +297,7 @@ export function SessionBooking({ initialStep = "sessions" }: SessionBookingProps
                         <h2 className="text-base font-bold">{session.title}</h2>
                         <span className="rounded bg-forest-lt px-2 py-0.5 text-xs font-bold text-forest">{statusCopy[session.status]}</span>
                       </div>
-                      <p className="mb-2 text-sm leading-[1.5] text-muted">{session.tone}</p>
-                      <div className="flex flex-wrap gap-1.5">
-                        {session.tags.map((tag) => (
-                          <span className="rounded bg-cream-dd px-2 py-0.5 text-xs font-semibold text-muted" key={tag}>
-                            {tag}
-                          </span>
-                        ))}
-                      </div>
+                      <p className="text-sm leading-[1.5] text-muted">進場後再選這場要處理的事，各式各樣的生活雜事都可以。</p>
                     </div>
                     <div className="text-right max-[640px]:col-span-2 max-[640px]:text-left">
                       <div className="mb-3 text-sm font-bold text-muted">{session.spots}</div>
@@ -274,7 +326,7 @@ export function SessionBooking({ initialStep = "sessions" }: SessionBookingProps
                 </div>
                 <h1 className="font-serif text-3xl font-black leading-tight tracking-normal">這場要處理什麼？</h1>
                 <p className="mt-2 text-sm leading-[1.7] text-muted">
-                  從清單選，也可以直接加一件臨時冒出來的小事。
+                  輸入這場想完成的事。
                 </p>
               </div>
 
@@ -283,7 +335,7 @@ export function SessionBooking({ initialStep = "sessions" }: SessionBookingProps
                   className="min-h-11 rounded-xl border-[1.5px] border-border bg-cream px-4 text-sm outline-none placeholder:text-light focus:border-terracotta"
                   value={adHocTitle}
                   onChange={(event) => setAdHocTitle(event.target.value)}
-                  placeholder="臨時想到的事，例如：回覆房東、取消訂閱"
+                  placeholder="輸入這場想完成的事，例如：回覆房東、取消訂閱、預約牙醫"
                 />
                 <button className="rounded-full bg-terracotta px-5 text-sm font-bold text-white hover:bg-terracotta-d" type="submit">
                   加到本場
@@ -291,6 +343,7 @@ export function SessionBooking({ initialStep = "sessions" }: SessionBookingProps
               </form>
 
               <div className="grid gap-2">
+                <div className="mb-1 text-sm font-bold text-muted">或從待辦清單選</div>
                 {sortedTasks.map((task) => {
                   const checked = selectedTaskIds.includes(task.id);
                   const priority = priorityStyle[task.priority];
@@ -314,7 +367,7 @@ export function SessionBooking({ initialStep = "sessions" }: SessionBookingProps
                       <span className="min-w-0">
                         <span className="mb-1 flex items-center gap-2">
                           <span className={`rounded px-1.5 py-0.5 text-[.68rem] font-bold ${priority.className}`}>{priority.label}</span>
-                          <span className="text-xs text-light">{task.category}</span>
+                          <span className="text-xs text-light">期限 {task.deadline.slice(5).replace("-", "/")}</span>
                           {task.source === "adHoc" ? <span className="rounded bg-cream-dd px-1.5 py-0.5 text-[.68rem] font-bold text-muted">臨時</span> : null}
                         </span>
                         <span className="block truncate text-sm font-bold">{task.title}</span>
@@ -348,11 +401,11 @@ export function SessionBooking({ initialStep = "sessions" }: SessionBookingProps
 
               {selectionFeelsHeavy ? (
                 <div className="mb-4 rounded-xl border border-[#E24B4A]/20 bg-[#FCEBEB] p-3 text-sm leading-[1.6] text-[#B63C3C]">
-                  這場看起來有點滿。建議保留最重要的一到三件。
+                  這場內容有點多。建議先保留最想推進的一到三件。
                 </div>
               ) : (
                 <div className="mb-4 rounded-xl border border-forest/20 bg-forest-lt p-3 text-sm leading-[1.6] text-forest">
-                  這個承諾很清楚。開始前可以貼到場次公告。
+                  系統會把這些事項記在本場預約裡。開場前 5 分鐘，還可以再調整。
                 </div>
               )}
 
@@ -395,14 +448,16 @@ export function SessionBooking({ initialStep = "sessions" }: SessionBookingProps
               >
                 查看我的場次
               </Link>
-              <button
-                className="flex-1 rounded-full border border-border px-4 py-3 text-sm font-bold text-muted hover:border-muted hover:text-ink"
-                type="button"
-                onClick={() => setConfirmed(false)}
+              <Link
+                className="flex-1 rounded-full border border-border px-4 py-3 text-center text-sm font-bold text-muted no-underline hover:border-muted hover:text-ink"
+                href="/tasks"
               >
-                關閉
-              </button>
+                整理待辦清單
+              </Link>
             </div>
+            <a className="mt-3 block text-center text-sm font-bold text-light no-underline hover:text-muted" href={getGoogleCalendarUrl()} target="_blank" rel="noreferrer">
+              加到 Google 行事曆
+            </a>
           </div>
         </div>
       ) : null}

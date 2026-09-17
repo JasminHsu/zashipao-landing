@@ -96,7 +96,7 @@ export function Hero() {
             永遠排不到的生活雜事。
           </p>
           <div className="flex flex-wrap items-center gap-3">
-            <ButtonLink href="/signup" className="px-7 py-3 text-base font-bold">
+            <ButtonLink href="/login" className="px-7 py-3 text-base font-bold">
               免費加入，今天就開始
             </ButtonLink>
             <ButtonLink href="#sessions" variant="outline" className="px-6 py-[.7rem] text-[.95rem]">
@@ -159,7 +159,7 @@ export function Hero() {
             </ul>
             <div className="mt-4 flex items-center justify-between border-t border-cream-d pt-4">
               <span className="text-sm text-muted">還有 2 個名額</span>
-              <ButtonLink href="/signup" className="px-4 py-1.5 text-xs">
+              <ButtonLink href="/login" className="px-4 py-1.5 text-xs">
                 加入這場次
               </ButtonLink>
             </div>

@@ -15,7 +15,7 @@ const sessions = [
     spots: "6 / 8 人",
     fill: "75%",
     cta: "立即加入",
-    href: "/signup"
+    href: "/login"
   },
   {
     time: "22:00",
@@ -29,7 +29,7 @@ const sessions = [
     spots: "3 / 8 人",
     fill: "37%",
     cta: "預約",
-    href: "/signup"
+    href: "/login"
   },
   {
     time: "07:00",
@@ -43,7 +43,7 @@ const sessions = [
     spots: "2 / 8 人",
     fill: "25%",
     cta: "預約",
-    href: "/signup"
+    href: "/login"
   },
   {
     time: "12:00",
@@ -57,7 +57,7 @@ const sessions = [
     spots: "5 / 8 人",
     fill: "62%",
     cta: "預約",
-    href: "/signup"
+    href: "/login"
   },
   {
     time: "10:00",
@@ -73,7 +73,7 @@ const sessions = [
     spots: "8 / 12 人",
     fill: "67%",
     cta: "預約",
-    href: "/signup"
+    href: "/login"
   }
 ] as const;
 
@@ -129,7 +129,7 @@ export function Sessions() {
             <div className="mb-3 text-xs font-bold uppercase tracking-[.1em] text-terracotta">今日場次</div>
             <h2 className="m-0 font-serif text-3xl font-black leading-tight">今天就可以開始</h2>
           </div>
-          <ButtonLink href="/signup" variant="outline" className="px-5 py-2">
+          <ButtonLink href="/login" variant="outline" className="px-5 py-2">
             查看所有場次
           </ButtonLink>
         </div>

@@ -20,7 +20,7 @@ const copy = {
     switchAction: "免費加入",
     switchHref: "/signup",
     helper: "目前是靜態展示版，正式登入功能會在接上 Supabase 後開放。",
-    success: "登入功能即將開放。下一步接上 Supabase 後，這裡就會真的建立登入狀態。"
+    success: "登入功能即將開放。正式接上帳號系統後，登入成功會帶你去選一場 50 分鐘 session。"
   },
   signup: {
     eyebrow: "免費開始",
@@ -31,7 +31,7 @@ const copy = {
     switchAction: "登入",
     switchHref: "/login",
     helper: "目前先保留 Email 註冊入口，不會真的送出資料。",
-    success: "註冊功能即將開放。接上 Supabase 後，這裡會正式建立會員帳號。"
+    success: "註冊功能即將開放。正式建立帳號後，下一步會帶你去選一場 50 分鐘 session。"
   }
 };
 
@@ -156,8 +156,8 @@ export function AuthCard({ mode }: AuthCardProps) {
             {message ? (
               <div className="mt-5 rounded-xl border border-forest/20 bg-forest-lt px-4 py-3 text-sm leading-[1.65] text-forest">
                 <div>{message}</div>
-                <Link className="mt-3 inline-flex font-bold text-forest underline underline-offset-4" href="/tasks">
-                  先看任務白板 demo
+                <Link className="mt-3 inline-flex font-bold text-forest underline underline-offset-4" href="/sessions">
+                  先去選場次 demo
                 </Link>
               </div>
             ) : (

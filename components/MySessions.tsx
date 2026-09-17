@@ -7,14 +7,16 @@ const upcomingSessions = [
     day: "今晚",
     time: "21:00 - 21:50",
     status: "等候區已開放",
+    waitingOpensAt: "20:55",
     tasks: ["補齊所得稅延期申報資料", "預約牙醫洗牙"],
     canEnterWaiting: true
   },
   {
-    title: "午休生活行政快攻",
+    title: "午休雜事場",
     day: "明日午休",
     time: "12:00 - 12:50",
-    status: "開場前 5 分鐘開放",
+    status: "11:55 開放等候區",
+    waitingOpensAt: "11:55",
     tasks: ["更新護照照片預約"],
     canEnterWaiting: false
   }
@@ -42,7 +44,7 @@ export function MySessions() {
           <div className="mb-2 text-xs font-bold uppercase tracking-[.1em] text-terracotta">我的場次</div>
           <h1 className="font-serif text-4xl font-black leading-tight tracking-normal">接下來要出現在哪裡</h1>
           <p className="mt-2 max-w-[640px] text-[.96rem] leading-[1.7] text-muted">
-            已預約的場次會在這裡。開場前 5 分鐘可以進等候區，再確認一次這場真的要做什麼。
+            已預約的場次會在這裡。等候區開放後，可以先進去確認這場真的要做什麼。
           </p>
         </section>
 
@@ -53,6 +55,7 @@ export function MySessions() {
                 <div>
                   <div className="font-serif text-2xl font-black text-ink">{session.time}</div>
                   <div className="mt-1 text-sm text-light">{session.day}</div>
+                  <div className="mt-2 text-xs font-semibold text-muted">等候區 {session.waitingOpensAt} 開放</div>
                 </div>
                 <div>
                   <div className="mb-1 flex flex-wrap items-center gap-2">

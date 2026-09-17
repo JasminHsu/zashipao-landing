@@ -21,7 +21,7 @@ export function Navbar() {
         <ButtonLink href="/login" variant="outline" className="px-5 py-2 max-[520px]:hidden">
           登入
         </ButtonLink>
-        <ButtonLink href="/signup" className="px-5 py-2">
+        <ButtonLink href="/login" className="px-5 py-2">
           免費加入
         </ButtonLink>
       </div>
