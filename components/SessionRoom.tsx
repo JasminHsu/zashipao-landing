@@ -71,6 +71,7 @@ export function SessionRoom() {
   const [secondsLeft, setSecondsLeft] = useState(50 * 60);
 
   const completedCount = tasks.filter((task) => task.done).length;
+  const remainingCount = tasks.length - completedCount;
   const progress = useMemo(() => Math.round((completedCount / tasks.length) * 100), [completedCount, tasks.length]);
 
   useEffect(() => {
@@ -284,7 +285,7 @@ export function SessionRoom() {
               </div>
 
               <div className="rounded-xl border border-border bg-cream p-3 text-sm leading-[1.6] text-muted">
-                場次結束時，完成的事項會進入封存；沒完成的會回到待辦清單。
+                場次結束時，做完的會標記完成；還沒做完的會留在待辦清單。
               </div>
             </div>
           ) : null}
@@ -362,29 +363,28 @@ export function SessionRoom() {
             <div className="mb-4 flex size-11 items-center justify-center rounded-full bg-forest-lt text-xl font-black text-forest">✓</div>
             <div className="mb-2 text-xs font-bold uppercase tracking-[.1em] text-terracotta">場次結束</div>
             <h2 className="mb-2 font-serif text-3xl font-black leading-tight tracking-normal">
-              你完成了 {completedCount} / {tasks.length} 件
+              完成 {completedCount} 件，{remainingCount} 件留到下次
             </h2>
             <p className="mb-5 text-sm leading-[1.7] text-muted">
-              已完成的雜事會封存，沒做完的可以留到下一場。
+              做完的會標記完成；還沒做完的會留在待辦清單，之後可以再安排。
             </p>
             <div className="mb-5 grid gap-2">
               {tasks.map((task) => (
                 <div className={`rounded-xl px-3 py-2 text-sm font-semibold ${task.done ? "bg-forest-lt text-forest" : "bg-cream text-muted"}`} key={task.id}>
-                  {task.done ? "完成：" : "保留："}{task.title}
+                  {task.done ? "已完成：" : "下次再做："}{task.title}
                 </div>
               ))}
             </div>
             <div className="flex gap-2">
               <Link className="flex-1 rounded-full bg-terracotta px-4 py-3 text-center text-sm font-bold text-white no-underline hover:bg-terracotta-d" href="/tasks">
-                回待辦事項
+                回待辦清單
               </Link>
-              <button
-                className="flex-1 rounded-full border border-border px-4 py-3 text-sm font-bold text-muted hover:border-muted hover:text-ink"
-                type="button"
-                onClick={() => setEnded(false)}
+              <Link
+                className="flex-1 rounded-full border border-border px-4 py-3 text-center text-sm font-bold text-muted no-underline hover:border-muted hover:text-ink"
+                href="/my-sessions"
               >
-                關閉
-              </button>
+                回我的場次
+              </Link>
             </div>
           </div>
         </div>

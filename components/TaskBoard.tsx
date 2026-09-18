@@ -4,7 +4,7 @@ import Link from "next/link";
 import { FormEvent, useMemo, useState } from "react";
 import { Logo } from "./Logo";
 
-type TaskStatus = "overdue" | "urgent" | "stale" | "soon" | "open";
+type TaskStatus = "overdue" | "urgent" | "stale" | "open";
 
 type Task = {
   id: number;
@@ -12,6 +12,8 @@ type Task = {
   deadline: string;
   firstNoticed: string;
   archived?: boolean;
+  completed?: boolean;
+  priority?: boolean;
   note?: string;
 };
 
@@ -23,6 +25,7 @@ const initialTasks: Task[] = [
     title: "補齊所得稅延期申報資料",
     deadline: "2026-05-24",
     firstNoticed: "2026-03-16",
+    priority: true,
     note: "先找扣繳憑單和去年申報資料"
   },
   {
@@ -79,17 +82,11 @@ const statusStyle: Record<TaskStatus, { label: string; className: string; rowCla
     rowClass: "border-l-lavender",
     sort: 3
   },
-  soon: {
-    label: "近期",
-    className: "bg-forest-lt text-forest",
-    rowClass: "border-l-forest",
-    sort: 4
-  },
   open: {
-    label: "可安排",
+    label: "一般",
     className: "bg-cream-dd text-muted",
     rowClass: "border-l-border-d",
-    sort: 5
+    sort: 4
   }
 };
 
@@ -112,7 +109,6 @@ function getTaskStatus(task: Task): TaskStatus {
   if (dueIn < 0) return "overdue";
   if (dueIn <= 3) return "urgent";
   if (delayed >= 21) return "stale";
-  if (dueIn <= 14) return "soon";
   return "open";
 }
 
@@ -135,12 +131,10 @@ export function TaskBoard() {
   const [deadline, setDeadline] = useState(defaultDate(7));
   const [showDetails, setShowDetails] = useState(false);
   const [showArchive, setShowArchive] = useState(false);
-  const [firstNoticed, setFirstNoticed] = useState(defaultDate(-14));
   const [note, setNote] = useState("");
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editTitle, setEditTitle] = useState("");
   const [editDeadline, setEditDeadline] = useState("");
-  const [editFirstNoticed, setEditFirstNoticed] = useState("");
   const [editNote, setEditNote] = useState("");
 
   const activeTasks = tasks.filter((task) => !task.archived);
@@ -149,6 +143,8 @@ export function TaskBoard() {
   const sortedTasks = useMemo(
     () =>
       [...activeTasks].sort((a, b) => {
+        if (a.completed !== b.completed) return a.completed ? 1 : -1;
+        if ((a.priority ?? false) !== (b.priority ?? false)) return a.priority ? -1 : 1;
         const statusDiff = statusStyle[getTaskStatus(a)].sort - statusStyle[getTaskStatus(b)].sort;
         if (statusDiff !== 0) return statusDiff;
         return daysUntil(a.deadline) - daysUntil(b.deadline);
@@ -156,17 +152,31 @@ export function TaskBoard() {
     [activeTasks]
   );
 
-  const urgentCount = activeTasks.filter((task) => {
+  const unfinishedTasks = activeTasks.filter((task) => !task.completed);
+  const urgentCount = unfinishedTasks.filter((task) => {
     const status = getTaskStatus(task);
     return status === "overdue" || status === "urgent";
   }).length;
-  const staleCount = activeTasks.filter((task) => getTaskStatus(task) === "stale").length;
+  const staleCount = unfinishedTasks.filter((task) => getTaskStatus(task) === "stale").length;
+
+  function toggleComplete(taskId: number) {
+    setTasks((current) =>
+      current.map((task) => (task.id === taskId ? { ...task, completed: !task.completed } : task))
+    );
+    if (editingId === taskId) setEditingId(null);
+  }
 
   function archiveTask(taskId: number) {
     setTasks((current) =>
       current.map((task) => (task.id === taskId ? { ...task, archived: true } : task))
     );
     if (editingId === taskId) setEditingId(null);
+  }
+
+  function togglePriority(taskId: number) {
+    setTasks((current) =>
+      current.map((task) => (task.id === taskId ? { ...task, priority: !task.priority } : task))
+    );
   }
 
   function restoreTask(taskId: number) {
@@ -184,7 +194,6 @@ export function TaskBoard() {
     setEditingId(task.id);
     setEditTitle(task.title);
     setEditDeadline(task.deadline);
-    setEditFirstNoticed(task.firstNoticed);
     setEditNote(task.note ?? "");
   }
 
@@ -199,7 +208,6 @@ export function TaskBoard() {
               ...task,
               title: editTitle.trim(),
               deadline: editDeadline,
-              firstNoticed: editFirstNoticed,
               note: editNote.trim() || undefined
             }
           : task
@@ -217,7 +225,7 @@ export function TaskBoard() {
       id: Date.now(),
       title: trimmedTitle,
       deadline,
-      firstNoticed,
+      firstNoticed: demoToday,
       note: note.trim() || undefined
     };
 
@@ -225,7 +233,6 @@ export function TaskBoard() {
     setTitle("");
     setNote("");
     setDeadline(defaultDate(7));
-    setFirstNoticed(defaultDate(-14));
     setShowDetails(false);
   }
 
@@ -235,11 +242,14 @@ export function TaskBoard() {
         <div className="mx-auto flex h-[62px] max-w-7xl items-center justify-between px-[5%]">
           <Logo />
           <nav className="flex items-center gap-3 text-sm">
-            <Link className="rounded-full bg-terracotta-lt px-4 py-2 font-bold text-terracotta no-underline" href="/tasks">
-              待辦事項
+            <Link className="rounded-full border border-border px-4 py-2 font-semibold text-muted no-underline hover:border-muted" href="/my-sessions">
+              我的場次
             </Link>
             <Link className="rounded-full border border-border px-4 py-2 font-semibold text-muted no-underline hover:border-muted" href="/sessions">
-              場次
+              預約場次
+            </Link>
+            <Link className="rounded-full bg-terracotta-lt px-4 py-2 font-bold text-terracotta no-underline" href="/tasks">
+              待辦清單
             </Link>
           </nav>
         </div>
@@ -249,59 +259,63 @@ export function TaskBoard() {
         <section className="mb-5">
           <div className="flex items-end justify-between gap-5 max-[760px]:block">
             <div>
-              <h1 className="font-serif text-4xl font-black leading-tight tracking-normal">待辦事項</h1>
+              <h1 className="font-serif text-4xl font-black leading-tight tracking-normal">待辦清單</h1>
               <p className="mt-2 max-w-[620px] text-[.96rem] leading-[1.7] text-muted">
                 把一直卡著的小事先放進來。預約場次時，可以直接從這裡挑今天要處理哪幾件。
               </p>
             </div>
             <div className="mt-4 grid grid-cols-3 gap-2 text-center text-sm max-[760px]:grid-cols-3">
               <div className="rounded-xl border border-border bg-white px-4 py-3">
-                <div className="font-serif text-2xl font-black text-terracotta">{activeTasks.length}</div>
-                <div className="text-light">待辦</div>
+                <div className="font-serif text-2xl font-black text-terracotta">{unfinishedTasks.length}</div>
+                <div className="text-light">未完成</div>
               </div>
               <div className="rounded-xl border border-border bg-white px-4 py-3">
                 <div className="font-serif text-2xl font-black text-[#E24B4A]">{urgentCount}</div>
                 <div className="text-light">快到期</div>
+                <div className="mt-1 text-[.68rem] leading-tight text-light">3 天內</div>
               </div>
               <div className="rounded-xl border border-border bg-white px-4 py-3">
                 <div className="font-serif text-2xl font-black text-lavender">{staleCount}</div>
                 <div className="text-light">拖很久</div>
+                <div className="mt-1 text-[.68rem] leading-tight text-light">21 天+</div>
               </div>
             </div>
           </div>
         </section>
 
         <form className="mb-5 rounded-2xl border-[1.5px] border-border bg-white p-4 shadow-soft" onSubmit={handleAddTask}>
-          <div className="grid grid-cols-[minmax(0,1fr)_160px_auto] gap-3 max-[900px]:grid-cols-1">
-            <input
-              className="min-h-12 rounded-xl border-[1.5px] border-border bg-cream px-4 text-base outline-none placeholder:text-light focus:border-terracotta"
-              value={title}
-              onChange={(event) => setTitle(event.target.value)}
-              placeholder="輸入一件想處理的事，例如：預約牙醫、補申報資料"
-            />
-            <input
-              className="min-h-12 rounded-xl border-[1.5px] border-border bg-cream px-3 text-sm outline-none focus:border-terracotta"
-              type="date"
-              value={deadline}
-              onChange={(event) => setDeadline(event.target.value)}
-              aria-label="期限"
-            />
-            <button className="min-h-12 rounded-full bg-terracotta px-6 text-sm font-bold text-white hover:bg-terracotta-d" type="submit">
-              加入
-            </button>
+          <div className="grid grid-cols-[minmax(0,1fr)_156px_112px] gap-3 max-[900px]:grid-cols-1">
+            <label className="block">
+              <span className="mb-1 block text-xs font-bold text-muted">事項</span>
+              <input
+                className="h-12 w-full rounded-xl border-[1.5px] border-border bg-cream px-4 text-base outline-none placeholder:text-light focus:border-terracotta"
+                value={title}
+                onChange={(event) => setTitle(event.target.value)}
+                placeholder="輸入一件想處理的事，例如：預約牙醫、補申報資料"
+              />
+            </label>
+            <label className="block">
+              <span className="mb-1 block text-xs font-bold text-muted">預計完成日</span>
+              <input
+                className="h-12 w-full rounded-xl border-[1.5px] border-border bg-cream px-3 text-sm outline-none focus:border-terracotta"
+                type="date"
+                value={deadline}
+                onChange={(event) => setDeadline(event.target.value)}
+                aria-label="預計完成日"
+              />
+            </label>
+            <div className="block">
+              <span className="mb-1 block text-xs font-bold text-transparent">加入</span>
+              <button className="h-12 w-full rounded-xl bg-terracotta px-6 text-base font-bold text-white transition-colors hover:bg-terracotta-d" type="submit">
+                加入
+              </button>
+            </div>
           </div>
 
           {showDetails ? (
-            <div className="mt-3 grid grid-cols-[170px_minmax(0,1fr)] gap-3 max-[760px]:grid-cols-1">
+            <div className="mt-3">
               <input
-                className="min-h-11 rounded-xl border-[1.5px] border-border bg-cream px-3 text-sm outline-none focus:border-terracotta"
-                type="date"
-                value={firstNoticed}
-                onChange={(event) => setFirstNoticed(event.target.value)}
-                aria-label="第一次想到這件事"
-              />
-              <input
-                className="min-h-11 rounded-xl border-[1.5px] border-border bg-cream px-3 text-sm outline-none focus:border-terracotta"
+                className="min-h-11 w-full rounded-xl border-[1.5px] border-border bg-cream px-3 text-sm outline-none focus:border-terracotta"
                 value={note}
                 onChange={(event) => setNote(event.target.value)}
                 placeholder="備註或第一步，不填也可以"
@@ -319,12 +333,13 @@ export function TaskBoard() {
           </button>
         </form>
 
-        <section className="overflow-hidden rounded-2xl border-[1.5px] border-border bg-white shadow-soft">
-          <div className="grid grid-cols-[34px_90px_minmax(0,1fr)_120px_100px_132px] gap-3 border-b border-border bg-cream-d px-4 py-3 text-xs font-bold uppercase tracking-normal text-muted max-[900px]:hidden">
+        <section className="rounded-2xl border-[1.5px] border-border bg-white shadow-soft">
+          <div className="grid grid-cols-[34px_42px_90px_minmax(0,1fr)_120px_100px_148px] gap-3 border-b border-border bg-cream-d px-4 py-3 text-xs font-bold uppercase tracking-normal text-muted max-[900px]:hidden">
             <div />
-            <div>提醒</div>
+            <div className="text-center">優先</div>
+            <div className="text-center">提醒</div>
             <div>事項</div>
-            <div>期限</div>
+            <div>預計完成</div>
             <div>已放著</div>
             <div />
           </div>
@@ -336,9 +351,14 @@ export function TaskBoard() {
               const isEditing = editingId === task.id;
 
               return (
-                <article className={`border-l-4 bg-white px-4 py-3 transition-colors hover:bg-cream/70 ${status.rowClass}`} key={task.id}>
+                <article
+                  className={`border-l-4 px-4 py-3 transition-colors hover:bg-cream/70 ${
+                    task.completed ? "border-l-forest bg-forest-lt/45" : `bg-white ${status.rowClass}`
+                  }`}
+                  key={task.id}
+                >
                   {isEditing ? (
-                    <form className="grid grid-cols-[minmax(0,1fr)_150px_150px_auto] gap-3 max-[900px]:grid-cols-1" onSubmit={saveEdit}>
+                    <form className="grid grid-cols-[minmax(0,1fr)_150px_auto] gap-3 max-[900px]:grid-cols-1" onSubmit={saveEdit}>
                       <input
                         className="min-h-11 rounded-xl border-[1.5px] border-border bg-cream px-3 text-sm outline-none focus:border-terracotta"
                         value={editTitle}
@@ -349,14 +369,7 @@ export function TaskBoard() {
                         type="date"
                         value={editDeadline}
                         onChange={(event) => setEditDeadline(event.target.value)}
-                        aria-label="修改期限"
-                      />
-                      <input
-                        className="min-h-11 rounded-xl border-[1.5px] border-border bg-cream px-3 text-sm outline-none focus:border-terracotta"
-                        type="date"
-                        value={editFirstNoticed}
-                        onChange={(event) => setEditFirstNoticed(event.target.value)}
-                        aria-label="修改第一次想到日期"
+                        aria-label="修改預計完成日"
                       />
                       <div className="flex gap-2">
                         <button className="rounded-full bg-terracotta px-4 text-sm font-bold text-white hover:bg-terracotta-d" type="submit">
@@ -367,47 +380,100 @@ export function TaskBoard() {
                         </button>
                       </div>
                       <input
-                        className="col-span-3 min-h-11 rounded-xl border-[1.5px] border-border bg-cream px-3 text-sm outline-none focus:border-terracotta max-[900px]:col-span-1"
+                        className="col-span-2 min-h-11 rounded-xl border-[1.5px] border-border bg-cream px-3 text-sm outline-none focus:border-terracotta max-[900px]:col-span-1"
                         value={editNote}
                         onChange={(event) => setEditNote(event.target.value)}
                         placeholder="備註"
                       />
                     </form>
                   ) : (
-                    <div className="grid min-h-[58px] grid-cols-[34px_90px_minmax(0,1fr)_120px_100px_132px] items-center gap-3 max-[900px]:grid-cols-[34px_minmax(0,1fr)_auto] max-[900px]:gap-2">
+                    <div className="grid min-h-[58px] grid-cols-[34px_42px_90px_minmax(0,1fr)_120px_100px_148px] items-center gap-3 max-[900px]:grid-cols-[34px_42px_minmax(0,1fr)_auto] max-[900px]:gap-2">
                       <button
-                        className="flex size-6 items-center justify-center rounded-full border-[1.5px] border-border bg-cream text-transparent transition-colors hover:border-forest hover:bg-forest-lt hover:text-forest"
+                        className={`flex size-6 items-center justify-center rounded-full border-[1.5px] transition-colors ${
+                          task.completed
+                            ? "border-forest bg-forest text-white"
+                            : "border-border bg-cream text-transparent hover:border-forest hover:bg-forest-lt hover:text-forest"
+                        }`}
                         type="button"
-                        onClick={() => archiveTask(task.id)}
-                        aria-label={`完成 ${task.title}`}
-                        title="完成"
+                        onClick={() => toggleComplete(task.id)}
+                        aria-label={task.completed ? `取消完成 ${task.title}` : `標記完成 ${task.title}`}
+                        title={task.completed ? "取消完成" : "標記完成"}
                       >
                         ✓
                       </button>
+                      {task.completed ? (
+                        <div aria-hidden="true" />
+                      ) : (
+                        <button
+                          className={`inline-flex size-8 items-center justify-center rounded transition-colors ${
+                            task.priority
+                              ? "text-amber"
+                              : "text-light hover:text-amber"
+                          }`}
+                          type="button"
+                          onClick={() => togglePriority(task.id)}
+                          aria-label={task.priority ? `取消重要 ${task.title}` : `標記重要 ${task.title}`}
+                          title={task.priority ? "取消重要" : "標記重要"}
+                        >
+                          <svg aria-hidden="true" className="size-[18px]" fill={task.priority ? "currentColor" : "none"} viewBox="0 0 24 24">
+                            <path
+                              d="m12 3.8 2.38 4.82 5.32.77-3.85 3.75.91 5.3L12 15.94l-4.76 2.5.91-5.3L4.3 9.39l5.32-.77L12 3.8Z"
+                              stroke="currentColor"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth="1.8"
+                            />
+                          </svg>
+                        </button>
+                      )}
                       <div className="max-[900px]:hidden">
-                        <span className={`inline-flex min-w-[62px] justify-center rounded px-2 py-1 text-xs font-bold ${status.className}`}>
-                          {status.label}
+                        <span className={`inline-flex min-w-[62px] justify-center rounded px-2 py-1 text-xs font-bold ${task.completed ? "bg-forest text-white" : status.className}`}>
+                          {task.completed ? "已完成" : status.label}
                         </span>
                       </div>
                       <div className="min-w-0">
-                        <div className="truncate text-[.95rem] font-bold max-[900px]:whitespace-normal">
-                          <span className={`mr-2 hidden rounded px-1.5 py-0.5 text-[.68rem] font-bold max-[900px]:inline-flex ${status.className}`}>
-                            {status.label}
+                        <div
+                          className={`truncate text-[.95rem] font-bold max-[900px]:whitespace-normal ${task.completed ? "text-forest line-through" : ""}`}
+                          title={task.title}
+                        >
+                          <span className={`mr-2 hidden rounded px-1.5 py-0.5 text-[.68rem] font-bold max-[900px]:inline-flex ${task.completed ? "bg-forest text-white" : status.className}`}>
+                            {task.completed ? "已完成" : status.label}
                           </span>
                           {task.title}
                         </div>
-                        {task.note ? <div className="mt-0.5 truncate text-xs text-light">{task.note}</div> : null}
+                        {!task.completed && task.note ? (
+                          <div
+                            className="mt-0.5 truncate text-xs leading-relaxed text-light"
+                            title={task.note}
+                          >
+                            {task.note}
+                          </div>
+                        ) : null}
                       </div>
-                      <div className="text-sm font-semibold text-muted max-[900px]:col-start-2">{formatDeadline(task.deadline)}</div>
-                      <div className="text-sm font-semibold text-muted max-[900px]:hidden">已放著 {delayed} 天</div>
-                      <div className="flex justify-end gap-2 max-[900px]:col-span-3 max-[900px]:justify-start">
-                        <button
-                          className="rounded-full border border-border px-3 py-1.5 text-xs font-bold text-muted transition-colors hover:border-muted hover:text-ink"
-                          type="button"
-                          onClick={() => startEditing(task)}
-                        >
-                          編輯
-                        </button>
+                      <div className="text-sm font-semibold text-muted max-[900px]:col-start-3">
+                        {task.completed ? "完成" : formatDeadline(task.deadline)}
+                      </div>
+                      <div className="text-sm font-semibold text-muted max-[900px]:hidden">
+                        {task.completed ? "—" : `已放著 ${delayed} 天`}
+                      </div>
+                      <div className="flex justify-end gap-2 max-[900px]:col-span-4 max-[900px]:justify-start">
+                        {task.completed ? (
+                          <button
+                            className="rounded-full bg-forest px-3 py-1.5 text-xs font-bold text-white transition-colors hover:bg-forest/90"
+                            type="button"
+                            onClick={() => archiveTask(task.id)}
+                          >
+                            封存
+                          </button>
+                        ) : (
+                          <button
+                            className="rounded-full border border-border px-3 py-1.5 text-xs font-bold text-muted transition-colors hover:border-muted hover:text-ink"
+                            type="button"
+                            onClick={() => startEditing(task)}
+                          >
+                            編輯
+                          </button>
+                        )}
                         <button
                           className="rounded-full border border-border px-3 py-1.5 text-xs font-bold text-muted transition-colors hover:border-[#E24B4A] hover:text-[#E24B4A]"
                           type="button"
@@ -439,20 +505,29 @@ export function TaskBoard() {
                 archivedTasks.map((task) => (
                   <div className="flex items-center justify-between gap-3 px-4 py-3 text-sm text-light" key={task.id}>
                     <div className="min-w-0">
-                      <div className="truncate font-semibold line-through">{task.title}</div>
+                      <div className="truncate font-semibold line-through" title={task.title}>{task.title}</div>
                       <div className="text-xs">完成後已封存</div>
                     </div>
-                    <button
-                      className="shrink-0 rounded-full border border-border px-3 py-1.5 text-xs font-bold text-muted hover:border-muted hover:text-ink"
-                      type="button"
-                      onClick={() => restoreTask(task.id)}
-                    >
-                      還原
-                    </button>
+                    <div className="flex shrink-0 gap-2">
+                      <button
+                        className="rounded-full border border-border px-3 py-1.5 text-xs font-bold text-muted hover:border-muted hover:text-ink"
+                        type="button"
+                        onClick={() => restoreTask(task.id)}
+                      >
+                        還原
+                      </button>
+                      <button
+                        className="rounded-full border border-border px-3 py-1.5 text-xs font-bold text-muted hover:border-[#E24B4A] hover:text-[#E24B4A]"
+                        type="button"
+                        onClick={() => deleteTask(task.id)}
+                      >
+                        刪除
+                      </button>
+                    </div>
                   </div>
                 ))
               ) : (
-                <div className="px-4 py-4 text-sm text-light">還沒有封存的待辦事項。</div>
+                <div className="px-4 py-4 text-sm text-light">還沒有封存的待辦清單。</div>
               )}
             </div>
           ) : null}

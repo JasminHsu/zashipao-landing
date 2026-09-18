@@ -131,11 +131,11 @@ const initialTasks: BookableTask[] = [
 ];
 
 const priorityStyle: Record<Priority, { label: string; className: string; sort: number }> = {
-  now: { label: "最急", className: "bg-[#FCEBEB] text-[#E24B4A]", sort: 1 },
-  soon: { label: "快到期", className: "bg-terracotta-lt text-terracotta", sort: 2 },
-  quick: { label: "期限較鬆", className: "bg-forest-lt text-forest", sort: 3 },
-  split: { label: "需要拆步驟", className: "bg-lavender-lt text-lavender", sort: 4 },
-  later: { label: "不急", className: "bg-cream-dd text-muted", sort: 5 }
+  now: { label: "快到期", className: "bg-terracotta-lt text-terracotta", sort: 1 },
+  soon: { label: "快到期", className: "bg-terracotta-lt text-terracotta", sort: 1 },
+  split: { label: "拖很久", className: "bg-lavender-lt text-lavender", sort: 2 },
+  quick: { label: "一般", className: "bg-cream-dd text-muted", sort: 3 },
+  later: { label: "一般", className: "bg-cream-dd text-muted", sort: 3 }
 };
 
 const statusCopy = {
@@ -232,11 +232,14 @@ function addAdHocTask(event: FormEvent<HTMLFormElement>) {
         <div className="mx-auto flex h-[62px] max-w-7xl items-center justify-between px-[5%]">
           <Logo />
           <nav className="flex items-center gap-3 text-sm">
-            <Link className="rounded-full border border-border px-4 py-2 font-semibold text-muted no-underline hover:border-muted" href="/tasks">
-              待辦事項
+            <Link className="rounded-full border border-border px-4 py-2 font-semibold text-muted no-underline hover:border-muted" href="/my-sessions">
+              我的場次
             </Link>
             <Link className="rounded-full bg-terracotta-lt px-4 py-2 font-bold text-terracotta no-underline" href="/sessions">
-              場次
+              預約場次
+            </Link>
+            <Link className="rounded-full border border-border px-4 py-2 font-semibold text-muted no-underline hover:border-muted" href="/tasks">
+              待辦清單
             </Link>
           </nav>
         </div>
@@ -367,7 +370,7 @@ function addAdHocTask(event: FormEvent<HTMLFormElement>) {
                       <span className="min-w-0">
                         <span className="mb-1 flex items-center gap-2">
                           <span className={`rounded px-1.5 py-0.5 text-[.68rem] font-bold ${priority.className}`}>{priority.label}</span>
-                          <span className="text-xs text-light">期限 {task.deadline.slice(5).replace("-", "/")}</span>
+                          <span className="text-xs text-light">預計完成 {task.deadline.slice(5).replace("-", "/")}</span>
                           {task.source === "adHoc" ? <span className="rounded bg-cream-dd px-1.5 py-0.5 text-[.68rem] font-bold text-muted">臨時</span> : null}
                         </span>
                         <span className="block truncate text-sm font-bold">{task.title}</span>
@@ -389,7 +392,9 @@ function addAdHocTask(event: FormEvent<HTMLFormElement>) {
                   selectedTasks.map((task) => (
                     <div className="rounded-xl border border-border bg-cream p-3" key={task.id}>
                       <div className="text-sm font-bold">{task.title}</div>
-                      <div className="mt-1 text-xs text-light">{task.category}</div>
+                      <div className="mt-1 text-xs text-light">
+                        {priorityStyle[task.priority].label} · 預計完成 {task.deadline.slice(5).replace("-", "/")}
+                      </div>
                     </div>
                   ))
                 ) : (

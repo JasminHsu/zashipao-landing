@@ -63,7 +63,7 @@ export function WaitingRoom() {
             <div className="mb-2 text-xs font-bold uppercase tracking-[.1em] text-terracotta">等候區</div>
             <h1 className="font-serif text-4xl font-black leading-tight tracking-normal">開場前，再確認一次</h1>
             <p className="mt-2 max-w-[650px] text-[.96rem] leading-[1.7] text-muted">
-              預約時想做的事，現在可能變了。進房前先整理本場承諾，等等就照這份清單做。
+              如果要做的事有變，現在可以調整一下。等進房後，就照這份清單開始。
             </p>
           </div>
           <div className="rounded-2xl border-[1.5px] border-border bg-white p-4 text-center shadow-soft">

@@ -156,8 +156,8 @@ export function AuthCard({ mode }: AuthCardProps) {
             {message ? (
               <div className="mt-5 rounded-xl border border-forest/20 bg-forest-lt px-4 py-3 text-sm leading-[1.65] text-forest">
                 <div>{message}</div>
-                <Link className="mt-3 inline-flex font-bold text-forest underline underline-offset-4" href="/sessions">
-                  先去選場次 demo
+                <Link className="mt-3 inline-flex font-bold text-forest underline underline-offset-4" href="/my-sessions">
+                  進入我的場次 demo
                 </Link>
               </div>
             ) : (
