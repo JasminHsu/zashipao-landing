@@ -58,14 +58,10 @@ export function MySessions() {
                 <div>
                   <div className="whitespace-nowrap font-serif text-[1.35rem] font-black text-ink">{session.date}</div>
                   <div className="mt-1 text-sm font-bold text-muted">{session.time}</div>
-                  <div className="mt-2 text-xs font-semibold text-light">前五分鐘開放等候區</div>
                 </div>
                 <div>
                   <div className="mb-1 flex flex-wrap items-center gap-2">
                     <h2 className="text-lg font-bold">{session.title}</h2>
-                    <span className={`rounded px-2 py-0.5 text-xs font-bold ${session.canEnterWaiting ? "bg-forest-lt text-forest" : "bg-cream-dd text-muted"}`}>
-                      {session.status}
-                    </span>
                   </div>
                   <SessionTaskEditor sessionId={`${session.date}-${session.time}`} initialTasks={session.tasks} />
                 </div>
