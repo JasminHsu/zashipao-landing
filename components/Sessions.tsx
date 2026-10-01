@@ -1,3 +1,4 @@
+import { SessionAvailability } from "./SessionAvailability";
 import { ButtonLink } from "./ButtonLink";
 import { SectionHeading } from "./SectionHeading";
 
@@ -12,8 +13,7 @@ const sessions = [
       ["健康醫療", "bg-forest-lt text-forest"],
       ["其他", "bg-cream-dd text-muted"]
     ],
-    spots: "6 / 8 人",
-    fill: "75%",
+    bookedCount: 4,
     cta: "立即加入",
     href: "/login"
   },
@@ -26,8 +26,7 @@ const sessions = [
       ["財務", "bg-terracotta-lt text-terracotta"],
       ["購物退款", "bg-cream-dd text-muted"]
     ],
-    spots: "3 / 8 人",
-    fill: "37%",
+    bookedCount: 3,
     cta: "預約",
     href: "/login"
   },
@@ -40,8 +39,7 @@ const sessions = [
       ["文件行政", "bg-lavender-lt text-lavender"],
       ["家務", "bg-amberish-lt text-amberish"]
     ],
-    spots: "2 / 8 人",
-    fill: "25%",
+    bookedCount: 2,
     cta: "預約",
     href: "/login"
   },
@@ -54,15 +52,14 @@ const sessions = [
       ["健康醫療", "bg-forest-lt text-forest"],
       ["財務", "bg-terracotta-lt text-terracotta"]
     ],
-    spots: "5 / 8 人",
-    fill: "62%",
+    bookedCount: 4,
     cta: "預約",
     href: "/login"
   },
   {
     time: "10:00",
     day: "週六早晨",
-    title: "週末雜事大清倉 ✦ 限量 12 人",
+    title: "週末雜事大清倉 ✦ 每房最多 5 人",
     live: false,
     tags: [
       ["家務", "bg-amberish-lt text-amberish"],
@@ -70,8 +67,7 @@ const sessions = [
       ["醫療", "bg-forest-lt text-forest"],
       ["財務", "bg-terracotta-lt text-terracotta"]
     ],
-    spots: "8 / 12 人",
-    fill: "67%",
+    bookedCount: 4,
     cta: "預約",
     href: "/login"
   }
@@ -163,10 +159,7 @@ export function Sessions() {
                 </div>
               </div>
               <div className="min-w-[90px] text-right max-[780px]:text-left">
-                <div className="mb-1.5 text-xs text-muted">{session.spots}</div>
-                <div className="h-1 overflow-hidden rounded bg-cream-d">
-                  <div className="h-full rounded bg-terracotta" style={{ width: session.fill }} />
-                </div>
+                <SessionAvailability bookedCount={session.bookedCount} />
               </div>
               <ButtonLink
                 href={session.href}

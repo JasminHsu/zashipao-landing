@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { FormEvent, useState } from "react";
+import { useRouter } from "next/navigation";
+import { FormEvent, useEffect, useState } from "react";
 import { Logo } from "./Logo";
 
 type AuthMode = "login" | "signup";
@@ -36,18 +37,29 @@ const copy = {
 };
 
 export function AuthCard({ mode }: AuthCardProps) {
+  const router = useRouter();
   const [message, setMessage] = useState("");
+  const [nextPath, setNextPath] = useState<string | null>(null);
+  useEffect(() => {
+    const next = new URLSearchParams(window.location.search).get("next");
+    // Only retain local booking destinations.
+    if (next && /^\/sessions(?:\/book)?(?:\?[^#]*)?$/.test(next)) setNextPath(next);
+  }, []);
   const current = copy[mode];
   const isSignup = mode === "signup";
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (isSignup) {
+      router.push(nextPath ?? "/sessions");
+      return;
+    }
     setMessage(current.success);
   }
 
   return (
     <main className="min-h-screen bg-cream">
-      <div className="mx-auto grid min-h-screen max-w-6xl grid-cols-[1fr_1.05fr] px-[6%] py-8 max-[900px]:grid-cols-1 max-[900px]:gap-8">
+      <div className="mx-auto grid min-h-screen max-w-6xl grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)] gap-x-10 px-[6%] py-8 max-[900px]:grid-cols-1 max-[900px]:gap-8">
         <section className="flex flex-col justify-between py-8 max-[900px]:py-0">
           <Logo />
           <div className="max-w-[440px] max-[900px]:mt-12">
@@ -83,6 +95,7 @@ export function AuthCard({ mode }: AuthCardProps) {
               <div className="mb-2 text-xs font-bold uppercase tracking-[.1em] text-terracotta">{current.eyebrow}</div>
               <h2 className="mb-2 font-serif text-3xl font-black tracking-normal">{current.title}</h2>
               <p className="text-sm leading-[1.7] text-muted">{current.subtitle}</p>
+              {nextPath ? <p className="mt-4 rounded-xl bg-terracotta-lt px-4 py-3 text-sm font-semibold text-terracotta">{isSignup ? "建立帳號後，繼續預約這場次。" : "請先登入，再加入這場次。"}</p> : null}
             </div>
 
             <button
@@ -156,8 +169,8 @@ export function AuthCard({ mode }: AuthCardProps) {
             {message ? (
               <div className="mt-5 rounded-xl border border-forest/20 bg-forest-lt px-4 py-3 text-sm leading-[1.65] text-forest">
                 <div>{message}</div>
-                <Link className="mt-3 inline-flex font-bold text-forest underline underline-offset-4" href="/my-sessions">
-                  進入我的場次 demo
+                <Link className="mt-3 inline-flex font-bold text-forest underline underline-offset-4" href={nextPath ?? "/my-sessions"}>
+                  {nextPath ? "預覽這場預約 demo" : "進入我的場次 demo"}
                 </Link>
               </div>
             ) : (
@@ -166,7 +179,7 @@ export function AuthCard({ mode }: AuthCardProps) {
 
             <div className="mt-7 border-t border-cream-d pt-5 text-center text-sm text-muted">
               {current.switchText}{" "}
-              <Link className="font-bold text-terracotta no-underline hover:text-terracotta-d" href={current.switchHref}>
+              <Link className="font-bold text-terracotta no-underline hover:text-terracotta-d" href={nextPath ? `${current.switchHref}?next=${encodeURIComponent(nextPath)}` : current.switchHref}>
                 {current.switchAction}
               </Link>
             </div>

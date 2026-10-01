@@ -2,66 +2,14 @@
 
 import Link from "next/link";
 import { FormEvent, useMemo, useState } from "react";
+import { useSharedTasks } from "./useSharedTasks";
+import type { Task } from "./taskStore";
 import { Logo } from "./Logo";
+import { TaskSessionBadge } from "./TaskSessionBadge";
 
 type TaskStatus = "overdue" | "urgent" | "stale" | "open";
 
-type Task = {
-  id: number;
-  title: string;
-  deadline: string;
-  firstNoticed: string;
-  archived?: boolean;
-  completed?: boolean;
-  priority?: boolean;
-  note?: string;
-};
-
 const demoToday = "2026-05-17";
-
-const initialTasks: Task[] = [
-  {
-    id: 1,
-    title: "補齊所得稅延期申報資料",
-    deadline: "2026-05-24",
-    firstNoticed: "2026-03-16",
-    priority: true,
-    note: "先找扣繳憑單和去年申報資料"
-  },
-  {
-    id: 2,
-    title: "更新護照照片預約",
-    deadline: "2026-06-05",
-    firstNoticed: "2026-04-02",
-    note: "查附近照相館，確認週末時間"
-  },
-  {
-    id: 3,
-    title: "預約牙醫洗牙",
-    deadline: "2026-05-30",
-    firstNoticed: "2026-05-03",
-    note: "打電話或線上預約即可"
-  },
-  {
-    id: 4,
-    title: "整理五月份收據",
-    deadline: "2026-06-15",
-    firstNoticed: "2026-05-08"
-  },
-  {
-    id: 5,
-    title: "研究媽媽保單內容並做摘要",
-    deadline: "2026-05-28",
-    firstNoticed: "2026-02-20",
-    note: "先找保單，再列出看不懂的地方"
-  },
-  {
-    id: 6,
-    title: "退 iHerb 重複訂單",
-    deadline: "2026-05-20",
-    firstNoticed: "2026-05-09"
-  }
-];
 
 const statusStyle: Record<TaskStatus, { label: string; className: string; rowClass: string; sort: number }> = {
   overdue: {
@@ -97,6 +45,7 @@ function daysBetween(from: string, to = demoToday) {
 }
 
 function daysUntil(deadline: string, from = demoToday) {
+  if (!deadline) return Number.POSITIVE_INFINITY;
   const start = new Date(`${from}T00:00:00`);
   const end = new Date(`${deadline}T00:00:00`);
   return Math.round((end.getTime() - start.getTime()) / 86400000);
@@ -119,6 +68,7 @@ function defaultDate(offsetDays: number) {
 }
 
 function formatDeadline(deadline: string) {
+  if (!deadline) return "未設定期限";
   const dueIn = daysUntil(deadline);
   if (dueIn < 0) return `已過期 ${Math.abs(dueIn)} 天`;
   if (dueIn === 0) return "今天到期";
@@ -126,7 +76,7 @@ function formatDeadline(deadline: string) {
 }
 
 export function TaskBoard() {
-  const [tasks, setTasks] = useState(initialTasks);
+  const [tasks, setTasks] = useSharedTasks();
   const [title, setTitle] = useState("");
   const [deadline, setDeadline] = useState(defaultDate(7));
   const [showDetails, setShowDetails] = useState(false);
@@ -136,6 +86,9 @@ export function TaskBoard() {
   const [editTitle, setEditTitle] = useState("");
   const [editDeadline, setEditDeadline] = useState("");
   const [editNote, setEditNote] = useState("");
+  const [draggedId, setDraggedId] = useState<number | null>(null);
+  const [dropId, setDropId] = useState<number | null>(null);
+  const [sortNotice, setSortNotice] = useState("");
 
   const activeTasks = tasks.filter((task) => !task.archived);
   const archivedTasks = tasks.filter((task) => task.archived);
@@ -144,7 +97,9 @@ export function TaskBoard() {
     () =>
       [...activeTasks].sort((a, b) => {
         if (a.completed !== b.completed) return a.completed ? 1 : -1;
-        if ((a.priority ?? false) !== (b.priority ?? false)) return a.priority ? -1 : 1;
+        if (a.order !== undefined || b.order !== undefined) {
+          return (a.order ?? Number.MAX_SAFE_INTEGER) - (b.order ?? Number.MAX_SAFE_INTEGER);
+        }
         const statusDiff = statusStyle[getTaskStatus(a)].sort - statusStyle[getTaskStatus(b)].sort;
         if (statusDiff !== 0) return statusDiff;
         return daysUntil(a.deadline) - daysUntil(b.deadline);
@@ -153,6 +108,25 @@ export function TaskBoard() {
   );
 
   const unfinishedTasks = activeTasks.filter((task) => !task.completed);
+  const orderedUnfinished = sortedTasks.filter(task => !task.completed);
+
+  function moveTask(sourceId: number, targetId: number) {
+    const ordered = orderedUnfinished.map(task => task.id);
+    const from = ordered.indexOf(sourceId);
+    const to = ordered.indexOf(targetId);
+    if (from < 0 || to < 0 || from === to) return;
+    ordered.splice(from, 1);
+    ordered.splice(to, 0, sourceId);
+    try {
+      setTasks(current => current.map(task => {
+        const order = ordered.indexOf(task.id);
+        return order < 0 ? task : { ...task, order };
+      }));
+      setSortNotice(`已移至第 ${to + 1} 位，順序已儲存。`);
+    } catch {
+      setSortNotice("排序儲存失敗，請重試。");
+    }
+  }
   const urgentCount = unfinishedTasks.filter((task) => {
     const status = getTaskStatus(task);
     return status === "overdue" || status === "urgent";
@@ -171,12 +145,6 @@ export function TaskBoard() {
       current.map((task) => (task.id === taskId ? { ...task, archived: true } : task))
     );
     if (editingId === taskId) setEditingId(null);
-  }
-
-  function togglePriority(taskId: number) {
-    setTasks((current) =>
-      current.map((task) => (task.id === taskId ? { ...task, priority: !task.priority } : task))
-    );
   }
 
   function restoreTask(taskId: number) {
@@ -333,10 +301,12 @@ export function TaskBoard() {
           </button>
         </form>
 
+        <p className="mb-3 text-sm text-muted">拖曳左側把手安排先後順序。已完成事項會放在最後。</p>
+        <p role="status" className="sr-only">{sortNotice}</p>
         <section className="rounded-2xl border-[1.5px] border-border bg-white shadow-soft">
-          <div className="grid grid-cols-[34px_42px_90px_minmax(0,1fr)_120px_100px_148px] gap-3 border-b border-border bg-cream-d px-4 py-3 text-xs font-bold uppercase tracking-normal text-muted max-[900px]:hidden">
+          <div className="grid grid-cols-[24px_60px_90px_minmax(0,1fr)_120px_100px_148px] gap-3 border-b border-border bg-cream-d px-4 py-3 text-xs font-bold uppercase tracking-normal text-muted max-[900px]:hidden">
             <div />
-            <div className="text-center">優先</div>
+            <div className="text-center">完成</div>
             <div className="text-center">提醒</div>
             <div>事項</div>
             <div>預計完成</div>
@@ -352,7 +322,19 @@ export function TaskBoard() {
 
               return (
                 <article
-                  className={`border-l-4 px-4 py-3 transition-colors hover:bg-cream/70 ${
+                  onDragOver={event => {
+                    if (draggedId !== null && !task.completed && !isEditing) {
+                      event.preventDefault();
+                      event.dataTransfer.dropEffect = "move";
+                      setDropId(task.id);
+                    }
+                  }}
+                  onDrop={event => {
+                    event.preventDefault();
+                    if (draggedId !== null && !task.completed && !isEditing) moveTask(draggedId, task.id);
+                    setDraggedId(null); setDropId(null);
+                  }}
+                  className={`border-l-4 px-4 py-3 transition-colors hover:bg-cream/70 ${dropId === task.id ? "ring-2 ring-inset ring-terracotta" : ""} ${draggedId === task.id ? "opacity-50" : ""} ${
                     task.completed ? "border-l-forest bg-forest-lt/45" : `bg-white ${status.rowClass}`
                   }`}
                   key={task.id}
@@ -387,45 +369,26 @@ export function TaskBoard() {
                       />
                     </form>
                   ) : (
-                    <div className="grid min-h-[58px] grid-cols-[34px_42px_90px_minmax(0,1fr)_120px_100px_148px] items-center gap-3 max-[900px]:grid-cols-[34px_42px_minmax(0,1fr)_auto] max-[900px]:gap-2">
-                      <button
-                        className={`flex size-6 items-center justify-center rounded-full border-[1.5px] transition-colors ${
-                          task.completed
-                            ? "border-forest bg-forest text-white"
-                            : "border-border bg-cream text-transparent hover:border-forest hover:bg-forest-lt hover:text-forest"
-                        }`}
-                        type="button"
-                        onClick={() => toggleComplete(task.id)}
-                        aria-label={task.completed ? `取消完成 ${task.title}` : `標記完成 ${task.title}`}
-                        title={task.completed ? "取消完成" : "標記完成"}
-                      >
-                        ✓
-                      </button>
-                      {task.completed ? (
-                        <div aria-hidden="true" />
-                      ) : (
-                        <button
-                          className={`inline-flex size-8 items-center justify-center rounded transition-colors ${
-                            task.priority
-                              ? "text-amber"
-                              : "text-light hover:text-amber"
-                          }`}
-                          type="button"
-                          onClick={() => togglePriority(task.id)}
-                          aria-label={task.priority ? `取消重要 ${task.title}` : `標記重要 ${task.title}`}
-                          title={task.priority ? "取消重要" : "標記重要"}
-                        >
-                          <svg aria-hidden="true" className="size-[18px]" fill={task.priority ? "currentColor" : "none"} viewBox="0 0 24 24">
-                            <path
-                              d="m12 3.8 2.38 4.82 5.32.77-3.85 3.75.91 5.3L12 15.94l-4.76 2.5.91-5.3L4.3 9.39l5.32-.77L12 3.8Z"
-                              stroke="currentColor"
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth="1.8"
-                            />
-                          </svg>
-                        </button>
-                      )}
+                    <div className="grid min-h-[58px] grid-cols-[24px_60px_90px_minmax(0,1fr)_120px_100px_148px] items-center gap-3 max-[900px]:grid-cols-[24px_60px_minmax(0,1fr)_auto] max-[900px]:gap-2">
+                      {!task.completed ? (
+                        <button type="button" draggable aria-label={`拖曳排序：${task.title}，可用鍵盤上下鍵調整`} title="拖曳調整順序"
+                          className="flex h-10 w-6 cursor-grab items-center justify-center rounded text-xl text-light hover:text-muted focus-visible:outline-terracotta active:cursor-grabbing"
+                          onDragStart={event => { setDraggedId(task.id); event.dataTransfer.effectAllowed = "move"; event.dataTransfer.setData("text/plain", String(task.id)); }}
+                          onDragEnd={() => { setDraggedId(null); setDropId(null); }}
+                          onKeyDown={event => {
+                            if (event.key !== "ArrowUp" && event.key !== "ArrowDown") return;
+                            event.preventDefault();
+                            const index = orderedUnfinished.findIndex(item => item.id === task.id);
+                            const target = orderedUnfinished[index + (event.key === "ArrowUp" ? -1 : 1)];
+                            if (target) moveTask(task.id, target.id);
+                          }}>⠿</button>
+                      ) : <div />}
+                      <label className="flex cursor-pointer flex-col items-center gap-1 py-2 text-xs text-muted">
+                        <input type="checkbox" className="size-5 cursor-pointer accent-forest"
+                          checked={!!task.completed} onChange={() => toggleComplete(task.id)}
+                          aria-label={task.completed ? `取消完成 ${task.title}` : `標記完成 ${task.title}`} />
+                        <span>{task.completed ? "已完成" : "完成"}</span>
+                      </label>
                       <div className="max-[900px]:hidden">
                         <span className={`inline-flex min-w-[62px] justify-center rounded px-2 py-1 text-xs font-bold ${task.completed ? "bg-forest text-white" : status.className}`}>
                           {task.completed ? "已完成" : status.label}
@@ -441,6 +404,7 @@ export function TaskBoard() {
                           </span>
                           {task.title}
                         </div>
+                        <TaskSessionBadge taskId={task.id} />
                         {!task.completed && task.note ? (
                           <div
                             className="mt-0.5 truncate text-xs leading-relaxed text-light"

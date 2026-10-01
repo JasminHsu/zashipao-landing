@@ -108,7 +108,7 @@ export function SessionRoom() {
             <div className="h-6 w-px bg-white/10" />
             <div>
               <div className="font-serif text-sm font-bold">晚間雜事衝刺 #3</div>
-              <div className="mt-0.5 text-xs text-white/45">今晚 21:00 - 21:50 · 6 / 8 人</div>
+              <div className="mt-0.5 text-xs text-white/45">今晚 21:00 - 21:50 · {participants.length} / 5 人</div>
             </div>
             <div className="hidden items-center gap-1.5 rounded-full border border-forest/35 bg-forest/25 px-3 py-1 text-xs font-bold text-[#7EDBB8] sm:flex">
               <span className="size-1.5 animate-blink rounded-full bg-current" />
@@ -160,13 +160,13 @@ export function SessionRoom() {
               </div>
             ))}
 
-            <button
+            {participants.length < 5 ? <button
               className="flex min-h-[180px] flex-col items-center justify-center rounded-2xl border-2 border-dashed border-white/15 bg-white/[.025] text-white/40 hover:border-terracotta/60 hover:bg-terracotta/10 hover:text-white"
               type="button"
             >
               <span className="text-3xl">＋</span>
               <span className="mt-2 text-sm font-bold">空位 · 邀請朋友</span>
-            </button>
+            </button> : null}
           </div>
 
           <div className="relative flex h-[72px] shrink-0 items-center justify-center gap-3 border-t border-white/10 bg-[#16110E]/95 px-5">

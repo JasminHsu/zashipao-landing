@@ -1,24 +1,8 @@
 import Link from "next/link";
 import { Logo } from "./Logo";
+import { SessionTaskEditor } from "./SessionTaskEditor";
 
-const upcomingSessions = [
-  {
-    title: "雜事衝刺場",
-    date: "2026/05/17（週日）",
-    time: "21:00 - 21:50",
-    status: "等候區已開放",
-    tasks: ["補齊所得稅延期申報資料", "預約牙醫洗牙"],
-    canEnterWaiting: true
-  },
-  {
-    title: "雜事衝刺場",
-    date: "2026/05/18（週一）",
-    time: "12:00 - 12:50",
-    status: "尚未開放",
-    tasks: ["更新護照照片預約"],
-    canEnterWaiting: false
-  }
-];
+import { upcomingSessions } from "./sessionData";
 
 const completedSessions = [
   {
@@ -54,9 +38,9 @@ export function MySessions() {
         <section className="mb-6 flex items-end justify-between gap-5 max-[760px]:block">
           <div>
             <div className="mb-2 text-xs font-bold uppercase tracking-[.1em] text-terracotta">我的場次</div>
-            <h1 className="font-serif text-4xl font-black leading-tight tracking-normal">接下來要出現在哪裡</h1>
+            <h1 className="font-serif text-4xl font-black leading-tight tracking-normal">接下來的場次</h1>
             <p className="mt-2 max-w-[640px] text-[.96rem] leading-[1.7] text-muted">
-              已預約的場次會在這裡。等候區開放後，可以先進去確認這場真的要做什麼。
+              已預約的場次會在這裡，可隨時編輯待辦事項。等候區於活動開始前五分鐘開放。
             </p>
           </div>
           <Link
@@ -69,7 +53,7 @@ export function MySessions() {
 
         <section className="grid gap-3">
           {upcomingSessions.map((session) => (
-            <article className="rounded-2xl border-[1.5px] border-border bg-white p-5 shadow-soft" key={`${session.date}-${session.time}`}>
+            <article id={session.id} className="scroll-mt-20 rounded-2xl border-[1.5px] border-border bg-white p-5 shadow-soft" key={`${session.date}-${session.time}`}>
               <div className="grid grid-cols-[220px_minmax(0,1fr)_auto] gap-5 max-[760px]:grid-cols-1">
                 <div>
                   <div className="whitespace-nowrap font-serif text-[1.35rem] font-black text-ink">{session.date}</div>
@@ -83,13 +67,7 @@ export function MySessions() {
                       {session.status}
                     </span>
                   </div>
-                  <div className="mt-3 grid gap-2">
-                    {session.tasks.map((task) => (
-                      <div className="rounded-xl bg-cream px-3 py-2 text-sm font-semibold text-muted" key={task}>
-                        {task}
-                      </div>
-                    ))}
-                  </div>
+                  <SessionTaskEditor sessionId={`${session.date}-${session.time}`} initialTasks={session.tasks} />
                 </div>
                 <div className="flex items-center">
                   {session.canEnterWaiting ? (

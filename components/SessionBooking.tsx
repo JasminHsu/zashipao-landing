@@ -83,8 +83,8 @@ function getDateFilterLabel(offset: number) {
 }
 
 function getSpots(templateIndex: number, dateOffset: number) {
-  const taken = ((templateIndex + dateOffset * 2) % 5) + 1;
-  return `${taken} / 6 人`;
+  const taken = ((templateIndex + dateOffset * 2) % 4) + 1;
+  return `${taken} / 5 人`;
 }
 
 const initialTasks: BookableTask[] = [
@@ -261,7 +261,7 @@ function addAdHocTask(event: FormEvent<HTMLFormElement>) {
               <div>
                 <h1 className="font-serif text-4xl font-black leading-tight tracking-normal">先選你要出現的時間</h1>
                 <p className="mt-2 max-w-[650px] text-[.96rem] leading-[1.7] text-muted">
-                  先挑一個你願意出現的時段。選好後，再決定這場要處理哪件雜事。
+                  每房最多 5 人。先挑一個你願意出現的時段，選好後，再決定這場要處理哪件雜事。
                 </p>
               </div>
             </section>
@@ -410,7 +410,7 @@ function addAdHocTask(event: FormEvent<HTMLFormElement>) {
                 </div>
               ) : (
                 <div className="mb-4 rounded-xl border border-forest/20 bg-forest-lt p-3 text-sm leading-[1.6] text-forest">
-                  系統會把這些事項記在本場預約裡。開場前 5 分鐘，還可以再調整。
+                  系統會把這些事項記在本場預約裡。預約後，可隨時到「我的場次」編輯待辦事項。
                 </div>
               )}
 
@@ -437,7 +437,7 @@ function addAdHocTask(event: FormEvent<HTMLFormElement>) {
               {selectedSession.day} {selectedSession.time} - {selectedSession.endTime}
             </h2>
             <p className="mb-4 text-sm leading-[1.7] text-muted">
-              這場會帶著 {selectedTasks.length} 件雜事進場。開始前可以再回來調整本場承諾。
+              這場會帶著 {selectedTasks.length} 件雜事進場。預約後，可隨時到「我的場次」編輯待辦事項。
             </p>
             <div className="mb-5 grid gap-2">
               {selectedTasks.map((task) => (
