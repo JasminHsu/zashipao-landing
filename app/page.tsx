@@ -12,18 +12,19 @@ import { Testimonials } from "@/components/Testimonials";
 import { Ticker } from "@/components/Ticker";
 import type { HomeSession } from "@/components/HomeSessionCard";
 
-// Replace this fixture with published backend sessions and remove the preview prop.
-const previewSessions: HomeSession[] = [
-  {
-    title: "晚間雜事衝刺",
-    bookedCount: 4,
-    startsAt: "2026-09-30T21:00:00+08:00",
-    endsAt: "2026-09-30T21:50:00+08:00",
-    bookingHref: "/sessions/book"
-  }
-];
+import { getPublicSessions } from "@/lib/publicSessions";
+export const dynamic = "force-dynamic";
 
-export default function Home() {
+export default async function Home() {
+  let sessions: HomeSession[] = [];
+  let failed = false;
+  try {
+    sessions = (await getPublicSessions()).map(session => ({
+      title: session.title, startsAt: session.starts_at, endsAt: session.ends_at,
+      bookedCount: session.booked_count, capacity: session.capacity,
+      bookingHref: `/sessions/book?session=${session.id}`
+    }));
+  } catch { failed = true; }
   return (
     <>
       <RevealController />
@@ -33,8 +34,8 @@ export default function Home() {
         <Ticker />
         <ProblemSection />
         <HowItWorks />
-        <Features upcomingSessions={previewSessions} preview />
-        <Sessions />
+        <Features upcomingSessions={sessions} loadError={failed} />
+        <Sessions sessions={sessions.slice(0, 6)} loadError={failed} />
         <LineBand />
         <Testimonials />
         <CTA />

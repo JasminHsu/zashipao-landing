@@ -1,4 +1,5 @@
-import { HomeSessionCard, HomeSessionCardProps } from "./HomeSessionCard";
+import { HomeSessionCardProps } from "./HomeSessionCard";
+import { PersonalHomeSession } from "./PersonalHomeSession";
 
 export function Features(props: HomeSessionCardProps) {
   return (
@@ -24,7 +25,7 @@ export function Features(props: HomeSessionCardProps) {
           </div>
         </div>
         <div className="rv [&>div]:border-0 [&>div]:shadow-editorial">
-          <HomeSessionCard {...props} />
+          <PersonalHomeSession {...props} />
         </div>
       </div>
     </section>

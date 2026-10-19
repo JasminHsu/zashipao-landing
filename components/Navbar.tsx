@@ -1,27 +1,47 @@
-import { ButtonLink } from "./ButtonLink";
-import { Logo } from "./Logo";
+'use client';
+
+import Link from 'next/link';
+import { useEffect, useState } from 'react';
+import { browserAuth } from '@/lib/supabase/browser';
+import { AccountMenu } from './AccountMenu';
+import { Logo } from './Logo';
 
 export function Navbar() {
+  const [signedIn, setSignedIn] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    const { data: { subscription } } = browserAuth().auth.onAuthStateChange((_event, session) => {
+      setSignedIn(!!session?.user);
+    });
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const links = signedIn ? [
+    { href: '/sessions', label: '可預約場次' },
+    { href: '/my-sessions', label: '我的場次' },
+    { href: '/tasks', label: '待辦清單' }
+  ] : [
+    { href: '/#how', label: '怎麼運作' },
+    { href: '/#sessions', label: '場次' }
+  ];
+
   return (
-    <nav className="sticky top-0 z-50 flex h-[68px] items-center justify-between border-b border-black/10 bg-[#FFFDF8]/95 px-[5%] backdrop-blur-xl">
-      <Logo />
-      <div className="flex items-center gap-7 max-[720px]:gap-2.5">
-        <a className="text-sm text-ink/65 no-underline transition-colors hover:text-ink max-[760px]:hidden" href="#how">
-          怎麼運作
-        </a>
-        <a className="text-sm text-ink/65 no-underline transition-colors hover:text-ink max-[760px]:hidden" href="#sessions">
-          場次
-        </a>
-        <a className="text-sm text-ink/65 no-underline transition-colors hover:text-ink max-[760px]:hidden" href="/tasks">
-          待辦清單
-        </a>
-        <ButtonLink href="/login" variant="outline" className="border-black/20 bg-white px-5 py-2 max-[520px]:hidden">
-          登入
-        </ButtonLink>
-        <ButtonLink href="/login" className="bg-[#244D3D] px-5 py-2.5 text-white hover:bg-ink">
-          免費加入
-        </ButtonLink>
+    <header className="sticky top-0 z-50 border-b border-black/10 bg-[#FFFDF8]/95 backdrop-blur-xl">
+      <div className="mx-auto flex min-h-[68px] max-w-[1440px] items-center justify-between gap-6 px-[5%]">
+        <Logo />
+        <div className="flex min-w-0 items-center justify-end gap-6 max-[760px]:gap-3">
+          <nav aria-label="主要導覽" className="flex min-w-0 items-center gap-6 max-[760px]:hidden">
+            {signedIn === null ? (
+              <span className="text-sm text-ink/45" role="status">載入中…</span>
+            ) : links.map(link => (
+              <Link key={link.href} href={link.href} className="whitespace-nowrap text-sm text-ink/65 no-underline transition-colors hover:text-ink">
+                {link.label}
+              </Link>
+            ))}
+          </nav>
+          <AccountMenu />
+        </div>
       </div>
-    </nav>
+    </header>
   );
 }

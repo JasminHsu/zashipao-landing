@@ -18,7 +18,6 @@ export function Hero() {
             <span className="block h-2 w-2 bg-[#F06B4F]" aria-hidden="true" />
             線上共做空間
           </div>
-
           <h1 className="font-sans text-[clamp(4.25rem,8vw,7.4rem)] font-black leading-none text-ink">
             雜事房
           </h1>

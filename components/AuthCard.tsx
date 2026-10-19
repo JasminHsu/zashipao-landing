@@ -3,7 +3,10 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FormEvent, useEffect, useState } from "react";
+import { browserAuth } from "@/lib/supabase/browser";
+import { authRedirect } from "@/lib/authRedirect";
 import { Logo } from "./Logo";
+import { PasswordField } from "./PasswordField";
 
 type AuthMode = "login" | "signup";
 
@@ -20,19 +23,15 @@ const copy = {
     switchText: "還沒有帳號？",
     switchAction: "免費加入",
     switchHref: "/signup",
-    helper: "目前是靜態展示版，正式登入功能會在接上 Supabase 後開放。",
-    success: "登入功能即將開放。正式接上帳號系統後，登入成功會帶你去選一場 50 分鐘 session。"
   },
   signup: {
     eyebrow: "免費開始",
     title: "加入第一批雜事房成員",
-    subtitle: "先建立帳號入口，之後可以接上等待名單、LINE 通知和正式會員系統。",
+    subtitle: "用 Email 建立帳號，開始安排你的雜事時間。",
     button: "建立帳號",
     switchText: "已經有帳號？",
     switchAction: "登入",
     switchHref: "/login",
-    helper: "目前先保留 Email 註冊入口，不會真的送出資料。",
-    success: "註冊功能即將開放。正式建立帳號後，下一步會帶你去選一場 50 分鐘 session。"
   }
 };
 
@@ -40,21 +39,60 @@ export function AuthCard({ mode }: AuthCardProps) {
   const router = useRouter();
   const [message, setMessage] = useState("");
   const [nextPath, setNextPath] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [failed, setFailed] = useState(false);
   useEffect(() => {
-    const next = new URLSearchParams(window.location.search).get("next");
-    // Only retain local booking destinations.
-    if (next && /^\/sessions(?:\/book)?(?:\?[^#]*)?$/.test(next)) setNextPath(next);
+    const params = new URLSearchParams(window.location.search);
+    if (params.has('next')) setNextPath(authRedirect(params.get('next')));
+    if (params.has('error')) {
+      setFailed(true); setMessage('驗證連結已失效，或不是在原本註冊的瀏覽器開啟。請重新登入；若尚未驗證，請使用最新的驗證信。');
+    }
   }, []);
   const current = copy[mode];
   const isSignup = mode === "signup";
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (isSignup) {
-      router.push(nextPath ?? "/sessions");
-      return;
+    if (busy) return;
+    const form = new FormData(event.currentTarget);
+    const email = String(form.get('email') ?? '').trim();
+    const nickname = String(form.get('nickname') ?? '').trim();
+    const password = String(form.get('password') ?? '');
+    setMessage(''); setFailed(false);
+    if (isSignup && password !== form.get('confirmPassword')) {
+      setFailed(true); setMessage('兩次輸入的密碼不一致。'); return;
     }
-    setMessage(current.success);
+    if (isSignup && (Array.from(nickname).length > 24 || /[\u0000-\u001f\u007f]/.test(nickname))) {
+      setFailed(true); setMessage('暱稱限 24 個字，不能包含換行或控制字元。'); return;
+    }
+    setBusy(true);
+    try {
+      const client = browserAuth();
+      const result = isSignup
+        ? await client.auth.signUp({ email, password, options: {
+            data: { nickname },
+            emailRedirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(nextPath ?? '/sessions')}`
+          } })
+        : await client.auth.signInWithPassword({ email, password });
+      if (result.error) {
+        const code = result.error.code;
+        const messages: Record<string, string> = {
+          invalid_credentials: 'Email 或密碼不正確。',
+          email_not_confirmed: '請先到信箱完成 Email 驗證，再登入。',
+          user_already_exists: '此 Email 已註冊，請改用登入。',
+          weak_password: '密碼強度不足，請使用至少 8 個字元並混合英文字母與數字。',
+          over_email_send_rate_limit: '驗證信寄送次數已達上限，請稍後再試。',
+          over_request_rate_limit: '操作太頻繁，請稍後再試。',
+          email_address_not_authorized: '目前寄信服務尚未允許此 Email，請聯絡管理者完成寄信設定。'
+        };
+        setFailed(true); setMessage(messages[code ?? ''] ?? '目前無法完成操作，請稍後再試。');
+      } else if (result.data.session) {
+        router.replace(nextPath ?? '/sessions'); router.refresh();
+      } else {
+        setMessage('若此 Email 可註冊，我們已寄出驗證信。請在這個瀏覽器開啟信中的連結；若已有帳號，請直接登入。');
+      }
+    } catch { setFailed(true); setMessage('連線失敗，請檢查網路後重試。'); }
+    finally { setBusy(false); }
   }
 
   return (
@@ -98,84 +136,47 @@ export function AuthCard({ mode }: AuthCardProps) {
               {nextPath ? <p className="mt-4 rounded-xl bg-terracotta-lt px-4 py-3 text-sm font-semibold text-terracotta">{isSignup ? "建立帳號後，繼續預約這場次。" : "請先登入，再加入這場次。"}</p> : null}
             </div>
 
-            <button
-              type="button"
-              className="mb-5 flex w-full items-center justify-center gap-2 rounded-full border-[1.5px] border-border bg-white px-4 py-3 text-sm font-bold text-ink transition-colors hover:border-muted"
-              onClick={() => setMessage("Google 登入會在正式帳號系統建立後開放。")}
-            >
-              <span className="flex size-5 items-center justify-center rounded-full bg-cream-d text-xs font-black">G</span>
-              使用 Google 繼續
-            </button>
-
-            <div className="mb-5 flex items-center gap-3 text-xs text-light">
-              <span className="h-px flex-1 bg-border" />
-              或使用 Email
-              <span className="h-px flex-1 bg-border" />
-            </div>
-
             <form className="space-y-4" onSubmit={handleSubmit}>
+              {isSignup ? <label className="block"><span className="mb-1.5 block text-sm font-semibold text-ink">暱稱（選填）</span><input name="nickname" autoComplete="nickname" placeholder="例如：小晴" className="w-full rounded-xl border-[1.5px] border-border bg-cream px-4 py-3 text-base" /><span className="mt-2 block text-xs text-muted">同場夥伴會看到這個名字。也可以之後在等候區設定。</span></label> : null}
               <label className="block">
                 <span className="mb-1.5 block text-sm font-semibold text-ink">Email</span>
                 <input
                   className="w-full rounded-xl border-[1.5px] border-border bg-cream px-4 py-3 text-base outline-none transition-colors placeholder:text-light focus:border-terracotta"
+                  name="email"
+                  autoComplete="email"
                   type="email"
                   placeholder="you@example.com"
                   required
                 />
               </label>
-              <label className="block">
-                <span className="mb-1.5 block text-sm font-semibold text-ink">密碼</span>
-                <input
-                  className="w-full rounded-xl border-[1.5px] border-border bg-cream px-4 py-3 text-base outline-none transition-colors placeholder:text-light focus:border-terracotta"
-                  type="password"
-                  placeholder="至少 8 個字元"
-                  minLength={8}
-                  required
-                />
-              </label>
+              <PasswordField
+                label="密碼"
+                name="password"
+                autoComplete={isSignup ? "new-password" : "current-password"}
+                placeholder="至少 8 個字元"
+                minLength={isSignup ? 8 : undefined}
+              />
               {isSignup ? (
-                <label className="block">
-                  <span className="mb-1.5 block text-sm font-semibold text-ink">確認密碼</span>
-                  <input
-                    className="w-full rounded-xl border-[1.5px] border-border bg-cream px-4 py-3 text-base outline-none transition-colors placeholder:text-light focus:border-terracotta"
-                    type="password"
-                    placeholder="再輸入一次密碼"
-                    minLength={8}
-                    required
-                  />
-                </label>
+                <PasswordField
+                  label="確認密碼"
+                  name="confirmPassword"
+                  autoComplete="new-password"
+                  placeholder="再輸入一次密碼"
+                  minLength={8}
+                />
               ) : null}
 
-              {!isSignup ? (
-                <div className="text-right">
-                  <button
-                    type="button"
-                    className="text-sm font-semibold text-terracotta transition-colors hover:text-terracotta-d"
-                    onClick={() => setMessage("忘記密碼流程會在接上帳號系統後開放。")}
-                  >
-                    忘記密碼？
-                  </button>
-                </div>
-              ) : null}
-
+              {!isSignup ? <div className="text-right"><Link href="/forgot-password" className="text-sm font-semibold text-terracotta">忘記密碼？</Link></div> : null}
               <button
                 type="submit"
+                disabled={busy}
                 className="w-full rounded-full bg-terracotta px-5 py-3 text-base font-bold text-white transition-all hover:-translate-y-px hover:bg-terracotta-d"
               >
-                {current.button}
+                {busy ? "處理中…" : current.button}
               </button>
             </form>
 
-            {message ? (
-              <div className="mt-5 rounded-xl border border-forest/20 bg-forest-lt px-4 py-3 text-sm leading-[1.65] text-forest">
-                <div>{message}</div>
-                <Link className="mt-3 inline-flex font-bold text-forest underline underline-offset-4" href={nextPath ?? "/my-sessions"}>
-                  {nextPath ? "預覽這場預約 demo" : "進入我的場次 demo"}
-                </Link>
-              </div>
-            ) : (
-              <p className="mt-5 text-sm leading-[1.65] text-light">{current.helper}</p>
-            )}
+            {message ? <div role={failed ? 'alert' : 'status'} className={`mt-5 rounded-xl p-4 text-sm ${failed ? 'bg-terracotta-lt text-terracotta' : 'bg-forest-lt text-forest'}`}>{message}</div> : null}
 
             <div className="mt-7 border-t border-cream-d pt-5 text-center text-sm text-muted">
               {current.switchText}{" "}
