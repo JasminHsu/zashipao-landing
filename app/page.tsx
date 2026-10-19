@@ -30,11 +30,11 @@ export default async function Home() {
       <RevealController />
       <Navbar />
       <main>
-        <Hero upcomingSessions={sessions} loadError={failed} />
+        <Hero />
         <Ticker />
         <ProblemSection />
         <HowItWorks />
-        <Features />
+        <Features upcomingSessions={sessions} loadError={failed} />
         <Sessions sessions={sessions.slice(0, 6)} loadError={failed} />
         <LineBand />
         <Testimonials />
