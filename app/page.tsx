@@ -29,11 +29,11 @@ export default function Home() {
       <RevealController />
       <Navbar />
       <main>
-        <Hero upcomingSessions={previewSessions} preview />
+        <Hero />
         <Ticker />
         <ProblemSection />
         <HowItWorks />
-        <Features />
+        <Features upcomingSessions={previewSessions} preview />
         <Sessions />
         <LineBand />
         <Testimonials />

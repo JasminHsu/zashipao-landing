@@ -5,6 +5,11 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
+        paper: "#FFFDF8",
+        citron: "#E7F36A",
+        coral: "#F26C4F",
+        pine: "#244D3D",
+        sky: "#BFDDF5",
         cream: {
           DEFAULT: "#FAF7F2",
           d: "#F0EBE0",
@@ -37,7 +42,8 @@ const config: Config = {
       },
       boxShadow: {
         soft: "0 2px 16px rgba(28,25,23,.08)",
-        lift: "0 6px 32px rgba(28,25,23,.12)"
+        lift: "0 12px 40px rgba(28,25,23,.14)",
+        editorial: "0 24px 70px rgba(28,25,23,.16)"
       },
       spacing: {
         "22": "5.5rem"
