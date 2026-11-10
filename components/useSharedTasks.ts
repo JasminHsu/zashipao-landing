@@ -14,17 +14,28 @@ function publish(patch: Partial<State>) {
   listeners.forEach(listener => listener());
 }
 const subscribe = (listener: () => void) => { listeners.add(listener); return () => { listeners.delete(listener); }; };
-const columns = 'id,title,deadline,first_noticed,completed,archived,priority,note,sort_order';
+const columns = '*';
 function fromRow(row: Record<string, unknown>): Task {
-  return { id: Number(row.id), title: String(row.title), deadline: row.deadline ? String(row.deadline) : '',
+  return { weeklyGoalId: row.weekly_goal_id ? String(row.weekly_goal_id) : undefined, occurrenceWeek: row.occurrence_week ? String(row.occurrence_week) : undefined, occurrenceNumber: row.occurrence_number ? Number(row.occurrence_number) : undefined, id: Number(row.id), title: String(row.title), deadline: row.deadline ? String(row.deadline) : '',
     firstNoticed: String(row.first_noticed), completed: Boolean(row.completed), archived: Boolean(row.archived),
     priority: Boolean(row.priority), note: row.note ? String(row.note) : undefined,
     order: typeof row.sort_order === 'number' ? row.sort_order : undefined };
 }
 function toRow(task: Task, userId: string) {
-  return { user_id: userId, id: task.id, title: task.title, deadline: task.deadline || null,
+  return { ...(task.weeklyGoalId ? { weekly_goal_id: task.weeklyGoalId, occurrence_week: task.occurrenceWeek, occurrence_number: task.occurrenceNumber } : {}), user_id: userId, id: task.id, title: task.title, deadline: task.deadline || null,
     first_noticed: task.firstNoticed, completed: !!task.completed, archived: !!task.archived,
     priority: !!task.priority, note: task.note || null, sort_order: task.order ?? null };
+}
+async function verifyUser(userId: string, token: number): Promise<boolean> {
+  const { data, error } = await browserAuth().auth.getUser();
+  if (token !== generation) return false;
+  if (error && error.status !== 401 && error.status !== 403) throw error;
+  if (error || !data.user || data.user.id !== userId) {
+    ++generation;
+    publish({ ...initial, loading: false, error: '登入已失效，請重新登入。' });
+    return false;
+  }
+  return true;
 }
 async function refresh() {
   if (!state.userId || state.saving) return;
@@ -32,6 +43,7 @@ async function refresh() {
   const token = ++generation;
   publish({ loading: true, error: '' });
   try {
+    if (!await verifyUser(userId, token)) return;
     const { data, error } = await browserAuth().from('tasks').select(columns).eq('user_id', userId).order('id', { ascending: false });
     if (error) throw error;
     if (token === generation) publish({ tasks: (data ?? []).map(fromRow), loading: false });
@@ -63,6 +75,7 @@ async function updateTasks(update: SetStateAction<Task[]>): Promise<boolean> {
   const removed = before.filter(task => !next.some(item => item.id === task.id)).map(task => task.id);
   publish({ saving: true, error: '' });
   try {
+    if (!await verifyUser(userId, token)) return false;
     // Existing UI operations either delete rows or upsert rows, never both.
     if (changed.length && removed.length) throw new Error('Mixed operation is not supported');
     if (changed.length) {
