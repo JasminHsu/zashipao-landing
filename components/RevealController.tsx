@@ -4,6 +4,11 @@ import { useEffect } from "react";
 
 export function RevealController() {
   useEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      document.querySelectorAll(".rv").forEach((element) => element.classList.add("vis"));
+      return;
+    }
+
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {

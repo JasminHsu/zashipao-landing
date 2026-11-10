@@ -21,7 +21,7 @@ export function Hero() {
             這是一個 5 人以內的線上共做空間。帶一件想完成的生活雜事來，大家一起開始、各自專心，50 分鐘後再回來看看進度。
           </p>
           <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-            <ButtonLink href="/login" className="bg-[#FF5A36] px-7 py-3 text-base font-bold text-white hover:bg-ink">免費加入</ButtonLink>
+            <ButtonLink href="/signup" className="bg-[#FF5A36] px-7 py-3 text-base font-bold text-ink hover:bg-[#F24A27]">免費加入</ButtonLink>
             <ButtonLink href="#sessions" variant="outline" className="border-black/25 bg-white px-6 py-[.7rem] text-[.95rem]">看近期場次</ButtonLink>
           </div>
         </div>

@@ -74,6 +74,6 @@ export function AccountMenu() {
       }}>{busy ? '登出中…' : '登出'}</button>
       {error ? <p role="alert" className="mt-2 text-terracotta">{error}</p> : null}
       </div>
-    </details> : <><Link href="/login">登入</Link><Link className="rounded-full bg-terracotta px-4 py-2 text-white" href="/signup">免費加入</Link></>}
+    </details> : <><Link href="/login">登入</Link><Link className="rounded-full bg-terracotta px-4 py-2 font-semibold text-ink" href="/signup">免費加入</Link></>}
   </div>;
 }

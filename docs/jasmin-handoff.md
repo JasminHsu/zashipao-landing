@@ -85,3 +85,8 @@
 此次更新現有 PR #8：https://github.com/JasminHsu/zashipao-landing/pull/8 。包含行事曆、手機排版、密碼重設回跳錯誤處理、清理 dry-run 與文件。交付前 PR #7 和 #8 都尚未合併，請接手者核對最新狀態。TypeScript 與 19 項自動測試通過。
 
 先讀 docs/mobile-check.md 與 docs/video-cleanup-schedule.md，再安排 Preview 完整測試。清理排程沒有啟用，LINE 沒有實作。這批沒有新增資料庫 migration 或環境變數，不需重跑先前 SQL。
+
+## Parking lot 更新 — 2026-11-09
+
+- 正式站的註冊驗證、登入與忘記密碼回跳已由使用者確認成功。
+- Supabase 驗證信目前仍顯示 `Supabase Auth` 與預設英文內容；品牌化寄件人、確認信及重設密碼信列入 `docs/PARKING_LOT.md`，不阻擋本次 Ching 功能與 Jasmin 視覺稿整合。

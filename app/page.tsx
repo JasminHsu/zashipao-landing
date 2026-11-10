@@ -14,7 +14,7 @@ import { Ticker } from "@/components/Ticker";
 import type { HomeSession } from "@/components/HomeSessionCard";
 
 import { getPublicSessions } from "@/lib/publicSessions";
-export const dynamic = "force-dynamic";
+export const revalidate = 60;
 
 export default async function Home() {
   let sessions: HomeSession[] = [];

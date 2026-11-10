@@ -52,8 +52,8 @@ const config: Config = {
         xl2: "28px"
       },
       fontFamily: {
-        sans: ["Noto Sans TC", "sans-serif"],
-        serif: ["Noto Serif TC", "serif"]
+        sans: ["var(--font-sans)", "sans-serif"],
+        serif: ["var(--font-serif)", "serif"]
       },
       keyframes: {
         blink: {

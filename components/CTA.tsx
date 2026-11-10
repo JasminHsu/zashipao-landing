@@ -14,7 +14,7 @@ export function CTA() {
           <p className="mb-7 text-base leading-[1.75] text-ink/70">
             不用先變得很有自制力。選一場適合的時間，帶著那件事進來。
           </p>
-          <ButtonLink href="/login" className="bg-ink px-8 py-3.5 text-base font-bold text-white hover:bg-[#244D3D]">
+          <ButtonLink href="/signup" className="bg-ink px-8 py-3.5 text-base font-bold text-white hover:bg-[#244D3D]">
             免費加入雜事房
           </ButtonLink>
           <div className="mt-4 text-sm text-ink/55">不用下載，打開瀏覽器就能參加</div>

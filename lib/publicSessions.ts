@@ -14,7 +14,7 @@ export async function getPublicSessions(): Promise<PublicSession[]> {
   const endpoint = new URL("/rest/v1/rpc/list_available_sessions", url);
   const response = await fetch(endpoint, {
     headers: { apikey: key },
-    cache: "no-store",
+    next: { revalidate: 60 },
     signal: AbortSignal.timeout(10000)
   });
   if (!response.ok) throw new Error(`Session request failed: ${response.status}`);
