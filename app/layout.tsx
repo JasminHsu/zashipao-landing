@@ -5,20 +5,20 @@ import "./globals.css";
 const sans = Noto_Sans_TC({
   variable: "--font-sans",
   subsets: ["latin"],
-  weight: ["300", "400", "500", "700", "900"],
+  weight: ["400", "700", "900"],
   display: "swap"
 });
 
 const serif = Noto_Serif_TC({
   variable: "--font-serif",
   subsets: ["latin"],
-  weight: ["400", "700", "900"],
+  weight: ["700", "900"],
   display: "swap"
 });
 
 export const metadata: Metadata = {
-  title: "雜事房 — 把一直拖著的事，今天一起做完",
-  description: "加入線上共事場次，在 50 分鐘內完成那些你清單上永遠排不到的生活雜事。"
+  title: "雜事房 — 把一直拖著的事，今天一起開始",
+  description: "加入 5 人以內的線上共做場次，替一直被延後的生活雜事留一段 50 分鐘的時間。"
 };
 
 export default function RootLayout({

@@ -11,7 +11,7 @@ export function Sessions({ sessions, loadError = false }: { sessions: HomeSessio
         <div className="mb-12 flex items-end justify-between gap-8 max-[720px]:items-start">
           <div>
             <p className="mb-4 text-sm font-bold text-[#244D3D]">近期場次</p>
-            <h2 className="font-serif text-[clamp(2.5rem,5vw,5rem)] font-black leading-[1.06]">
+            <h2 className="font-sans text-[clamp(2.5rem,5vw,5rem)] font-black leading-[1.06]">
               找一段時間，<br />留給那件事。
             </h2>
           </div>
@@ -37,7 +37,7 @@ export function Sessions({ sessions, loadError = false }: { sessions: HomeSessio
                 <div className="text-sm text-ink/65 max-[900px]:col-start-1 max-[620px]:col-span-2">
                   {sessionTime(session.startsAt)}–{sessionTime(session.endsAt)}
                 </div>
-                <h3 className="font-serif text-xl font-bold max-[900px]:col-start-2 max-[900px]:row-start-1 max-[620px]:col-start-1 max-[620px]:row-auto">
+                <h3 className="font-sans text-xl font-black max-[900px]:col-start-2 max-[900px]:row-start-1 max-[620px]:col-start-1 max-[620px]:row-auto">
                   {session.title}
                 </h3>
                 <div className="max-[900px]:hidden">

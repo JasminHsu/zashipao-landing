@@ -1,5 +1,6 @@
 import { CTA } from "@/components/CTA";
 import { Features } from "@/components/Features";
+import { FAQ } from "@/components/FAQ";
 import { Footer } from "@/components/Footer";
 import { Hero } from "@/components/Hero";
 import { HowItWorks } from "@/components/HowItWorks";
@@ -28,18 +29,20 @@ export default async function Home() {
   } catch { failed = true; }
   return (
     <>
+      <a href="#main-content" className="sr-only z-[100] bg-ink px-4 py-3 text-white focus:not-sr-only focus:fixed focus:left-4 focus:top-4">跳到主要內容</a>
       <RevealController />
       <Navbar />
-      <main>
+      <main id="main-content" tabIndex={-1}>
         <Hero />
         <Ticker />
         <ProblemSection />
-        <HowItWorks />
         <RoomPreview />
+        <HowItWorks />
         <Features upcomingSessions={sessions} loadError={failed} />
         <Sessions sessions={sessions.slice(0, 6)} loadError={failed} />
         <LineBand />
         <Testimonials />
+        <FAQ />
         <CTA />
       </main>
       <Footer />

@@ -23,15 +23,15 @@ export function Testimonials() {
         <div className="grid grid-cols-[.8fr_1.2fr] gap-20 max-[900px]:grid-cols-1 max-[900px]:gap-10">
           <div>
             <p className="mb-4 text-sm font-bold text-[#33614E]">一起做過的人說</p>
-            <h2 className="font-serif text-[clamp(2.5rem,4.7vw,4.7rem)] font-black leading-[1.08]">
+            <h2 className="font-sans text-[clamp(2.5rem,4.7vw,4.7rem)] font-black leading-[1.08]">
               有人一起，<br />開始就沒那麼難。
             </h2>
           </div>
           <div className="border-t border-black/20">
             {testimonials.map((testimonial, index) => (
               <figure className="rv grid grid-cols-[1fr_150px] gap-10 border-b border-black/20 py-8 max-[620px]:grid-cols-1 max-[620px]:gap-4" style={{ transitionDelay: `${index * 0.08}s` }} key={testimonial.name}>
-                <blockquote className="font-serif text-xl font-bold leading-[1.6]">「{testimonial.text}」</blockquote>
-                <figcaption className="text-sm leading-[1.6] text-ink/55">
+                <blockquote className="font-sans text-xl font-bold leading-[1.6]">「{testimonial.text}」</blockquote>
+                <figcaption className="text-sm leading-[1.6] text-ink/65">
                   <span className="block font-bold text-ink">{testimonial.name}</span>
                   {testimonial.role}
                 </figcaption>

@@ -7,7 +7,7 @@ export function Features(props: HomeSessionCardProps) {
       <div className="mx-auto grid max-w-6xl grid-cols-[.9fr_1.1fr] items-center gap-20 max-[900px]:grid-cols-1 max-[900px]:gap-12">
         <div>
           <p className="mb-5 text-sm font-bold text-[#F4C9B9]">下一場，就從一件事開始</p>
-          <h2 className="rv font-serif text-[clamp(2.6rem,5vw,5rem)] font-black leading-[1.06]">
+          <h2 className="rv font-sans text-[clamp(2.6rem,5vw,5rem)] font-black leading-[1.06]">
             不需要把人生<br />一次整理好。
           </h2>
           <p className="mt-7 max-w-[480px] text-lg leading-[1.8] text-white/90">
@@ -15,11 +15,11 @@ export function Features(props: HomeSessionCardProps) {
           </p>
           <div className="mt-10 grid grid-cols-2 gap-x-8 gap-y-7 border-t border-white/20 pt-8">
             <div>
-              <div className="font-serif text-3xl font-black text-[#F4C9B9]">50</div>
+              <div className="font-sans text-3xl font-black text-[#F4C9B9]">50</div>
               <div className="mt-1 text-sm text-white/85">分鐘安靜共做</div>
             </div>
             <div>
-              <div className="font-serif text-3xl font-black text-[#F4C9B9]">5</div>
+              <div className="font-sans text-3xl font-black text-[#F4C9B9]">5</div>
               <div className="mt-1 text-sm text-white/85">人以內的小房間</div>
             </div>
           </div>

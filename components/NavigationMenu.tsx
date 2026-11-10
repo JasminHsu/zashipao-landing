@@ -31,17 +31,17 @@ export function NavigationMenu() {
   const closeMobileMenu = () => { if (mobileMenu.current) mobileMenu.current.open = false; };
 
   return (
-    <div className="flex min-w-0 items-center justify-end gap-6 max-[760px]:gap-3">
-      <nav aria-label="主要導覽" className="flex min-w-0 items-center gap-6 max-[760px]:hidden">
+    <div className="flex min-w-0 items-center justify-end gap-6 max-[900px]:gap-3">
+      <nav aria-label="主要導覽" className="flex min-w-0 items-center gap-6 max-[900px]:hidden">
         {signedIn === null ? <span className="text-sm text-ink/55" role="status">載入中…</span> : links.map(link => (
           <Link key={link.href} href={link.href} className="whitespace-nowrap text-sm text-ink/70 no-underline transition-colors hover:text-ink">
             {link.label}
           </Link>
         ))}
       </nav>
-      <div className="max-[760px]:hidden"><AccountMenu /></div>
+      <div className="max-[900px]:hidden"><AccountMenu /></div>
 
-      <details ref={mobileMenu} className="relative hidden max-[760px]:block" onKeyDown={event => {
+      <details ref={mobileMenu} className="relative hidden max-[900px]:block" onKeyDown={event => {
         if (event.key === 'Escape') { closeMobileMenu(); mobileMenu.current?.querySelector('summary')?.focus(); }
       }}>
         <summary

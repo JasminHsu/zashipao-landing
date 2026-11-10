@@ -39,10 +39,21 @@ const timeFormat = new Intl.DateTimeFormat("zh-TW", {
 export function HomeSessionCard({ upcomingSessions = [], member, preview = false, loadError = false }: HomeSessionCardProps) {
   const [now, setNow] = useState<number | null>(null);
   useEffect(() => {
-    setNow(Date.now());
-    const timer = window.setInterval(() => setNow(Date.now()), 1000);
-    return () => window.clearInterval(timer);
-  }, []);
+    let timer: number;
+    const updateClock = () => {
+      const current = Date.now();
+      setNow(current);
+      const timedSession = member?.reservation ?? upcomingSessions
+        .filter((item) => Date.parse(item.endsAt) > current)
+        .sort((a, b) => Date.parse(a.startsAt) - Date.parse(b.startsAt))[0];
+      const needsSecondUpdates = timedSession
+        ? current >= Date.parse(timedSession.startsAt) - 5 * 60 * 1000 && current < Date.parse(timedSession.endsAt)
+        : false;
+      timer = window.setTimeout(updateClock, needsSecondUpdates ? 1000 : 60_000);
+    };
+    updateClock();
+    return () => window.clearTimeout(timer);
+  }, [member?.reservation, upcomingSessions]);
 
   const reservation = member?.reservation;
   const session = preview ? reservation ?? upcomingSessions[0] : now === null ? undefined : member
@@ -69,7 +80,7 @@ export function HomeSessionCard({ upcomingSessions = [], member, preview = false
       </div>
       {session ? (
         <>
-          <h2 className="font-serif text-2xl font-black">{session.title}</h2>
+          <h2 className="font-sans text-2xl font-black">{session.title}</h2>
           <p className="mt-3 text-sm text-muted">
             {dateFormat.format(start)} · {timeFormat.format(start)} – {timeFormat.format(end)}（台灣時間）
           </p>
@@ -100,7 +111,7 @@ export function HomeSessionCard({ upcomingSessions = [], member, preview = false
         </>
       ) : (
         <>
-          <h2 className="font-serif text-2xl font-black">{loadError ? "場次暫時無法載入" : now === null ? "正在確認場次" : member ? "下一場，留一段時間給自己" : "場次安排中"}</h2>
+          <h2 className="font-sans text-2xl font-black">{loadError ? "場次暫時無法載入" : now === null ? "正在確認場次" : member ? "下一場，留一段時間給自己" : "場次安排中"}</h2>
           <p className="my-5 text-sm leading-relaxed text-muted">
             {loadError ? "請稍後重新整理，或前往場次列表重試。" : member ? "你還沒有即將開始的預約。挑一個適合的時段，帶著待辦一起來。" : "新的場次開放後，這裡會顯示最近一場的時間，讓你直接加入。"}
           </p>

@@ -55,4 +55,8 @@ body {
   .animate-blink {
     animation: none !important;
   }
+
+  :where(a, button, summary, label) {
+    transition: none !important;
+  }
 }

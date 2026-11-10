@@ -67,14 +67,14 @@ export function RoomPreview() {
         <div className="mb-12 grid grid-cols-[.8fr_1.2fr] items-end gap-12 max-[760px]:grid-cols-1 max-[760px]:gap-5">
           <div>
             <p className="mb-4 text-sm font-bold text-[#33614E]">進房後會看到什麼</p>
-            <h2 className="rv font-serif text-[clamp(2.5rem,4.5vw,4.6rem)] font-black leading-[1.08] text-ink">看見彼此，<br />不需要互相打擾。</h2>
+            <h2 className="rv font-sans text-[clamp(2.5rem,4.5vw,4.6rem)] font-black leading-[1.08] text-ink">看見彼此，<br />不需要互相打擾。</h2>
           </div>
           <p className="max-w-[500px] text-base leading-[1.8] text-ink/60">
             每個人先放上這場想完成的事，接著安靜各做各的。你會知道房裡還有人也正在努力，結束時再一起回來更新進度。
           </p>
         </div>
 
-        <div className="mb-4 flex items-end justify-between border-b border-ink/15 text-sm font-bold text-ink/45 max-[560px]:items-center">
+        <div className="mb-4 flex items-end justify-between border-b border-ink/15 text-sm font-bold text-ink/65 max-[560px]:items-center">
           <div className="grid grid-cols-3" role="tablist" aria-label="房間流程示意">
             {stages.map((item, index) => {
               const selected = item.id === stageId;
@@ -87,7 +87,7 @@ export function RoomPreview() {
                   aria-selected={selected}
                   aria-controls="room-stage-panel"
                   tabIndex={selected ? 0 : -1}
-                  className={`min-h-11 border-b-2 px-4 pb-3 pt-1 text-center transition-colors max-[420px]:px-2 ${selected ? "border-[#FF5A36] text-ink" : "border-transparent text-ink/45 hover:text-ink"}`}
+                  className={`min-h-11 border-b-2 px-4 pb-3 pt-1 text-center transition-colors motion-reduce:transition-none max-[420px]:px-2 ${selected ? "border-[#FF5A36] text-ink" : "border-transparent text-ink/60 hover:border-ink/25 hover:text-ink"}`}
                   onClick={() => setStageId(item.id)}
                   onKeyDown={(event) => moveTab(index, event.key, event.currentTarget.parentElement?.querySelectorAll<HTMLButtonElement>('[role="tab"]') ?? document.querySelectorAll<HTMLButtonElement>('[role="tab"]'))}
                 >
@@ -96,7 +96,7 @@ export function RoomPreview() {
               );
             })}
           </div>
-          <span className="pb-3 max-[560px]:hidden">一場 50 分鐘的共做時間</span>
+          <span className="pb-3 max-[560px]:hidden">點擊切換三個階段</span>
         </div>
 
         <figure id="room-stage-panel" role="tabpanel" aria-labelledby={`room-tab-${stage.id}`}>
@@ -105,7 +105,7 @@ export function RoomPreview() {
             <div className="flex min-h-16 items-center justify-between gap-4 border-b border-white/10 px-5 py-3 text-white max-[560px]:items-start">
               <div className="flex items-center gap-4">
                 <span className="font-sans text-lg font-black">雜事房</span><span className="h-5 w-px bg-white/15" />
-                <span><strong className="block text-sm">晚間雜事衝刺 #3</strong><span className="mt-0.5 block text-xs text-white/45">今晚 21:00 - 21:50 · 4 / 5 人</span></span>
+                <span><strong className="block text-sm">晚間雜事衝刺 #3</strong><span className="mt-0.5 block text-xs text-white/65">今晚 21:00 - 21:50 · 4 / 5 人</span></span>
               </div>
               <div className="flex shrink-0 items-center gap-3 max-[560px]:flex-col max-[560px]:items-end max-[560px]:gap-1.5">
                 <span className="flex items-center gap-2 whitespace-nowrap text-xs font-bold text-[#89C6AA]"><span className="size-1.5 rounded-full bg-current" />{stage.status}</span>
@@ -117,11 +117,11 @@ export function RoomPreview() {
               <div className="grid grid-cols-2 gap-3 p-3 max-[480px]:grid-cols-1">
                 {previewParticipants.map((participant) => (
                   <div className={`relative flex min-h-[170px] items-center justify-center border bg-white/[.055] max-[480px]:min-h-[150px] ${participant.active ? "border-[#FF5A36]" : "border-white/10"}`} key={participant.name}>
-                    <span className="absolute right-3 top-3 text-[.68rem] font-bold text-white/40">{stage.presence}</span>
+                    <span className="absolute right-3 top-3 text-[.68rem] font-bold text-white/65">{stage.presence}</span>
                     <div className="text-center text-white">
                       <span className={`mx-auto flex size-14 items-center justify-center rounded-full text-lg font-black ${participant.color}`}>{participant.name}</span>
                       <strong className="mt-3 block text-sm">{participant.name === "你" ? "你" : `${participant.name} 的雜事時間`}</strong>
-                      <span className="mt-1 block text-xs text-white/40">{participant.task}</span>
+                      <span className="mt-1 block text-xs text-white/65">{participant.task}</span>
                     </div>
                   </div>
                 ))}
@@ -134,11 +134,11 @@ export function RoomPreview() {
                   {previewTasks.map((task, index) => (
                     <div className="flex gap-3 border-b border-black/10 pb-3" key={task}>
                       <span className={`mt-0.5 flex size-5 shrink-0 items-center justify-center border ${index < stage.completed ? "border-[#33614E] bg-[#33614E] text-white" : "border-black/20 bg-white text-transparent"}`}>✓</span>
-                      <span className={`text-sm font-bold leading-5 ${index < stage.completed ? "text-ink/55 line-through" : ""}`}>{task}</span>
+                      <span className={`text-sm font-bold leading-5 ${index < stage.completed ? "text-ink/65 line-through" : ""}`}>{task}</span>
                     </div>
                   ))}
                 </div>
-                <p className="mt-6 text-xs leading-5 text-ink/45">{stage.note}</p>
+                <p className="mt-6 text-xs leading-5 text-ink/65">{stage.note}</p>
               </div>
             </div>
           </div>

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import type { AnchorHTMLAttributes, PropsWithChildren } from "react";
 
-type ButtonVariant = "primary" | "outline" | "white";
+type ButtonVariant = "primary" | "outline" | "white" | "dark";
 
 type ButtonLinkProps = PropsWithChildren<
   AnchorHTMLAttributes<HTMLAnchorElement> & {
@@ -17,7 +17,9 @@ const variants: Record<ButtonVariant, string> = {
   outline:
     "border-[1.5px] border-border bg-transparent text-ink hover:border-muted",
   white:
-    "bg-white text-terracotta hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(0,0,0,.15)]"
+    "bg-white text-terracotta hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(0,0,0,.15)]",
+  dark:
+    "bg-ink text-white hover:-translate-y-px hover:bg-[#244D3D]"
 };
 
 export function ButtonLink({
@@ -30,7 +32,7 @@ export function ButtonLink({
   return (
     <Link
       href={href}
-      className={`inline-flex cursor-pointer items-center gap-1 whitespace-nowrap rounded-md border-0 font-sans text-sm font-medium no-underline transition-all duration-200 ${variants[variant]} ${className}`}
+      className={`inline-flex cursor-pointer items-center gap-1 whitespace-nowrap rounded-md border-0 font-sans text-sm font-medium no-underline transition-all duration-200 motion-reduce:transform-none motion-reduce:transition-none ${variants[variant]} ${className}`}
       {...props}
     >
       {children}
