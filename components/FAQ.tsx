@@ -19,7 +19,7 @@ const questions = [
 
 export function FAQ() {
   return (
-    <section className="bg-[#F7F9F7] px-[6%] py-24 max-[720px]:py-16">
+    <section className="bg-white px-[6%] py-20 max-[720px]:py-14">
       <div className="mx-auto grid max-w-6xl grid-cols-[.72fr_1.28fr] gap-20 max-[900px]:grid-cols-1 max-[900px]:gap-10">
         <div>
           <p className="mb-4 text-sm font-bold text-[#33614E]">常見問題</p>

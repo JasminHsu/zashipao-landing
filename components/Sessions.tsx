@@ -6,7 +6,7 @@ import { sessionDate, sessionTime } from "@/lib/bookingErrors";
 
 export function Sessions({ sessions, loadError = false }: { sessions: HomeSession[]; loadError?: boolean }) {
   return (
-    <section id="sessions" className="bg-[#F7F9F7] px-[6%] py-24 max-[720px]:py-16">
+    <section id="sessions" className="bg-[#F7F9F7] px-[6%] py-20 max-[720px]:py-14">
       <div className="mx-auto max-w-6xl">
         <div className="mb-12 flex items-end justify-between gap-8 max-[720px]:items-start">
           <div>

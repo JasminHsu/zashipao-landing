@@ -1,16 +1,11 @@
 import { CTA } from "@/components/CTA";
-import { Features } from "@/components/Features";
 import { FAQ } from "@/components/FAQ";
 import { Footer } from "@/components/Footer";
 import { Hero } from "@/components/Hero";
-import { HowItWorks } from "@/components/HowItWorks";
-import { LineBand } from "@/components/LineBand";
 import { Navbar } from "@/components/Navbar";
 import { ProblemSection } from "@/components/ProblemSection";
 import { RevealController } from "@/components/RevealController";
-import { RoomPreview } from "@/components/RoomPreview";
 import { Sessions } from "@/components/Sessions";
-import { Testimonials } from "@/components/Testimonials";
 import { Ticker } from "@/components/Ticker";
 import type { HomeSession } from "@/components/HomeSessionCard";
 
@@ -36,12 +31,7 @@ export default async function Home() {
         <Hero />
         <Ticker />
         <ProblemSection />
-        <RoomPreview />
-        <HowItWorks />
-        <Features upcomingSessions={sessions} loadError={failed} />
-        <Sessions sessions={sessions.slice(0, 6)} loadError={failed} />
-        <LineBand />
-        <Testimonials />
+        <Sessions sessions={sessions.slice(0, 4)} loadError={failed} />
         <FAQ />
         <CTA />
       </main>
