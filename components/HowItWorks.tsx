@@ -22,7 +22,7 @@ export function HowItWorks() {
       <div className="mx-auto max-w-6xl">
         <div className="mb-16 flex items-end justify-between gap-10 max-[800px]:block">
           <div>
-            <p className="mb-4 text-sm font-bold text-[#FF5A36]">怎麼運作</p>
+            <p className="mb-4 text-sm font-bold text-[#33614E]">怎麼運作</p>
             <h2 className="rv font-serif text-[clamp(2.4rem,4.5vw,4.8rem)] font-black leading-[1.08]">
               一起開始，<br />各自完成。
             </h2>

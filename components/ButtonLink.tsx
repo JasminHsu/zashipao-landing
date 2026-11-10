@@ -13,7 +13,7 @@ type ButtonLinkProps = PropsWithChildren<
 
 const variants: Record<ButtonVariant, string> = {
   primary:
-    "bg-terracotta text-white hover:bg-terracotta-d hover:-translate-y-px",
+    "bg-terracotta text-ink hover:bg-terracotta-d hover:-translate-y-px",
   outline:
     "border-[1.5px] border-border bg-transparent text-ink hover:border-muted",
   white:

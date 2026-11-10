@@ -1,5 +1,20 @@
 import type { Metadata } from "next";
+import { Noto_Sans_TC, Noto_Serif_TC } from "next/font/google";
 import "./globals.css";
+
+const sans = Noto_Sans_TC({
+  variable: "--font-sans",
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "700", "900"],
+  display: "swap"
+});
+
+const serif = Noto_Serif_TC({
+  variable: "--font-serif",
+  subsets: ["latin"],
+  weight: ["400", "700", "900"],
+  display: "swap"
+});
 
 export const metadata: Metadata = {
   title: "雜事房 — 把一直拖著的事，今天一起做完",
@@ -13,7 +28,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="zh-TW">
-      <body className="bg-cream font-sans text-ink antialiased">{children}</body>
+      <body className={`${sans.variable} ${serif.variable} bg-cream font-sans text-ink antialiased`}>{children}</body>
     </html>
   );
 }
