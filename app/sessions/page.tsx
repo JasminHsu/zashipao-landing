@@ -3,6 +3,7 @@ import { AccountMenu } from "@/components/AccountMenu";
 import Link from "next/link";
 import { Logo } from "@/components/Logo";
 import { getPublicSessions, type PublicSession } from "@/lib/publicSessions";
+import { BookingFlowSteps } from "@/components/BookingFlowSteps";
 
 export const metadata = { title: "可預約場次 — 雜事房" };
 export const dynamic = "force-dynamic";
@@ -35,9 +36,10 @@ export default async function SessionsPage({ searchParams }: { searchParams: { t
         </div>
       </header>
       <div className="mx-auto max-w-6xl px-[5%] py-8">
+        <BookingFlowSteps current={1} selectedTaskCount={tasks ? tasks.split(",").length : 0} />
         <h1 className="font-serif text-4xl font-black">可預約場次</h1>
-        <p className="mt-3 text-muted">找一段時間，和夥伴一起處理掛心的雜事。以下皆為台灣時間。</p>
-        <p className="mt-4 rounded-xl bg-forest-lt p-3 text-sm text-forest">選好場次後，勾選這次想完成的待辦，再確認預約。</p>
+        <p className="mt-3 text-muted">先挑一個你願意出現的時段。選好後，再決定這場要處理哪些事。以下皆為台灣時間。</p>
+        {tasks ? <p className="mt-4 rounded-xl bg-forest-lt p-3 text-sm text-forest">你已選好 {tasks.split(",").length} 件待辦。選擇場次後仍可調整。</p> : null}
         <SessionBookingStatus><div className="mt-6 grid gap-4">
           {failed ? (
             <div role="alert" className="rounded-2xl border border-border bg-white p-6">
