@@ -7,6 +7,7 @@ import { ProblemSection } from "@/components/ProblemSection";
 import { RevealController } from "@/components/RevealController";
 import { Sessions } from "@/components/Sessions";
 import { Ticker } from "@/components/Ticker";
+import { TrustSection } from "@/components/TrustSection";
 import type { HomeSession } from "@/components/HomeSessionCard";
 
 import { getPublicSessions } from "@/lib/publicSessions";
@@ -32,6 +33,7 @@ export default async function Home() {
         <Ticker />
         <ProblemSection />
         <Sessions sessions={sessions.slice(0, 4)} loadError={failed} />
+        <TrustSection />
         <FAQ />
         <CTA />
       </main>
