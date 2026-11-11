@@ -28,6 +28,7 @@ export function NavigationMenu() {
   }, []);
 
   const links = signedIn ? memberLinks : publicLinks;
+  const mobileLinks = signedIn ? memberLinks : [];
   const closeMobileMenu = () => { if (mobileMenu.current) mobileMenu.current.open = false; };
 
   return (
@@ -59,14 +60,14 @@ export function NavigationMenu() {
           </span>
         </summary>
         <div className="absolute right-0 top-[calc(100%+.65rem)] w-[min(19rem,88vw)] rounded-md border border-black/15 bg-[#FFFDF8] p-4 shadow-lift">
-          <nav aria-label="手機導覽" className="grid gap-1">
-            {signedIn === null ? <span className="px-3 py-2 text-sm text-ink/55" role="status">載入中…</span> : links.map(link => (
+          {signedIn !== false ? <nav aria-label="手機導覽" className="grid gap-1">
+            {signedIn === null ? <span className="px-3 py-2 text-sm text-ink/55" role="status">載入中…</span> : mobileLinks.map(link => (
               <Link key={link.href} href={link.href} onClick={closeMobileMenu} className="rounded-md px-3 py-3 text-base font-semibold text-ink no-underline hover:bg-black/5">
                 {link.label}
               </Link>
             ))}
-          </nav>
-          <div className="mt-3 border-t border-black/10 pt-3" onClick={closeMobileMenu}><AccountMenu /></div>
+          </nav> : null}
+          <div className={signedIn ? "mt-3 border-t border-black/10 pt-3" : ""} onClick={closeMobileMenu}><AccountMenu /></div>
         </div>
       </details>
     </div>
