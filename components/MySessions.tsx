@@ -62,7 +62,7 @@ export function MySessions() {
     <div className="mx-auto max-w-5xl px-[5%] py-10 max-[640px]:py-7">
     <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
       <div><h1 className="font-serif text-4xl font-black max-[640px]:text-3xl">已預約場次</h1>
-      <p className="mt-3 text-sm leading-relaxed text-muted">查看你已預約的場次，並確認這次要完成的待辦。</p></div>
+      <p className="mt-3 text-sm leading-relaxed text-muted">查看接下來要出現的時間，也可以在開場前調整這次要完成的待辦。</p></div>
       {visible.length > 0 ? <Link href="/sessions" className="rounded-full bg-terracotta px-5 py-3 text-sm font-bold text-white hover:bg-terracotta-d">預約新場次</Link> : null}
     </div>
     <div className="mb-6 flex gap-2" role="group" aria-label="場次分類">
@@ -87,7 +87,10 @@ export function MySessions() {
       </article>;
       const started = !session || (now !== null && Date.parse(session.starts_at) <= now);
       return <article id={booking.id} key={booking.id} className="scroll-mt-8 rounded-2xl border border-border bg-white p-6">
-        <h2 className="text-xl font-bold">{session?.title ?? '場次已停止公開'}</h2>
+        <div className="flex flex-wrap items-center gap-2">
+          <h2 className="text-xl font-bold">{session?.title ?? '場次已停止公開'}</h2>
+          <span className="rounded bg-forest-lt px-2 py-1 text-xs font-bold text-forest">已預約</span>
+        </div>
         {session ? <p className="mt-2 text-muted">{sessionDate(session.starts_at)} · {sessionTime(session.starts_at)}–{sessionTime(session.ends_at)}（台灣時間）</p> : null}
         <div className="my-4 grid gap-2">{sync.loading ? <p>正在載入本場待辦…</p> : booking.booking_tasks.map(item => {
           const task = tasks.find(t => t.id === Number(item.task_id));

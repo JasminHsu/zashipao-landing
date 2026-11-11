@@ -20,7 +20,7 @@ export function BookingTaskPicker({ bookingId, taskIds, disabled, onSaved }: {
   const selected = available.filter(task => draft?.includes(task.id)).map(task => task.id);
   if (draft === null) return <button type="button" disabled={disabled || sync.loading || !!sync.error} className="mb-4 rounded-full border border-border px-4 py-2 text-sm font-bold text-muted disabled:opacity-40" onClick={() => {
     setDraft(taskIds.filter(id => available.some(task => task.id === id))); setError(''); setShowNew(false); setTitle(''); setNotice('');
-  }}>安排本場待辦</button>;
+  }}>調整本場待辦</button>;
   return <section aria-label="安排本場待辦" className="my-4 rounded-xl border border-border p-4">
     <h3 className="font-bold">這場想完成哪些事？</h3>
     <p className="mt-2 text-xs text-muted">至少保留一件未完成待辦。移除項目不會刪除原本的待辦，也不影響預約名額。</p>
