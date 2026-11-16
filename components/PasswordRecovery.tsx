@@ -24,9 +24,9 @@ export function PasswordRecovery({ reset = false }: { reset?: boolean }) {
     }).catch(() => { if (active) { setAllowed(false); setReady(true); } });
     return () => { active = false; };
   }, [reset]);
-  return <main className="min-h-screen bg-cream px-[5%] py-10"><div className="mx-auto max-w-md"><Logo />
-    <section className="mt-8 rounded-2xl border border-border bg-white p-6 shadow-soft">
-      <h1 className="font-serif text-3xl font-black">{reset ? '設定新密碼' : '忘記密碼'}</h1>
+  return <main className="min-h-screen bg-paper px-[5%] py-10"><div className="mx-auto max-w-md"><Logo />
+    <section className="mt-8 rounded-lg border border-border bg-paper p-6 shadow-soft">
+      <h1 className="text-3xl font-black">{reset ? '設定新密碼' : '忘記密碼'}</h1>
       <p className="my-4 text-sm text-muted">{reset ? '輸入至少 8 個字元的新密碼。' : '輸入註冊時的 Email，我們會寄送密碼重設連結。請在這個瀏覽器開啟驗證信。'}</p>
       {!ready ? <p role="status">正在確認登入狀態…</p> : !allowed ? <p role="alert">驗證狀態已失效，請<Link href="/forgot-password" className="text-terracotta underline">重新索取重設連結</Link>。</p> : !done ? <form className="grid gap-4" onSubmit={async event => {
         event.preventDefault(); if (lock.current) return;

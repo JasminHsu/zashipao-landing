@@ -6,16 +6,16 @@ import { sessionDate, sessionTime } from "@/lib/bookingErrors";
 
 export function Sessions({ sessions, loadError = false }: { sessions: HomeSession[]; loadError?: boolean }) {
   return (
-    <section id="sessions" className="bg-[#F7F9F7] px-[6%] py-20 max-[720px]:py-14">
+    <section id="sessions" className="bg-paper px-[6%] py-20 max-[720px]:py-14">
       <div className="mx-auto max-w-6xl">
         <div className="mb-12 flex items-end justify-between gap-8 max-[720px]:items-start">
           <div>
-            <p className="mb-4 text-sm font-bold text-[#244D3D]">近期場次</p>
+            <p className="mb-4 text-sm font-bold text-forest">近期場次</p>
             <h2 className="font-sans text-[clamp(2.5rem,5vw,5rem)] font-black leading-[1.06]">
               找一段時間，<br />留給那件事。
             </h2>
           </div>
-          <ButtonLink href="/sessions" variant="outline" className="border-black/25 bg-[#FFFDF8] px-5 py-2.5 max-[600px]:hidden">
+          <ButtonLink href="/sessions" variant="outline" className="border-border-d bg-paper px-5 py-2.5 max-[600px]:hidden">
             查看所有場次
           </ButtonLink>
         </div>
@@ -53,7 +53,7 @@ export function Sessions({ sessions, loadError = false }: { sessions: HomeSessio
           })}
         </div>
         </SessionBookingStatus>
-        <ButtonLink href="/sessions" variant="outline" className="mt-8 hidden border-black/25 bg-[#FFFDF8] px-5 py-2.5 max-[600px]:inline-flex">
+        <ButtonLink href="/sessions" variant="outline" className="mt-8 hidden border-border-d bg-paper px-5 py-2.5 max-[600px]:inline-flex">
           查看所有場次
         </ButtonLink>
       </div>

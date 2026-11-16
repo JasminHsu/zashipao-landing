@@ -5,11 +5,11 @@ export const metadata = { title: "聯絡我們 — 雜事房" };
 
 export default function ContactPage() {
   return (
-    <main className="min-h-screen bg-cream px-[5%] py-6">
+    <main className="min-h-screen bg-paper px-[5%] py-6">
       <div className="mx-auto max-w-3xl">
         <Logo />
-        <section className="mt-8 rounded-3xl border border-border bg-white p-6 sm:p-10">
-          <h1 className="font-serif text-3xl font-black">聯絡我們</h1>
+        <section className="mt-8 rounded-lg border border-border bg-paper p-6 sm:p-10">
+          <h1 className="text-3xl font-black">聯絡我們</h1>
           <p className="mt-4 leading-relaxed text-muted">使用雜事房時遇到問題、有功能建議，或想申請刪除帳號，都可以寫信給我們。</p>
           <a className="mt-6 inline-flex min-h-11 max-w-full items-center rounded-full bg-terracotta px-6 py-3 font-bold text-white focus-visible:outline-forest" href="mailto:steph4mat@gmail.com?subject=%E9%9B%9C%E4%BA%8B%E6%88%BF%E4%BD%BF%E7%94%A8%E5%8D%94%E5%8A%A9">寫信給雜事房</a>
           <p className="mt-3 break-all text-sm text-muted">steph4mat@gmail.com</p>

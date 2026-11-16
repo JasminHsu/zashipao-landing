@@ -19,10 +19,10 @@ const questions = [
 
 export function FAQ() {
   return (
-    <section className="bg-white px-[6%] py-20 max-[720px]:py-14">
+    <section className="border-t border-border bg-cream px-[6%] py-20 max-[720px]:py-14">
       <div className="mx-auto grid max-w-6xl grid-cols-[.72fr_1.28fr] gap-20 max-[900px]:grid-cols-1 max-[900px]:gap-10">
         <div>
-          <p className="mb-4 text-sm font-bold text-[#33614E]">常見問題</p>
+          <p className="mb-4 text-sm font-bold text-forest">常見問題</p>
           <h2 className="font-sans text-[clamp(2.5rem,4.7vw,4.8rem)] font-black leading-[1.08]">來之前，<br />可能想先知道。</h2>
         </div>
         <div className="border-t border-ink/25">
@@ -30,7 +30,7 @@ export function FAQ() {
             <details className="group border-b border-ink/25" key={item.question}>
               <summary className="flex min-h-16 cursor-pointer list-none items-center justify-between gap-6 py-5 text-lg font-black [&::-webkit-details-marker]:hidden">
                 {item.question}
-                <span className="text-2xl font-normal text-[#C7462C] transition-transform motion-reduce:transition-none group-open:rotate-45" aria-hidden="true">+</span>
+                <span className="text-2xl font-normal text-terracotta transition-transform motion-reduce:transition-none group-open:rotate-45" aria-hidden="true">+</span>
               </summary>
               <p className="max-w-[650px] pb-6 pr-12 text-sm leading-[1.8] text-ink/70">{item.answer}</p>
             </details>

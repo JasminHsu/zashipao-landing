@@ -47,46 +47,46 @@ export function MySessions() {
   const upcoming = visible.filter(booking => !ended(booking));
   const past = visible.filter(ended).sort((a, b) => Date.parse(b.session_results?.finished_at ?? b.sessions?.ends_at ?? '') - Date.parse(a.session_results?.finished_at ?? a.sessions?.ends_at ?? ''));
   const shown = view === 'past' ? past : upcoming;
-  return <main className="min-h-screen bg-cream">
-    <header className="border-b border-border bg-cream/95">
+  return <main className="min-h-screen bg-paper">
+    <header className="border-b border-border bg-paper/95">
       <div className="mx-auto grid max-w-7xl grid-cols-[auto_1fr_auto] items-center gap-x-3 gap-y-3 px-[5%] py-3 max-[900px]:grid-cols-[1fr_auto]">
         <Logo />
         <nav aria-label="主要導覽" className="flex items-center justify-end gap-2 text-sm max-[900px]:order-3 max-[900px]:col-span-2 max-[900px]:justify-start max-[900px]:overflow-x-auto">
-          <Link href="/my-sessions" aria-current="page" className="inline-flex min-h-11 items-center justify-center whitespace-nowrap shrink-0 rounded-full bg-terracotta-lt px-4 py-0 font-bold text-terracotta">已預約場次</Link>
-          <Link href="/sessions" className="inline-flex min-h-11 items-center justify-center whitespace-nowrap shrink-0 rounded-full px-4 py-0 text-muted hover:bg-white hover:text-ink">可預約場次</Link>
-          <Link href="/tasks" className="inline-flex min-h-11 items-center justify-center whitespace-nowrap shrink-0 rounded-full px-4 py-0 text-muted hover:bg-white hover:text-ink">我的待辦清單</Link>
+          <Link href="/my-sessions" aria-current="page" className="inline-flex min-h-11 shrink-0 items-center justify-center whitespace-nowrap rounded-lg bg-terracotta-lt px-4 py-0 font-bold text-terracotta">已預約場次</Link>
+          <Link href="/sessions" className="inline-flex min-h-11 shrink-0 items-center justify-center whitespace-nowrap rounded-lg px-4 py-0 text-muted hover:bg-cream hover:text-ink">可預約場次</Link>
+          <Link href="/tasks" className="inline-flex min-h-11 shrink-0 items-center justify-center whitespace-nowrap rounded-lg px-4 py-0 text-muted hover:bg-cream hover:text-ink">我的待辦清單</Link>
         </nav>
         <div className="justify-self-end"><AccountMenu /></div>
       </div>
     </header>
     <div className="mx-auto max-w-5xl px-[5%] py-10 max-[640px]:py-7">
     <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
-      <div><h1 className="font-serif text-4xl font-black max-[640px]:text-3xl">已預約場次</h1>
+      <div><h1 className="text-4xl font-black max-[640px]:text-3xl">已預約場次</h1>
       <p className="mt-3 text-sm leading-relaxed text-muted">查看接下來要出現的時間，也可以在開場前調整這次要完成的待辦。</p></div>
-      {visible.length > 0 ? <Link href="/sessions" className="rounded-full bg-terracotta px-5 py-3 text-sm font-bold text-white hover:bg-terracotta-d">預約新場次</Link> : null}
+      {visible.length > 0 ? <Link href="/sessions" className="rounded-lg bg-terracotta px-5 py-3 text-sm font-bold text-ink hover:bg-terracotta-d">預約新場次</Link> : null}
     </div>
     <div className="mb-6 flex gap-2" role="group" aria-label="場次分類">
       <button aria-pressed={view === 'upcoming'} onClick={() => setView('upcoming')} className={`rounded-full px-5 py-3 text-sm ${view === 'upcoming' ? 'bg-terracotta-lt font-bold text-terracotta' : 'text-muted'}`}>接下來的場次（{upcoming.length}）</button>
       <button aria-pressed={view === 'past'} onClick={() => setView('past')} className={`rounded-full px-5 py-3 text-sm ${view === 'past' ? 'bg-terracotta-lt font-bold text-terracotta' : 'text-muted'}`}>過往場次（{past.length}）</button>
     </div>
-    {!loading && !error && view === 'past' && !past.length ? <p className="rounded-2xl bg-white p-8 text-muted">還沒有過往場次，完成一場後就能在這裡查看成果。</p> : null}
+    {!loading && !error && view === 'past' && !past.length ? <p className="rounded-lg border border-border bg-paper p-8 text-muted">還沒有過往場次，完成一場後就能在這裡查看成果。</p> : null}
     {error ? <p role="alert" className="my-4 text-terracotta">{error} <button className="underline" onClick={() => void load()}>重新載入</button></p> : null}
-    {loading ? <p role="status">正在載入預約…</p> : !error && view === 'upcoming' && !upcoming.length ? <section className="rounded-2xl border border-border bg-white px-6 py-12 text-center">
+    {loading ? <p role="status">正在載入預約…</p> : !error && view === 'upcoming' && !upcoming.length ? <section className="rounded-lg border border-border bg-paper px-6 py-12 text-center">
       <svg aria-hidden="true" className="mx-auto mb-5 size-10 text-forest" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M7 3v4M17 3v4M3 11h18M9 16h6"/></svg>
-      <h2 className="font-serif text-2xl font-bold">留一段時間，給一直想完成的事</h2>
+      <h2 className="text-2xl font-black">留一段時間，給一直想完成的事</h2>
       <p className="mt-3 text-sm leading-relaxed text-muted">你還沒有預約場次。挑一個適合的時段，帶一件待辦一起來。</p>
-      <Link href="/sessions" className="mt-6 inline-flex min-h-11 items-center rounded-full bg-terracotta px-6 py-3 text-sm font-bold text-white hover:bg-terracotta-d">選擇場次 →</Link>
+      <Link href="/sessions" className="mt-6 inline-flex min-h-11 items-center rounded-lg bg-terracotta px-6 py-3 text-sm font-bold text-ink hover:bg-terracotta-d">選擇場次 →</Link>
     </section> : null}
     {sync.error ? <TaskSyncStatus /> : null}
     <div className="grid gap-4">{shown.map(booking => {
       const session = booking.sessions;
-      if (view === 'past') return <article id={booking.id} key={booking.id} className="scroll-mt-8 rounded-2xl border border-border bg-white p-6">
+      if (view === 'past') return <article id={booking.id} key={booking.id} className="scroll-mt-8 rounded-lg border border-border bg-paper p-6">
         <div className="flex flex-wrap items-center justify-between gap-4"><div><h2 className="text-xl font-bold">{session?.title ?? '過往場次'}</h2>{session ? <p className="mt-2 text-sm text-muted">{sessionDate(session.starts_at)} · {sessionTime(session.starts_at)}–{sessionTime(session.ends_at)}</p> : null}</div>
-        <button aria-expanded={opened === booking.id} onClick={() => setOpened(opened === booking.id ? null : booking.id)} className="rounded-full border border-border px-5 py-3 text-sm">{opened === booking.id ? '收起成果' : '查看成果'}</button></div>
+        <button aria-expanded={opened === booking.id} onClick={() => setOpened(opened === booking.id ? null : booking.id)} className="rounded-lg border border-border px-5 py-3 text-sm font-bold">{opened === booking.id ? '收起成果' : '查看成果'}</button></div>
         {opened === booking.id ? <div className="mt-6 border-t border-border pt-6"><SessionResult sessionId={booking.session_id} /></div> : null}
       </article>;
       const started = !session || (now !== null && Date.parse(session.starts_at) <= now);
-      return <article id={booking.id} key={booking.id} className="scroll-mt-8 rounded-2xl border border-border bg-white p-6">
+      return <article id={booking.id} key={booking.id} className="scroll-mt-8 rounded-lg border border-border bg-paper p-6">
         <div className="flex flex-wrap items-center gap-2">
           <h2 className="text-xl font-bold">{session?.title ?? '場次已停止公開'}</h2>
           <span className="rounded bg-forest-lt px-2 py-1 text-xs font-bold text-forest">已預約</span>
@@ -116,9 +116,9 @@ export function MySessions() {
         {session && !started ? <AddToCalendar session={{ id: booking.session_id, ...session }} /> : null}
         <BookingTaskPicker bookingId={booking.id} taskIds={booking.booking_tasks.map(item => Number(item.task_id))} disabled={!!busy || started} onSaved={load} />
         <div className="mb-4">
-          {session && now !== null && now >= Date.parse(session.starts_at) - 300000 && now < Date.parse(session.ends_at) ? <Link href={`/sessions/waiting/${booking.session_id}`} className="inline-flex rounded-full bg-forest px-5 py-3 text-sm font-bold text-white">進入等候區</Link> : <p className="text-xs text-light">{session && now !== null && now >= Date.parse(session.ends_at) ? '這場活動已結束。' : '等候區於活動開始前五分鐘開放。'}</p>}
+          {session && now !== null && now >= Date.parse(session.starts_at) - 300000 && now < Date.parse(session.ends_at) ? <Link href={`/sessions/waiting/${booking.session_id}`} className="inline-flex rounded-lg bg-forest px-5 py-3 text-sm font-bold text-white">{started ? '進入房間' : '進入等候區'}</Link> : <p className="text-xs text-light">{session && now !== null && now >= Date.parse(session.ends_at) ? '這場活動已結束。' : '等候區於活動開始前五分鐘開放。'}</p>}
         </div>
-        <button disabled={!!busy || started} className="rounded-full border border-border px-4 py-2 text-sm text-muted disabled:opacity-40" onClick={async () => {
+        <button disabled={!!busy || started} className="rounded-lg border border-border px-4 py-2 text-sm text-muted disabled:opacity-40" onClick={async () => {
           if (!window.confirm('確定取消這場預約？待辦事項會保留。')) return;
           setBusy(booking.id); setError('');
           try {

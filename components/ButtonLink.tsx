@@ -32,7 +32,7 @@ export function ButtonLink({
   return (
     <Link
       href={href}
-      className={`inline-flex cursor-pointer items-center gap-1 whitespace-nowrap rounded-md border-0 font-sans text-sm font-medium no-underline transition-all duration-200 motion-reduce:transform-none motion-reduce:transition-none ${variants[variant]} ${className}`}
+      className={`inline-flex min-h-11 cursor-pointer items-center justify-center gap-1 whitespace-nowrap rounded-lg border-0 font-sans text-sm font-bold no-underline transition-all duration-200 motion-reduce:transform-none motion-reduce:transition-none ${variants[variant]} ${className}`}
       {...props}
     >
       {children}

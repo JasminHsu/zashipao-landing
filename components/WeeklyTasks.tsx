@@ -51,9 +51,9 @@ export function WeeklyTasks({ refreshKey = 0 }: { refreshKey?: number }) {
     finally { setBusy(false); }
   }
   if (ready && goals.length === 0) return null;
-  return <section aria-label="每週重複待辦" className="mb-6 rounded-2xl border border-border bg-white p-5">
+  return <section aria-label="每週重複待辦" className="mb-6 rounded-lg border border-border bg-paper p-5">
     <div className="flex flex-wrap items-center justify-between gap-3">
-      <h2 className="font-serif text-xl font-bold text-ink">每週重複待辦</h2>
+      <h2 className="text-xl font-black text-ink">每週重複待辦</h2>
       <div className="flex gap-2">{[-1,0,1].map(n => <button type="button" key={n} onClick={() => setOffset(n)} aria-pressed={offset===n} className={`rounded-full px-4 py-2 text-sm ${offset===n?'bg-forest text-white':'bg-cream text-ink'}`}>{n===-1?'上週':n===0?'本週':'下週'}</button>)}</div>
     </div>
     <p className="mt-2 text-sm leading-6 text-muted">{week} 起的一週（台灣時間） · 點開目標，安排每一次。</p>

@@ -42,8 +42,8 @@ export function WaitingRoom() {
   }
 
   return (
-    <main className="min-h-screen bg-cream">
-      <header className="sticky top-0 z-40 border-b border-border bg-cream/95 backdrop-blur-xl">
+    <main className="min-h-screen bg-paper">
+      <header className="sticky top-0 z-40 border-b border-border bg-paper/95 backdrop-blur-xl">
         <div className="mx-auto flex min-h-[62px] max-w-7xl flex-wrap items-center justify-between gap-3 px-[5%] py-3">
           <Logo />
           <nav className="flex items-center gap-2 text-sm">
@@ -61,12 +61,12 @@ export function WaitingRoom() {
         <section className="mb-6 grid grid-cols-[minmax(0,1fr)_220px] gap-5 max-[820px]:grid-cols-1">
           <div>
             <div className="mb-2 text-xs font-bold uppercase tracking-[.1em] text-terracotta">等候區</div>
-            <h1 className="font-serif text-4xl font-black leading-tight tracking-normal">開場前，再確認一次</h1>
+            <h1 className="text-4xl font-black leading-tight tracking-normal">開場前，再確認一次</h1>
             <p className="mt-2 max-w-[650px] text-[.96rem] leading-[1.7] text-muted">
               如果要做的事有變，現在可以調整一下。等進房後，就照這份清單開始。
             </p>
           </div>
-          <div className="rounded-2xl border-[1.5px] border-border bg-white p-4 text-center shadow-soft">
+          <div className="rounded-lg border border-border bg-paper p-4 text-center">
             <div className="font-mono text-3xl font-black tracking-normal text-ink">04:32</div>
             <div className="mt-1 text-sm text-light">距離正式開始</div>
           </div>
@@ -74,7 +74,7 @@ export function WaitingRoom() {
 
         <div className="grid grid-cols-[minmax(0,1fr)_340px] gap-5 max-[960px]:grid-cols-1">
           <section>
-            <form className="mb-4 grid grid-cols-[minmax(0,1fr)_auto] gap-2 rounded-2xl border-[1.5px] border-border bg-white p-3" onSubmit={addAdHocTask}>
+            <form className="mb-4 grid grid-cols-[minmax(0,1fr)_auto] gap-2 rounded-lg border border-border bg-paper p-3" onSubmit={addAdHocTask}>
               <input
                 className="min-h-11 rounded-xl border-[1.5px] border-border bg-cream px-4 text-sm outline-none placeholder:text-light focus:border-terracotta"
                 value={adHocTitle}
@@ -112,10 +112,10 @@ export function WaitingRoom() {
             </div>
           </section>
 
-          <aside className="h-fit rounded-2xl border-[1.5px] border-border bg-white p-5 shadow-lift">
+          <aside className="h-fit rounded-lg border border-border bg-paper p-5 shadow-soft">
             <div className="mb-4">
               <div className="mb-1 text-xs font-bold uppercase tracking-[.1em] text-terracotta">本場承諾</div>
-              <h2 className="font-serif text-2xl font-black">{selectedTasks.length} 件雜事</h2>
+              <h2 className="text-2xl font-black">{selectedTasks.length} 件雜事</h2>
             </div>
             <div className="mb-5 grid gap-2">
               {selectedTasks.map((task) => (
