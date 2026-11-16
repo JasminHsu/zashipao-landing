@@ -3,14 +3,16 @@ const assert = require('node:assert/strict');
 const ts = require('typescript');
 const fs = require('node:fs');
 const vm = require('node:vm');
+const titleExports = {};
+vm.runInNewContext(ts.transpileModule(fs.readFileSync('lib/sessionTitle.ts', 'utf8'), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020 } }).outputText, { exports: titleExports });
 const exportsObject = {};
-vm.runInNewContext(ts.transpileModule(fs.readFileSync('lib/sessionCalendar.ts', 'utf8'), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020 } }).outputText, { exports: exportsObject, URL, URLSearchParams, TextEncoder, Date });
+vm.runInNewContext(ts.transpileModule(fs.readFileSync('lib/sessionCalendar.ts', 'utf8'), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020 } }).outputText, { exports: exportsObject, URL, URLSearchParams, TextEncoder, Date, require: specifier => specifier === './sessionTitle' ? titleExports : require(specifier) });
 const { calendarOrigin, googleCalendarUrl, sessionIcs } = exportsObject;
 const session = { id: 'test-session', title: '整理,資料;一起\\開始\n下一行' + '中文'.repeat(60), starts_at: '2026-12-02T21:00:00+08:00', ends_at: '2026-12-02T21:50:00+08:00' };
 test('exports absolute instants consistently for Google and ICS', () => {
- const google = new URL(googleCalendarUrl(session, 'https://example.com'));
+ const google = new URL(googleCalendarUrl(session, 'https://example.com', 'America/Los_Angeles'));
  assert.equal(google.searchParams.get('dates'), '20261202T130000Z/20261202T135000Z');
- assert.equal(google.searchParams.get('ctz'), 'Asia/Taipei');
+ assert.equal(google.searchParams.get('ctz'), 'America/Los_Angeles');
  assert.equal(google.searchParams.get('text'), `雜事房｜${session.title}`);
  const ics = sessionIcs(session, 'https://example.com').replace(/\r\n /g, '');
  assert.ok(ics.includes('DTSTART:20261202T130000Z\r\nDTEND:20261202T135000Z'));
@@ -31,4 +33,9 @@ test('only uses public HTTPS origins and excludes credentials and paths', () => 
  assert.equal(calendarOrigin('https://user:secret@example.com'), null);
  assert.equal(calendarOrigin('https://example.com/path?secret=x'), 'https://example.com');
  assert.equal(calendarOrigin('not a url'), null);
+});
+test('time-based default titles are neutral across timezones', () => {
+ const defaultSession = { ...session, title: '午間雜事衝刺' };
+ const google = new URL(googleCalendarUrl(defaultSession, null, 'America/Los_Angeles'));
+ assert.equal(google.searchParams.get('text'), '雜事房｜雜事房共同專注');
 });

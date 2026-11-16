@@ -2,16 +2,19 @@
 import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
 import { browserAuth } from '@/lib/supabase/browser';
-import { sessionDate, sessionTime } from '@/lib/bookingErrors';
+import { formatSessionRange } from '@/lib/timeZone';
+import { displaySessionTitle } from '@/lib/sessionTitle';
 import { RoomPresence } from './RoomPresence';
 import { Logo } from './Logo';
 import { RoomWorkspace, RoomTaskProgress } from './RoomWorkspace';
 import dynamic from 'next/dynamic';
 const SessionVideo = dynamic(() => import('./SessionVideo').then(module => module.SessionVideo), { ssr: false });
 import { SessionResult } from './SessionResult';
+import { useTimeZone } from './TimeZoneProvider';
 type Room = { finished_at?: string | null; title: string; starts_at: string; ends_at: string; server_time: string; tasks: { id: number; title: string; completed: boolean }[] };
 const messages: Record<string, string> = { AUTH_REQUIRED: '請先登入。', PARTICIPATION_ENDED: '你已結束本場，請重新載入查看成果。', BOOKING_REQUIRED: '你尚未預約這場活動。', SESSION_NOT_STARTED: '這場活動尚未開始，請先到等候區。', SESSION_ENDED: '場次已結束，不能再從房間修改待辦。', SESSION_CLOSED: '這場活動已停止開放。', SESSION_NOT_FOUND: '找不到這場活動。', INVALID_TASKS: '這件待辦已不在本場，請重新載入。' };
 export function LiveSessionRoom({ sessionId }: { sessionId: string }) {
+  const { timeZone } = useTimeZone();
   const [room, setRoom] = useState<Room | null>(null);
   const [remaining, setRemaining] = useState(0);
   const [error, setError] = useState('');
@@ -58,8 +61,8 @@ export function LiveSessionRoom({ sessionId }: { sessionId: string }) {
       {loading ? <p role="status">正在確認場次資格…</p> : null}
       {error ? <div role="alert" className="my-4 text-terracotta">{error} <button className="underline" onClick={() => setRetry(value => value + 1)}>重新載入</button></div> : null}
       {room && (remaining === 0 || room.finished_at) ? <div className="rounded-2xl bg-white p-6"><SessionResult sessionId={sessionId} /></div> : room ? <RoomWorkspace
-        title={room.title}
-        schedule={`${sessionDate(room.starts_at)} · ${sessionTime(room.starts_at)}–${sessionTime(room.ends_at)}（台灣時間）`}
+        title={displaySessionTitle(room.title)}
+        schedule={formatSessionRange(room.starts_at, room.ends_at, timeZone)}
         timer={`${Math.floor(remaining / 60)}:${String(remaining % 60).padStart(2,'0')}`}
         video={<><SessionVideo key={sessionId} sessionId={sessionId} saving={busy !== null} /><RoomPresence sessionId={sessionId} hideList /></>}
       >

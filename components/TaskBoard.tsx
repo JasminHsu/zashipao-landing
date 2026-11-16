@@ -11,7 +11,7 @@ import { browserAuth } from "@/lib/supabase/browser";
 import { WeeklyTasks } from "./WeeklyTasks";
 import { TaskSessionBadge } from "./TaskSessionBadge";
 
-type TaskStatus = "overdue" | "urgent" | "stale" | "open";
+type TaskStatus = "overdue" | "urgent" | "open";
 
 function localDate(date = new Date()) {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
@@ -35,17 +35,11 @@ const statusStyle: Record<TaskStatus, { label: string; className: string; rowCla
     rowClass: "border-l-terracotta",
     sort: 2
   },
-  stale: {
-    label: "拖很久",
-    className: "bg-lavender-lt text-lavender",
-    rowClass: "border-l-lavender",
-    sort: 3
-  },
   open: {
-    label: "一般",
-    className: "bg-cream-dd text-muted",
+    label: "",
+    className: "",
     rowClass: "border-l-border-d",
-    sort: 4
+    sort: 3
   }
 };
 
@@ -60,11 +54,8 @@ function daysUntil(deadline: string, from = localDate()) {
 
 function getTaskStatus(task: Task): TaskStatus {
   const dueIn = daysUntil(task.deadline);
-  const delayed = daysBetween(task.firstNoticed);
-
   if (dueIn < 0) return "overdue";
   if (dueIn <= 3) return "urgent";
-  if (delayed >= 21) return "stale";
   return "open";
 }
 
@@ -102,13 +93,6 @@ export function TaskBoard() {
   }, [undoIds]);
   const [bookingIds, setBookingIds] = useState<number[]>([]);
   const [tasks, setTasks, taskSync] = useSharedTasks();
-  const [localBackup, setLocalBackup] = useState<Task[]>([]);
-  useEffect(() => {
-    try {
-      const saved = JSON.parse(localStorage.getItem('zashipao:tasks:v1') ?? 'null');
-      if (Array.isArray(saved) && saved.every(task => Number.isSafeInteger(task.id) && task.id > 0 && typeof task.title === 'string' && typeof task.deadline === 'string' && typeof task.firstNoticed === 'string')) setLocalBackup(saved);
-    } catch {}
-  }, []);
   const [title, setTitle] = useState("");
   const [taskKind, setTaskKind] = useState("once");
   const [weeklyCount, setWeeklyCount] = useState(3);
@@ -134,6 +118,7 @@ export function TaskBoard() {
     () =>
       [...activeTasks].sort((a, b) => {
         if (Boolean(a.completed) !== Boolean(b.completed)) return a.completed ? 1 : -1;
+        if (Boolean(a.priority) !== Boolean(b.priority)) return a.priority ? -1 : 1;
         if (a.order !== undefined || b.order !== undefined) {
           return (a.order ?? Number.MAX_SAFE_INTEGER) - (b.order ?? Number.MAX_SAFE_INTEGER);
         }
@@ -169,6 +154,10 @@ export function TaskBoard() {
   }
   const overdueCount = unfinishedTasks.filter(task => getTaskStatus(task) === "overdue").length;
   const urgentCount = unfinishedTasks.filter(task => getTaskStatus(task) === "urgent").length;
+
+  function togglePriority(taskId: number) {
+    setTasks(current => current.map(task => task.id === taskId ? { ...task, priority: !task.priority } : task));
+  }
 
   function toggleComplete(taskId: number) {
     setTasks((current) =>
@@ -299,26 +288,19 @@ export function TaskBoard() {
               <div className="rounded-lg border border-border bg-cream px-4 py-3">
                 <div className="text-2xl font-black text-terracotta">{urgentCount}</div>
                 <div className="text-light">快到期</div>
-                <div className="mt-1 text-[.68rem] leading-tight text-light">今天起 3 天內</div>
+                <div className="text-xs text-light">今天起 3 天內</div>
               </div>
             </div>
           </div>
         </section>
 
         <TaskSyncStatus />
-        {localBackup.length > 0 ? <details className="mb-4 text-sm text-muted"><summary className="cursor-pointer py-2">有 {localBackup.length} 件舊待辦可匯入</summary>
-          這個瀏覽器還保留 {localBackup.length} 件舊待辦。確認是自己的資料後，可匯入目前帳號；同 ID 的雲端資料不會覆寫。
-          <button type="button" disabled={taskSync.loading || taskSync.saving || !!taskSync.error || !taskSync.userId} className="ml-2 min-h-11 font-bold text-terracotta underline disabled:opacity-40" onClick={async () => {
-            if (!window.confirm('確認將這個瀏覽器的舊待辦匯入目前登入的帳號？')) return;
-            if (await setTasks(current => [...current, ...localBackup.filter(task => !current.some(existing => existing.id === task.id))])) setLocalBackup([]);
-          }}>匯入舊待辦</button>
-        </details> : null}
         <fieldset disabled={taskSync.loading || taskSync.saving || !!taskSync.error || !taskSync.userId} className="min-w-0 border-0 p-0 m-0">
         <form className="mb-5 rounded-lg border border-border bg-paper p-4" onSubmit={handleAddTask}>
           <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
             <h2 className="text-xl font-black">新增待辦</h2>
             <div className="flex rounded-full bg-cream p-1" aria-label="待辦類型">
-              {[["once", "一次性"], ["weekly", "每週重複"]].map(([value, label]) => (
+              {[["once", "一次性"], ["weekly", "重複"]].map(([value, label]) => (
                 <button type="button" key={value} disabled={creatingWeekly} aria-pressed={taskKind === value}
                   onClick={() => { setTaskKind(value); setCreateError(""); }}
                   className={`rounded-full px-4 py-2 text-sm font-bold ${taskKind === value ? "bg-forest text-white" : "text-muted"}`}>{label}</button>
@@ -337,10 +319,10 @@ export function TaskBoard() {
               />
             </label>
             {taskKind === "weekly" ? <label className="block">
-              <span className="mb-1 block text-xs font-bold text-muted">每週次數</span>
+              <span className="mb-1 block text-xs font-bold text-muted">目前頻率</span>
               <select value={weeklyCount} disabled={creatingWeekly} onChange={event => setWeeklyCount(Number(event.target.value))}
                 className="h-12 w-full rounded-xl border-[1.5px] border-border bg-cream px-3 text-sm">
-                {[1,2,3,4,5,6,7].map(count => <option key={count} value={count}>{count} 次</option>)}
+                {[1,2,3,4,5,6,7].map(count => <option key={count} value={count}>每週 {count} 次</option>)}
               </select>
             </label> : <label className="block">
               <span className="mb-1 block text-xs font-bold text-muted">預計完成日</span>
@@ -378,7 +360,7 @@ export function TaskBoard() {
           >
             <span>{showDetails ? "−" : "+"}</span>
             {showDetails ? "收起補充細節" : "補充細節"}
-          </button> : <p className="mt-3 text-sm text-muted">從本週開始，每次可分別完成、加入不同場次。</p>}
+          </button> : <p className="mt-3 text-sm text-muted">目前支援每週重複；每日、每月與自訂頻率會在資料升級後加入。</p>}
           {createError && <p role="alert" className="mt-3 text-sm text-terracotta">{createError}</p>}
         </form>
         <WeeklyTasks refreshKey={weeklyRefresh} />
@@ -408,7 +390,7 @@ export function TaskBoard() {
         <p className="mb-3 text-sm text-muted">勾選事項後，可批次標記完成或選擇場次。拖曳左側把手調整順序。</p>
         <p role="status" className="sr-only">{sortNotice}</p>
         <section className="overflow-hidden rounded-lg border border-border bg-paper">
-          <div className="grid grid-cols-[24px_44px_76px_minmax(0,1fr)_120px_76px_96px] items-center gap-3 border-l-4 border-l-transparent border-b border-border bg-cream-d px-4 py-3 text-xs font-bold uppercase tracking-normal text-muted max-[900px]:grid-cols-[24px_44px_minmax(0,1fr)_auto] max-[900px]:gap-2">
+          <div className="grid grid-cols-[24px_44px_minmax(0,1fr)_120px_90px_96px] items-center gap-3 border-l-4 border-l-transparent border-b border-border bg-cream-d px-4 py-3 text-xs font-bold uppercase tracking-normal text-muted max-[900px]:grid-cols-[24px_44px_minmax(0,1fr)_auto] max-[900px]:gap-2">
             <div />
             <label className="flex min-h-11 cursor-pointer flex-col items-center justify-center gap-1 text-xs font-bold text-muted">
           <input
@@ -423,10 +405,9 @@ export function TaskBoard() {
           />
           <span>全選</span>
         </label>
-            <div className="text-center max-[900px]:hidden">提醒</div>
             <div>事項</div>
             <div className="max-[900px]:hidden">預計完成</div>
-            <div className="max-[900px]:hidden">已放著</div>
+            <div className="max-[900px]:hidden">加入清單</div>
             <div />
           </div>
 
@@ -486,7 +467,7 @@ export function TaskBoard() {
                       />
                     </form>
                   ) : (
-                    <div className="grid min-h-[58px] grid-cols-[24px_44px_76px_minmax(0,1fr)_120px_76px_96px] items-center gap-3 max-[900px]:grid-cols-[24px_44px_minmax(0,1fr)_auto] max-[900px]:gap-2">
+                    <div className="grid min-h-[58px] grid-cols-[24px_44px_minmax(0,1fr)_120px_90px_96px] items-center gap-3 max-[900px]:grid-cols-[24px_44px_minmax(0,1fr)_auto] max-[900px]:gap-2">
                       {!task.completed ? (
                         <button type="button" draggable aria-label={`拖曳排序：${task.title}，可用鍵盤上下鍵調整`} title="拖曳調整順序"
                           className="flex h-10 w-6 cursor-grab items-center justify-center rounded text-xl text-light hover:text-muted focus-visible:outline-terracotta active:cursor-grabbing"
@@ -506,22 +487,23 @@ export function TaskBoard() {
                           checked={!task.completed && bookingIds.includes(task.id)} onChange={() => setBookingIds(current => current.includes(task.id) ? current.filter(id => id !== task.id) : [...current, task.id])}
                           aria-label={`選取 ${task.title}`} />
                       </label>
-                      <div className="max-[900px]:hidden">
-                        <span className={`inline-flex min-w-[62px] justify-center rounded px-2 py-1 text-xs font-bold ${task.completed ? "bg-forest text-white" : status.className}`}>
-                          {task.completed ? "已完成" : status.label}
-                        </span>
-                      </div>
                       <div className="min-w-0">
-                        <div
-                          className={`break-words text-[.95rem] font-bold leading-relaxed ${task.completed ? "text-forest line-through" : ""}`}
-                          title={task.title}
-                        >
-                          <span className={`mr-2 hidden rounded px-1.5 py-0.5 text-[.68rem] font-bold max-[900px]:inline-flex ${task.completed ? "bg-forest text-white" : status.className}`}>
-                            {task.completed ? "已完成" : status.label}
-                          </span>
-                          {task.title}
+                        <div className="flex items-center gap-2">
+                          {!task.completed ? <button type="button" onClick={() => togglePriority(task.id)}
+                            aria-label={`${task.priority ? "取消優先" : "標記優先"}：${task.title}`} title={task.priority ? "取消優先" : "標記為優先"}
+                            className={`inline-flex size-7 shrink-0 items-center justify-center rounded text-xl leading-none transition-colors focus-visible:outline-terracotta ${task.priority ? "text-[#D49A18]" : "text-border-d hover:bg-cream hover:text-[#D49A18]"}`}>
+                            <span aria-hidden="true">{task.priority ? "★" : "☆"}</span>
+                          </button> : null}
+                          <div
+                            className={`break-words text-[.95rem] font-bold leading-relaxed ${task.completed ? "text-forest line-through" : ""}`}
+                            title={task.title}
+                          >
+                            {task.completed || status.label ? <span className={`mr-2 inline-flex rounded px-1.5 py-0.5 text-[.68rem] font-bold ${task.completed ? "bg-forest text-white" : status.className}`}>
+                              {task.completed ? "已完成" : status.label}
+                            </span> : null}
+                            {task.title}
+                          </div>
                         </div>
-                        <TaskSessionBadge taskId={task.id} />
                         {!task.completed && task.note ? (
                           <div
                             className="mt-0.5 truncate text-xs leading-relaxed text-light"
@@ -530,6 +512,7 @@ export function TaskBoard() {
                             {task.note}
                           </div>
                         ) : null}
+                        <TaskSessionBadge taskId={task.id} />
                       </div>
                       <div className="text-sm font-semibold text-muted max-[900px]:col-start-3">
                         {task.completed ? "完成" : task.deadline ? (
@@ -540,7 +523,7 @@ export function TaskBoard() {
                         ) : "未設定期限"}
                       </div>
                       <div className="text-sm font-normal text-muted max-[900px]:hidden">
-                        {task.completed ? "—" : `${delayed} 天`}
+                        {task.completed ? "—" : `${delayed} 天前`}
                       </div>
                       <div className="flex flex-wrap justify-end gap-1 max-[900px]:col-span-4 max-[900px]:justify-end">
                         {task.completed ? (

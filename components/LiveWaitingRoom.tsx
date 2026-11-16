@@ -2,13 +2,16 @@
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { browserAuth } from '@/lib/supabase/browser';
-import { sessionDate, sessionTime } from '@/lib/bookingErrors';
+import { formatSessionRange } from '@/lib/timeZone';
+import { displaySessionTitle } from '@/lib/sessionTitle';
 import { RoomPresence } from './RoomPresence';
 import { Logo } from './Logo';
 import { NicknameEditor } from './NicknameEditor';
 import { CameraPreview } from './CameraPreview';
+import { useTimeZone } from './TimeZoneProvider';
 type Waiting = { id: string; title: string; starts_at: string; ends_at: string; server_time: string; tasks: { id: number; title: string; completed: boolean }[] };
 export function LiveWaitingRoom({ sessionId }: { sessionId: string }) {
+  const { timeZone } = useTimeZone();
   const [blurEnabled, setBlurEnabled] = useState(false);
   const [cameraEnabled, setCameraEnabled] = useState(false);
   const [data, setData] = useState<Waiting | null>(null);
@@ -58,8 +61,8 @@ export function LiveWaitingRoom({ sessionId }: { sessionId: string }) {
     <section className="rounded-lg border border-border bg-paper p-6">
       <p className="text-sm font-bold text-forest">{data && seconds === 0 ? '進房前準備' : '等候區'}</p>
       {data ? <>
-        <h1 className="mt-3 text-3xl font-black">{data.title}</h1>
-        <p className="mt-3 text-sm text-muted">{sessionDate(data.starts_at)} · {sessionTime(data.starts_at)}–{sessionTime(data.ends_at)}（台灣時間）</p>
+        <h1 className="mt-3 text-3xl font-black">{displaySessionTitle(data.title)}</h1>
+        <p className="mt-3 text-sm text-muted">{formatSessionRange(data.starts_at, data.ends_at, timeZone)}</p>
         <p className="my-6 rounded-xl bg-forest-lt p-4 text-forest">{seconds > 0 ? `距離開場 ${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}` : '場次進行中，確認鏡頭後即可加入，不需要等待。'}</p>
         <NicknameEditor />
         <CameraPreview key={sessionId} onEnabledChange={setCameraEnabled} onBlurChange={setBlurEnabled} />

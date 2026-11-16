@@ -4,15 +4,18 @@ import Link from 'next/link';
 import { useRef, useState } from 'react';
 import { AddToCalendar } from './AddToCalendar';
 import { browserAuth } from '@/lib/supabase/browser';
-import { bookingError, sessionDate, sessionTime } from '@/lib/bookingErrors';
+import { bookingError } from '@/lib/bookingErrors';
+import { formatSessionRange } from '@/lib/timeZone';
 import type { PublicSession } from '@/lib/publicSessions';
 import { useSharedTasks } from './useSharedTasks';
 import { TaskSyncStatus } from './TaskSyncStatus';
 import { BookedTaskContent } from './BookedTaskContent';
 import { BookingFlowSteps } from './BookingFlowSteps';
 import { Logo } from './Logo';
+import { useTimeZone } from './TimeZoneProvider';
 
 export function CloudBooking({ session, initialIds }: { session: PublicSession; initialIds: number[] }) {
+  const { timeZone } = useTimeZone();
   const [tasks, setTasks, sync] = useSharedTasks();
   const [ids, setIds] = useState(initialIds);
   const [busy, setBusy] = useState(false);
@@ -30,7 +33,7 @@ export function CloudBooking({ session, initialIds }: { session: PublicSession; 
   if (confirmed) return <main className="min-h-screen bg-paper px-[5%] py-8"><div className="mx-auto max-w-3xl"><Logo /><section className="mt-8 rounded-lg border border-border bg-paper p-6">
     <h1 className="text-3xl font-black">預約成功</h1>
     <h2 className="mt-4 text-xl font-bold">{session.title}</h2>
-    <p className="mt-2 text-muted">{sessionDate(session.starts_at)} · {sessionTime(session.starts_at)}–{sessionTime(session.ends_at)}（台灣時間）</p>
+    <p className="mt-2 text-muted">{formatSessionRange(session.starts_at, session.ends_at, timeZone)}</p>
     <AddToCalendar session={session} />
     <Link href={`/my-sessions#${confirmed}`} className="inline-flex min-h-11 items-center rounded-lg bg-terracotta px-5 py-3 font-bold text-ink">查看已預約場次</Link>
   </section></div></main>;
@@ -39,7 +42,7 @@ export function CloudBooking({ session, initialIds }: { session: PublicSession; 
     <Logo /><Link href="/sessions" className="my-6 block text-muted">← 重新選擇場次</Link>
     <BookingFlowSteps current={2} />
     <section className="rounded-lg border border-border bg-paper p-6">
-      <p className="text-sm text-terracotta">{sessionDate(session.starts_at)} · {sessionTime(session.starts_at)}–{sessionTime(session.ends_at)}（台灣時間）</p>
+      <p className="text-sm font-bold text-terracotta">{formatSessionRange(session.starts_at, session.ends_at, timeZone)}</p>
       <h1 className="mt-3 text-3xl font-black">{session.title}</h1>
       <p className="mt-3 text-muted">選擇這場要完成的待辦。剩餘名額以確認預約時為準。</p>
       <TaskSyncStatus />

@@ -1,19 +1,12 @@
-import { SessionBookingStatus, SessionBookingAction } from "@/components/SessionBookingStatus";
 import { AccountMenu } from "@/components/AccountMenu";
 import Link from "next/link";
 import { Logo } from "@/components/Logo";
 import { getPublicSessions, type PublicSession } from "@/lib/publicSessions";
 import { BookingFlowSteps } from "@/components/BookingFlowSteps";
+import { AvailableSessionsList } from "@/components/AvailableSessionsList";
 
 export const metadata = { title: "可預約場次 — 雜事房" };
 export const dynamic = "force-dynamic";
-
-const dateFormat = new Intl.DateTimeFormat("zh-TW", {
-  timeZone: "Asia/Taipei", year: "numeric", month: "2-digit", day: "2-digit", weekday: "short"
-});
-const timeFormat = new Intl.DateTimeFormat("zh-TW", {
-  timeZone: "Asia/Taipei", hour: "2-digit", minute: "2-digit", hourCycle: "h23"
-});
 
 export default async function SessionsPage({ searchParams }: { searchParams: { tasks?: string } }) {
   const tasks = (searchParams.tasks ?? "").split(",").filter(id => /^\d+$/.test(id)).join(",");
@@ -38,30 +31,9 @@ export default async function SessionsPage({ searchParams }: { searchParams: { t
       <div className="mx-auto max-w-6xl px-[5%] py-8">
         <BookingFlowSteps current={1} selectedTaskCount={tasks ? tasks.split(",").length : 0} />
         <h1 className="text-4xl font-black">可預約場次</h1>
-        <p className="mt-3 text-muted">先挑一個你願意出現的時段。選好後，再決定這場要處理哪些事。以下皆為台灣時間。</p>
+        <p className="mt-3 text-muted">先挑一個你願意出現的時段。選好後，再決定這場要處理哪些事。</p>
         {tasks ? <p className="mt-4 rounded-xl bg-forest-lt p-3 text-sm text-forest">你已選好 {tasks.split(",").length} 件待辦。選擇場次後仍可調整。</p> : null}
-        <SessionBookingStatus><div className="mt-6 grid gap-4">
-          {failed ? (
-            <div role="alert" className="rounded-lg border border-border bg-paper p-6">
-              <p>場次暫時無法載入，請稍後再試。</p>
-              <a href="/sessions" className="mt-3 inline-block font-bold text-terracotta underline">重新載入</a>
-            </div>
-          ) : sessions.length === 0 ? (
-            <p className="rounded-lg border border-border bg-paper p-6 text-muted">目前沒有即將開始的公開場次，請稍後再來看看。</p>
-          ) : sessions.map(session => (
-            <article key={session.id} className="flex flex-wrap items-center justify-between gap-5 rounded-lg border border-border bg-paper p-6">
-              <div>
-                <p className="text-sm text-muted">{dateFormat.format(new Date(session.starts_at))}</p>
-                <h2 className="mt-2 text-2xl font-black">{session.title}</h2>
-                <p className="mt-2 text-muted">{timeFormat.format(new Date(session.starts_at))} – {timeFormat.format(new Date(session.ends_at))}</p>
-              </div>
-              <div className="flex flex-wrap items-center gap-3">
-                <span className="text-sm text-muted">{session.booked_count} / {session.capacity} 人 · 還有 {Math.max(0, session.capacity - session.booked_count)} 個名額</span>
-                <SessionBookingAction sessionId={session.id} full={session.booked_count >= session.capacity} tasks={tasks} />
-              </div>
-            </article>
-          ))}
-        </div></SessionBookingStatus>
+        <AvailableSessionsList sessions={sessions} tasks={tasks} failed={failed} />
       </div>
     </main>
   );

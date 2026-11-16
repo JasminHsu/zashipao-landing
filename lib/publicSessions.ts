@@ -1,3 +1,5 @@
+import { displaySessionTitle } from "./sessionTitle";
+
 export type PublicSession = {
   id: string;
   title: string;
@@ -25,5 +27,5 @@ export async function getPublicSessions(): Promise<PublicSession[]> {
     typeof item.ends_at === "string" && Number.isFinite(Date.parse(item.ends_at)) &&
     Number.isInteger(item.capacity) && item.capacity > 0 && item.capacity <= 5 && Number.isInteger(item.booked_count) && item.booked_count >= 0
   )) throw new Error("Invalid session response");
-  return data;
+  return data.map(item => ({ ...item, title: displaySessionTitle(item.title) }));
 }

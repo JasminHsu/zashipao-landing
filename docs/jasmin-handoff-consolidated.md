@@ -1,5 +1,7 @@
 # 雜事房｜交接給 Jasmin
 
+> 2026-11-15 後續 Supabase 產品調整（時區偏好、通用重複待辦、完成待辦與未來場次等）請見 [Supabase 產品調整交接](supabase-product-handoff-2026-11-15.md)。
+
 更新：2026/11/08（Ching 本機日期；台灣已是 11/09）。本文件為目前接手入口；舊文件中的「尚未推送／未部署」是當時紀錄，不代表現在狀態。
 
 ## 1. 先看重點
@@ -66,7 +68,7 @@ Ching 已在目前共用 Supabase 執行，回報「Success. No rows returned」
 - 目前沒有強制「某週的次數只能加入該週場次」。
 - 尚未限制同一次待辦只能加入一個場次；不要宣稱已防止重複安排。
 - 若從其他入口刪除某次待辦，下一次準備週次時可能補回；應先使用暫停功能，後續再完善刪除規則。
-- 介面只提供前一週／本週／下一週，較早紀錄保留於資料庫。
+- 介面可用日期直接跳到任意週，也保留前一週／後一週快速切換；過去紀錄保留於資料庫。
 - 頁首未完成／到期統計目前計算一次性待辦；每週進度顯示於目標群組。
 - 自動測試沒有直接驗證正式 Supabase 的權限與競爭寫入。
 
@@ -116,6 +118,7 @@ Ching 已在目前共用 Supabase 執行，回報「Success. No rows returned」
 - 帳號隔離：account-isolation-check.md
 - 帳號刪除：account-deletion.md
 - 場次管理：session-management.md
+- Supabase 產品調整交接（可共編 Google Doc）：https://docs.google.com/document/d/1jtdTN64iYoVxxyix9b9rvfdreI1GYTSj7x6gkYjlXtw/edit
 - 隱私草稿：privacy-draft.md（不是法律審核完成的正式政策）
 
 本次更新 GitHub Markdown 交接文件；先前 Word 匯出是舊快照，沒有自動同步。

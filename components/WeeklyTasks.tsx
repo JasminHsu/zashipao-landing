@@ -2,25 +2,18 @@
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { browserAuth } from '@/lib/supabase/browser';
-import { taipeiWeek } from '@/lib/weeklyTasks';
+import { moveWeek, taipeiWeek, weekStartFromDate } from '@/lib/weeklyTasks';
 import { useSharedTasks } from './useSharedTasks';
 import { TaskSessionBadge } from './TaskSessionBadge';
 type Goal = { id: string; title: string; weekly_count: number; active: boolean };
 export function WeeklyTasks({ refreshKey = 0 }: { refreshKey?: number }) {
   const [tasks, setTasks, sync] = useSharedTasks();
   const [goals, setGoals] = useState<Goal[]>([]);
-  const [offset, setOffset] = useState(0);
   const [week, setWeek] = useState(() => taipeiWeek());
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [ready, setReady] = useState(false);
   const [revision, setRevision] = useState(0);
-  useEffect(() => {
-    const update = () => setWeek(taipeiWeek(new Date(), offset));
-    update(); const timer = window.setInterval(update, 60000);
-    window.addEventListener('focus', update);
-    return () => { clearInterval(timer); window.removeEventListener('focus', update); };
-  }, [offset]);
   useEffect(() => {
     let active = true;
     setGoals([]); setReady(false); setError('');
@@ -51,12 +44,19 @@ export function WeeklyTasks({ refreshKey = 0 }: { refreshKey?: number }) {
     finally { setBusy(false); }
   }
   if (ready && goals.length === 0) return null;
-  return <section aria-label="每週重複待辦" className="mb-6 rounded-lg border border-border bg-paper p-5">
+  return <section aria-label="重複待辦" className="mb-6 rounded-lg border border-border bg-paper p-5">
     <div className="flex flex-wrap items-center justify-between gap-3">
-      <h2 className="text-xl font-black text-ink">每週重複待辦</h2>
-      <div className="flex gap-2">{[-1,0,1].map(n => <button type="button" key={n} onClick={() => setOffset(n)} aria-pressed={offset===n} className={`rounded-full px-4 py-2 text-sm ${offset===n?'bg-forest text-white':'bg-cream text-ink'}`}>{n===-1?'上週':n===0?'本週':'下週'}</button>)}</div>
+      <h2 className="text-xl font-black text-ink">重複待辦</h2>
+      <div className="flex flex-wrap items-end gap-2" aria-label="選擇查看週次">
+        <button type="button" onClick={() => setWeek(current => moveWeek(current, -1))} aria-label="查看前一週" title="前一週" className="inline-flex size-11 items-center justify-center rounded-lg border border-border bg-white text-xl text-ink hover:border-muted">←</button>
+        <label className="grid gap-1 text-xs font-semibold text-muted">查看週次
+          <input type="date" value={week} onChange={event => setWeek(weekStartFromDate(event.target.value))} className="min-h-11 rounded-lg border border-border bg-white px-3 text-sm text-ink" />
+        </label>
+        <button type="button" onClick={() => setWeek(current => moveWeek(current, 1))} aria-label="查看後一週" title="後一週" className="inline-flex size-11 items-center justify-center rounded-lg border border-border bg-white text-xl text-ink hover:border-muted">→</button>
+        {week !== taipeiWeek() ? <button type="button" onClick={() => setWeek(taipeiWeek())} className="min-h-11 px-2 text-sm font-bold text-forest underline">回到本週</button> : null}
+      </div>
     </div>
-    <p className="mt-2 text-sm leading-6 text-muted">{week} 起的一週（台灣時間） · 點開目標，安排每一次。</p>
+    <p className="mt-2 text-sm leading-6 text-muted">目前為每週頻率 · {week} 起的一週</p>
     {error && <p role="alert" className="mt-3 text-sm text-terracotta">{error} <button type="button" className="underline" onClick={() => setRevision(x=>x+1)}>重新載入</button></p>}
     {!ready && !error && <p role="status" className="mt-3 text-sm text-muted">正在準備每週待辦…</p>}
     <div className="mt-4 space-y-3">{goals.map(goal => {

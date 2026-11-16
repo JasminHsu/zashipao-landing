@@ -1,3 +1,5 @@
+import { displaySessionTitle } from './sessionTitle';
+
 export type CalendarSession = { id: string; title: string; starts_at: string; ends_at: string };
 
 export function calendarOrigin(value: string): string | null {
@@ -13,8 +15,8 @@ function stamp(value: string) {
 function details(session: CalendarSession, origin: string | null) {
   return '等候區於開場前 5 分鐘開放。' + (origin ? `\n進入等候區：${origin}/sessions/waiting/${encodeURIComponent(session.id)}` : '\n請回雜事房「已預約場次」進入等候區。') + '\n取消預約或改期後，請自行更新此行事曆活動。';
 }
-export function googleCalendarUrl(session: CalendarSession, origin: string | null) {
-  const params = new URLSearchParams({ action: 'TEMPLATE', text: `雜事房｜${session.title}`, dates: `${stamp(session.starts_at)}/${stamp(session.ends_at)}`, details: details(session, origin), ctz: 'Asia/Taipei' });
+export function googleCalendarUrl(session: CalendarSession, origin: string | null, timeZone = 'UTC') {
+  const params = new URLSearchParams({ action: 'TEMPLATE', text: `雜事房｜${displaySessionTitle(session.title)}`, dates: `${stamp(session.starts_at)}/${stamp(session.ends_at)}`, details: details(session, origin), ctz: timeZone });
   return `https://calendar.google.com/calendar/render?${params}`;
 }
 const escapeText = (value: string) => value.replace(/\\/g, '\\\\').replace(/\r\n|\r|\n/g, '\\n').replace(/;/g, '\\;').replace(/,/g, '\\,');
@@ -30,5 +32,5 @@ function fold(line: string) {
 }
 export function sessionIcs(session: CalendarSession, origin: string | null, now = new Date()) {
   if (Date.parse(session.ends_at) <= Date.parse(session.starts_at)) throw new Error('Invalid session duration');
-  return ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Zashipao//Session Calendar//ZH-TW', 'CALSCALE:GREGORIAN', 'BEGIN:VEVENT', `UID:${encodeURIComponent(session.id)}@zashipao`, `DTSTAMP:${stamp(now.toISOString())}`, `DTSTART:${stamp(session.starts_at)}`, `DTEND:${stamp(session.ends_at)}`, `SUMMARY:${escapeText(`雜事房｜${session.title}`)}`, `DESCRIPTION:${escapeText(details(session, origin))}`, 'END:VEVENT', 'END:VCALENDAR'].map(fold).join('\r\n') + '\r\n';
+  return ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Zashipao//Session Calendar//ZH-TW', 'CALSCALE:GREGORIAN', 'BEGIN:VEVENT', `UID:${encodeURIComponent(session.id)}@zashipao`, `DTSTAMP:${stamp(now.toISOString())}`, `DTSTART:${stamp(session.starts_at)}`, `DTEND:${stamp(session.ends_at)}`, `SUMMARY:${escapeText(`雜事房｜${displaySessionTitle(session.title)}`)}`, `DESCRIPTION:${escapeText(details(session, origin))}`, 'END:VEVENT', 'END:VCALENDAR'].map(fold).join('\r\n') + '\r\n';
 }

@@ -1,10 +1,14 @@
+"use client";
+
 import { SessionBookingStatus, SessionBookingAction } from "./SessionBookingStatus";
 import { SessionAvailability } from "./SessionAvailability";
 import { ButtonLink } from "./ButtonLink";
 import type { HomeSession } from "./HomeSessionCard";
-import { sessionDate, sessionTime } from "@/lib/bookingErrors";
+import { formatSessionDate, formatSessionTime, timeZoneAbbreviation } from "@/lib/timeZone";
+import { useTimeZone } from "./TimeZoneProvider";
 
 export function Sessions({ sessions, loadError = false }: { sessions: HomeSession[]; loadError?: boolean }) {
+  const { timeZone } = useTimeZone();
   return (
     <section id="sessions" className="bg-paper px-[6%] py-20 max-[720px]:py-14">
       <div className="mx-auto max-w-6xl">
@@ -33,9 +37,9 @@ export function Sessions({ sessions, loadError = false }: { sessions: HomeSessio
                 className="grid grid-cols-[140px_150px_1fr_130px_auto] items-center gap-6 border-b border-ink/25 py-6 max-[900px]:grid-cols-[130px_1fr_auto] max-[620px]:grid-cols-[1fr_auto] max-[620px]:gap-2"
                 key={session.bookingHref}
               >
-                <div className="text-sm font-bold max-[620px]:col-span-2">{sessionDate(session.startsAt)}</div>
+                <div className="text-sm font-bold max-[620px]:col-span-2">{formatSessionDate(session.startsAt, timeZone)}</div>
                 <div className="text-sm text-ink/65 max-[900px]:col-start-1 max-[620px]:col-span-2">
-                  {sessionTime(session.startsAt)}–{sessionTime(session.endsAt)}
+                  {formatSessionTime(session.startsAt, timeZone)}–{formatSessionTime(session.endsAt, timeZone)} {timeZoneAbbreviation(timeZone, session.startsAt)}
                 </div>
                 <h3 className="font-sans text-xl font-black max-[900px]:col-start-2 max-[900px]:row-start-1 max-[620px]:col-start-1 max-[620px]:row-auto">
                   {session.title}

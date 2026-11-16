@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Noto_Sans_TC, Noto_Serif_TC } from "next/font/google";
+import { TimeZoneProvider } from "@/components/TimeZoneProvider";
 import "./globals.css";
 
 const sans = Noto_Sans_TC({
@@ -28,7 +29,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="zh-TW">
-      <body className={`${sans.variable} ${serif.variable} bg-paper font-sans text-ink antialiased`}>{children}</body>
+      <body className={`${sans.variable} ${serif.variable} bg-paper font-sans text-ink antialiased`}>
+        <TimeZoneProvider>{children}</TimeZoneProvider>
+      </body>
     </html>
   );
 }

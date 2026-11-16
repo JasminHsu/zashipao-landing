@@ -18,7 +18,7 @@ export function RoomLayoutDemo() {
         <Link href="/my-sessions">← 返回已預約場次</Link>
         <p>介面預覽 · 人物與倒數為示意，不連接影音、不儲存資料</p>
       </div>
-      <RoomWorkspace title="晚間雜事衝刺" schedule="21:00–21:50（台灣時間）" timer="49:55"
+      <RoomWorkspace title="雜事房示意場次" schedule="50 分鐘共同專注" timer="49:55"
         video={<>
           <div className="mb-4 flex items-center justify-between gap-3"><h2 className="font-bold">同場視訊</h2><span className="text-sm text-white/70">4 人示意</span></div>
           <div className="room-tile-grid grid grid-cols-2 gap-3 max-[480px]:grid-cols-1">

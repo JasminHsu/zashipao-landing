@@ -9,5 +9,3 @@ export function bookingError(message: string) {
   };
   return errors[message] ?? '未能確認操作結果，請先到「已預約場次」確認，再重試。';
 }
-export const sessionDate = (value: string) => new Intl.DateTimeFormat('zh-TW', { timeZone: 'Asia/Taipei', year: 'numeric', month: '2-digit', day: '2-digit', weekday: 'short' }).format(new Date(value));
-export const sessionTime = (value: string) => new Intl.DateTimeFormat('zh-TW', { timeZone: 'Asia/Taipei', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).format(new Date(value));

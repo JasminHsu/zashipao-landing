@@ -2,6 +2,7 @@
 import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
 import { browserAuth } from '@/lib/supabase/browser';
+import { TimeZoneControl } from './TimeZoneControl';
 export function AccountMenu() {
   const menu = useRef<HTMLDetailsElement>(null);
   useEffect(() => {
@@ -47,6 +48,10 @@ export function AccountMenu() {
       <div className="absolute right-0 top-full z-50 mt-2 w-64 max-w-[85vw] rounded-lg border border-border bg-paper p-4 shadow-lift">
       <Link href="/contact" className="mb-3 flex min-h-11 items-center text-forest underline">聯絡我們</Link>
       <p className="mb-1 text-xs text-light">目前登入帳號</p><p className="mb-4 break-all text-sm text-ink">{email}</p>
+      <div className="mb-4 border-b border-border pb-4">
+        <p className="mb-2 text-sm font-bold text-ink">時區</p>
+        <TimeZoneControl compact />
+      </div>
       <form className="mb-4 border-b border-border pb-4" onSubmit={async event => {
         event.preventDefault();
         if (savingLock.current || busy) return;

@@ -2,7 +2,9 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { browserAuth } from '@/lib/supabase/browser';
-import { bookingError, sessionDate, sessionTime } from '@/lib/bookingErrors';
+import { bookingError } from '@/lib/bookingErrors';
+import { formatSessionRange } from '@/lib/timeZone';
+import { displaySessionTitle } from '@/lib/sessionTitle';
 import { useSharedTasks } from './useSharedTasks';
 import { Logo } from './Logo';
 import { BookingTaskPicker } from './BookingTaskPicker';
@@ -11,9 +13,11 @@ import { TaskSyncStatus } from './TaskSyncStatus';
 import { AccountMenu } from './AccountMenu';
 import { AddToCalendar } from './AddToCalendar';
 import { SessionResult } from './SessionResult';
+import { useTimeZone } from './TimeZoneProvider';
 
 type Booking = { session_results: { finished_at?: string | null } | null; id: string; session_id: string; sessions: { title: string; starts_at: string; ends_at: string } | null; booking_tasks: { task_id: number }[] };
 export function MySessions() {
+  const { timeZone } = useTimeZone();
   const [tasks, , sync] = useSharedTasks();
   const request = useRef(0);
   const [bookings, setBookings] = useState<Booking[]>([]);
@@ -81,17 +85,17 @@ export function MySessions() {
     <div className="grid gap-4">{shown.map(booking => {
       const session = booking.sessions;
       if (view === 'past') return <article id={booking.id} key={booking.id} className="scroll-mt-8 rounded-lg border border-border bg-paper p-6">
-        <div className="flex flex-wrap items-center justify-between gap-4"><div><h2 className="text-xl font-bold">{session?.title ?? '過往場次'}</h2>{session ? <p className="mt-2 text-sm text-muted">{sessionDate(session.starts_at)} · {sessionTime(session.starts_at)}–{sessionTime(session.ends_at)}</p> : null}</div>
+        <div className="flex flex-wrap items-center justify-between gap-4"><div><h2 className="text-xl font-bold">{session ? displaySessionTitle(session.title) : '過往場次'}</h2>{session ? <p className="mt-2 text-sm text-muted">{formatSessionRange(session.starts_at, session.ends_at, timeZone)}</p> : null}</div>
         <button aria-expanded={opened === booking.id} onClick={() => setOpened(opened === booking.id ? null : booking.id)} className="rounded-lg border border-border px-5 py-3 text-sm font-bold">{opened === booking.id ? '收起成果' : '查看成果'}</button></div>
         {opened === booking.id ? <div className="mt-6 border-t border-border pt-6"><SessionResult sessionId={booking.session_id} /></div> : null}
       </article>;
       const started = !session || (now !== null && Date.parse(session.starts_at) <= now);
       return <article id={booking.id} key={booking.id} className="scroll-mt-8 rounded-lg border border-border bg-paper p-6">
         <div className="flex flex-wrap items-center gap-2">
-          <h2 className="text-xl font-bold">{session?.title ?? '場次已停止公開'}</h2>
+          <h2 className="text-xl font-bold">{session ? displaySessionTitle(session.title) : '場次已停止公開'}</h2>
           <span className="rounded bg-forest-lt px-2 py-1 text-xs font-bold text-forest">已預約</span>
         </div>
-        {session ? <p className="mt-2 text-muted">{sessionDate(session.starts_at)} · {sessionTime(session.starts_at)}–{sessionTime(session.ends_at)}（台灣時間）</p> : null}
+        {session ? <p className="mt-2 text-muted">{formatSessionRange(session.starts_at, session.ends_at, timeZone)}</p> : null}
         <div className="my-4 grid gap-2">{sync.loading ? <p>正在載入本場待辦…</p> : booking.booking_tasks.map(item => {
           const task = tasks.find(t => t.id === Number(item.task_id));
           return <div className="flex items-center justify-between gap-3 rounded-xl bg-cream p-3" key={item.task_id}>

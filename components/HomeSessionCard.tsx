@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import { ButtonLink } from "./ButtonLink";
 import { SessionAvailability } from "./SessionAvailability";
+import { formatSessionRange } from "@/lib/timeZone";
+import { useTimeZone } from "./TimeZoneProvider";
 
 // Supply published sessions and verified account data from the server when available.
 export type HomeSession = {
@@ -29,14 +31,8 @@ export type HomeSessionCardProps = {
   };
 };
 
-const dateFormat = new Intl.DateTimeFormat("zh-TW", {
-  timeZone: "Asia/Taipei", month: "numeric", day: "numeric", weekday: "short"
-});
-const timeFormat = new Intl.DateTimeFormat("zh-TW", {
-  timeZone: "Asia/Taipei", hour: "2-digit", minute: "2-digit", hour12: false
-});
-
 export function HomeSessionCard({ upcomingSessions = [], member, preview = false, loadError = false }: HomeSessionCardProps) {
+  const { timeZone } = useTimeZone();
   const [now, setNow] = useState<number | null>(null);
   useEffect(() => {
     let timer: number;
@@ -82,7 +78,7 @@ export function HomeSessionCard({ upcomingSessions = [], member, preview = false
         <>
           <h2 className="font-sans text-2xl font-black">{session.title}</h2>
           <p className="mt-3 text-sm text-muted">
-            {dateFormat.format(start)} · {timeFormat.format(start)} – {timeFormat.format(end)}（台灣時間）
+            {formatSessionRange(session.startsAt, session.endsAt, timeZone)}
           </p>
           {member && reservation ? (
             <div className="mt-5 space-y-2">
