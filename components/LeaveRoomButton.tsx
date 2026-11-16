@@ -7,8 +7,8 @@ export function LeaveRoomButton({ onLeave, preview = false, disabled = false }: 
   const [error, setError] = useState('');
   return <>
     <button type="button" disabled={disabled} className="mt-3 min-h-11 self-end rounded-full bg-terracotta px-6 py-2 text-sm font-bold text-white hover:opacity-90" onClick={() => { setError(''); dialog.current?.showModal(); }}>離開</button>
-    <dialog ref={dialog} aria-labelledby="leave-room-title" onCancel={event => { if (busy) event.preventDefault(); }} className="m-auto w-[calc(100%-2rem)] max-w-md rounded-2xl border border-border bg-cream p-6 text-ink shadow-xl backdrop:bg-black/50">
-      <h2 id="leave-room-title" className="font-serif text-2xl font-bold">確認離開房間？</h2>
+    <dialog ref={dialog} aria-labelledby="leave-room-title" onCancel={event => { if (busy) event.preventDefault(); }} className="m-auto w-[calc(100%-2rem)] max-w-md rounded-lg border border-border bg-paper p-6 text-ink shadow-xl backdrop:bg-black/50">
+      <h2 id="leave-room-title" className="text-2xl font-black">確認離開房間？</h2>
       <p className="mt-4 text-sm leading-7 text-muted">進度會保留，場次結束前都能再加入。</p>
       <p className="mt-2 text-xs leading-6 text-muted">離開期間的聊天訊息不會補回。</p>
       {preview && <p className="mt-2 text-xs text-muted">這是介面預覽，不會影響真實場次。</p>}

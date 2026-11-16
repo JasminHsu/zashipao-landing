@@ -27,20 +27,20 @@ export function CloudBooking({ session, initialIds }: { session: PublicSession; 
   const available = tasks.filter(t => !t.completed && !t.archived);
   const selected = available.filter(t => ids.includes(t.id));
 
-  if (confirmed) return <main className="min-h-screen bg-cream px-[5%] py-8"><div className="mx-auto max-w-3xl"><Logo /><section className="mt-8 rounded-2xl border border-border bg-white p-6">
-    <h1 className="font-serif text-3xl font-black">預約成功</h1>
+  if (confirmed) return <main className="min-h-screen bg-paper px-[5%] py-8"><div className="mx-auto max-w-3xl"><Logo /><section className="mt-8 rounded-lg border border-border bg-paper p-6">
+    <h1 className="text-3xl font-black">預約成功</h1>
     <h2 className="mt-4 text-xl font-bold">{session.title}</h2>
     <p className="mt-2 text-muted">{sessionDate(session.starts_at)} · {sessionTime(session.starts_at)}–{sessionTime(session.ends_at)}（台灣時間）</p>
     <AddToCalendar session={session} />
-    <Link href={`/my-sessions#${confirmed}`} className="inline-flex rounded-full bg-terracotta px-5 py-3 font-bold text-white">查看已預約場次</Link>
+    <Link href={`/my-sessions#${confirmed}`} className="inline-flex min-h-11 items-center rounded-lg bg-terracotta px-5 py-3 font-bold text-ink">查看已預約場次</Link>
   </section></div></main>;
 
-  return <main className="min-h-screen bg-cream px-[5%] py-8"><div className="mx-auto max-w-3xl">
+  return <main className="min-h-screen bg-paper px-[5%] py-8"><div className="mx-auto max-w-3xl">
     <Logo /><Link href="/sessions" className="my-6 block text-muted">← 重新選擇場次</Link>
     <BookingFlowSteps current={2} />
-    <section className="rounded-2xl border border-border bg-white p-6">
+    <section className="rounded-lg border border-border bg-paper p-6">
       <p className="text-sm text-terracotta">{sessionDate(session.starts_at)} · {sessionTime(session.starts_at)}–{sessionTime(session.ends_at)}（台灣時間）</p>
-      <h1 className="mt-3 font-serif text-3xl font-black">{session.title}</h1>
+      <h1 className="mt-3 text-3xl font-black">{session.title}</h1>
       <p className="mt-3 text-muted">選擇這場要完成的待辦。剩餘名額以確認預約時為準。</p>
       <TaskSyncStatus />
       <fieldset disabled={busy || adding || sync.loading || sync.saving || !!sync.error || !sync.userId}>
@@ -66,7 +66,7 @@ export function CloudBooking({ session, initialIds }: { session: PublicSession; 
             <label className="mt-2 grid gap-1">預計完成日期<input type="date" value={deadline} onChange={event => setDeadline(event.target.value)} className="min-w-0 rounded-lg border border-border px-3 py-2" /></label>
             <label className="mt-3 grid gap-1">備註<textarea value={note} onChange={event => setNote(event.target.value)} rows={2} className="min-w-0 rounded-lg border border-border px-3 py-2" /></label>
           </details>
-          <button type="submit" disabled={!title.trim()} className="mt-3 min-h-11 rounded-full bg-forest px-4 py-2 text-sm font-bold text-white disabled:opacity-40">{adding ? '新增中…' : '新增並勾選'}</button>
+          <button type="submit" disabled={!title.trim()} className="mt-3 min-h-11 rounded-lg bg-forest px-4 py-2 text-sm font-bold text-white disabled:opacity-40">{adding ? '新增中…' : '新增並勾選'}</button>
           <p className="mt-3 text-xs text-muted">新增與編輯會同步到「我的待辦清單」，即使最後沒有預約也會保留。</p>
         </form>
         {notice ? <p role="status" className="my-3 text-sm text-forest">{notice}</p> : null}
@@ -77,7 +77,7 @@ export function CloudBooking({ session, initialIds }: { session: PublicSession; 
         </div>)}</div>
         {!sync.loading && !available.length ? <p className="my-4 text-muted">還沒有待辦，直接在上方新增第一件即可。</p> : null}
         {error ? <p role="alert" className="my-4 text-terracotta">{error} <Link href="/my-sessions" className="underline">查看已預約場次</Link></p> : null}
-        <button type="button" disabled={!selected.length || busy} className="w-full rounded-full bg-terracotta px-5 py-3 font-bold text-white disabled:opacity-40" onClick={async () => {
+        <button type="button" disabled={!selected.length || busy} className="w-full rounded-lg bg-terracotta px-5 py-3 font-bold text-ink disabled:opacity-40" onClick={async () => {
           setBusy(true); setError('');
           try {
             const { data, error } = await browserAuth().rpc('book_session', { p_session_id: session.id, p_task_ids: selected.map(t => t.id) });

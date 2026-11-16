@@ -18,10 +18,10 @@ const values = [
 
 export function ProblemSection() {
   return (
-    <section id="how" className="bg-[#DDEEF2] px-[6%] py-20 max-[720px]:py-14">
+    <section id="how" className="border-y border-border bg-cream px-[6%] py-20 max-[720px]:py-14">
       <div className="mx-auto grid max-w-6xl grid-cols-[.85fr_1.15fr] gap-20 max-[900px]:grid-cols-1 max-[900px]:gap-12">
         <div>
-          <p className="mb-5 text-sm font-bold text-[#244D3D]">我們都不是不想做</p>
+          <p className="mb-5 text-sm font-bold text-forest">我們都不是不想做</p>
           <h2 className="rv max-w-[650px] font-sans text-[clamp(2.6rem,5vw,5rem)] font-black leading-[1.06] text-ink">
             只是有些事，<br />一個人很難開始。
           </h2>
@@ -32,7 +32,7 @@ export function ProblemSection() {
         <div className="border-t border-ink/25">
           {values.map((value, index) => (
             <article className="rv grid grid-cols-[54px_1fr] gap-4 border-b border-ink/25 py-6" style={{ transitionDelay: `${index * 0.08}s` }} key={value.number}>
-              <span className="pt-1 text-sm font-black text-[#C7462C]">{value.number}</span>
+              <span className="pt-1 text-sm font-black text-terracotta">{value.number}</span>
               <div>
                 <h3 className="text-xl font-black text-ink">{value.title}</h3>
                 <p className="mt-2 max-w-[560px] text-sm leading-[1.75] text-ink/70">{value.description}</p>

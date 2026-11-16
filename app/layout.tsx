@@ -28,7 +28,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="zh-TW">
-      <body className={`${sans.variable} ${serif.variable} bg-cream font-sans text-ink antialiased`}>{children}</body>
+      <body className={`${sans.variable} ${serif.variable} bg-paper font-sans text-ink antialiased`}>{children}</body>
     </html>
   );
 }

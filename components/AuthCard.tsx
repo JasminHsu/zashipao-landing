@@ -96,7 +96,7 @@ export function AuthCard({ mode }: AuthCardProps) {
   }
 
   return (
-    <main className="min-h-screen bg-cream">
+    <main className="min-h-screen bg-paper">
       <div className="mx-auto grid min-h-screen max-w-6xl grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)] gap-x-10 px-[6%] py-8 max-[900px]:grid-cols-1 max-[900px]:gap-8">
         <section className="flex flex-col justify-between py-8 max-[900px]:py-0">
           <Logo />
@@ -104,7 +104,7 @@ export function AuthCard({ mode }: AuthCardProps) {
             <div className="mb-4 inline-flex rounded-full border border-terracotta/20 bg-terracotta-lt px-3 py-1 text-xs font-bold text-terracotta">
               50 分鐘，把一件事做完
             </div>
-            <h1 className="mb-5 font-serif text-5xl font-black leading-tight tracking-normal max-[720px]:text-4xl">
+            <h1 className="mb-5 text-5xl font-black leading-tight tracking-normal max-[720px]:text-4xl">
               {isSignup ? "把拖著的事，變成今天完成的事" : "繼續清掉那些一直掛心的小事"}
             </h1>
             <p className="text-[1.02rem] leading-[1.75] text-muted">
@@ -112,26 +112,17 @@ export function AuthCard({ mode }: AuthCardProps) {
             </p>
           </div>
           <div className="grid max-w-[520px] grid-cols-3 gap-3 text-sm max-[900px]:hidden">
-            <div className="rounded-2xl border border-border bg-white/70 p-4">
-              <div className="font-serif text-2xl font-black text-terracotta">50</div>
-              <div className="text-muted">分鐘場次</div>
-            </div>
-            <div className="rounded-2xl border border-border bg-white/70 p-4">
-              <div className="font-serif text-2xl font-black text-forest">8,431</div>
-              <div className="text-muted">件雜事完成</div>
-            </div>
-            <div className="rounded-2xl border border-border bg-white/70 p-4">
-              <div className="font-serif text-2xl font-black text-lavender">10+</div>
-              <div className="text-muted">每日場次</div>
-            </div>
+            <div className="rounded-lg border border-border bg-cream p-4"><div className="text-lg font-black text-terracotta">50 分鐘</div><div className="mt-1 text-muted">一起開始</div></div>
+            <div className="rounded-lg border border-border bg-cream p-4"><div className="text-lg font-black text-forest">最多 5 人</div><div className="mt-1 text-muted">小房間共做</div></div>
+            <div className="rounded-lg border border-border bg-cream p-4"><div className="text-lg font-black text-ink">不用下載</div><div className="mt-1 text-muted">瀏覽器參加</div></div>
           </div>
         </section>
 
         <section className="flex items-center justify-center">
-          <div className="w-full max-w-[460px] rounded-xl2 border-[1.5px] border-border bg-white p-8 shadow-lift max-[520px]:p-6">
+          <div className="w-full max-w-[460px] rounded-lg border border-border bg-paper p-8 shadow-lift max-[520px]:p-6">
             <div className="mb-7">
               <div className="mb-2 text-xs font-bold uppercase tracking-[.1em] text-terracotta">{current.eyebrow}</div>
-              <h2 className="mb-2 font-serif text-3xl font-black tracking-normal">{current.title}</h2>
+              <h2 className="mb-2 text-3xl font-black tracking-normal">{current.title}</h2>
               <p className="text-sm leading-[1.7] text-muted">{current.subtitle}</p>
               {nextPath ? <p className="mt-4 rounded-xl bg-terracotta-lt px-4 py-3 text-sm font-semibold text-terracotta">{isSignup ? "建立帳號後，繼續預約這場次。" : "請先登入，再加入這場次。"}</p> : null}
             </div>
@@ -170,7 +161,7 @@ export function AuthCard({ mode }: AuthCardProps) {
               <button
                 type="submit"
                 disabled={busy}
-                className="w-full rounded-full bg-terracotta px-5 py-3 text-base font-bold text-white transition-all hover:-translate-y-px hover:bg-terracotta-d"
+                className="w-full rounded-lg bg-terracotta px-5 py-3 text-base font-bold text-ink transition-all hover:-translate-y-px hover:bg-terracotta-d"
               >
                 {busy ? "處理中…" : current.button}
               </button>

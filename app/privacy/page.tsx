@@ -8,7 +8,7 @@ export default function PrivacyPage() {
     <main className="min-h-screen bg-[#FFFDF8] px-[6%] py-16 text-ink">
       <article className="mx-auto max-w-3xl">
         <Link className="text-sm font-semibold text-forest" href="/">← 回到首頁</Link>
-        <h1 className="mt-10 font-serif text-4xl font-black">隱私政策</h1>
+        <h1 className="mt-10 text-4xl font-black">隱私政策</h1>
         <p className="mt-4 text-sm text-ink/60">更新日期：2026 年 11 月 8 日</p>
         <div className="mt-10 space-y-8 leading-8 text-ink/75">
           <section><h2 className="text-xl font-bold text-ink">我們蒐集的資料</h2><p className="mt-2">為提供帳號、待辦、場次預約與線上共做功能，我們可能處理你的電子郵件、暱稱、預約內容、待辦事項與場次參與紀錄。</p></section>

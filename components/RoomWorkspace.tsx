@@ -17,11 +17,11 @@ export function RoomWorkspace({ title, schedule, timer, video, children }: {
   const [count, setCount] = useState(0);
   const [seen, setSeen] = useState(0);
   const unread = tab === 'chat' ? 0 : Math.max(0, count - seen);
-  return <ChatDock.Provider value={{ target, active: tab === 'chat', setCount }}><section className="room-workspace overflow-hidden rounded-2xl border border-white/15 bg-[#171412] shadow-xl">
+  return <ChatDock.Provider value={{ target, active: tab === 'chat', setCount }}><section className="room-workspace overflow-hidden rounded-lg border border-white/15 bg-[#171412] shadow-xl">
     <header className="flex flex-wrap items-center justify-between gap-4 border-b border-white/15 px-5 py-5 text-white sm:px-6">
       <div className="min-w-0">
         <p className="mb-1 text-xs font-bold tracking-widest text-[#E7B59F]">雜事房 · 一起專注</p>
-        <h1 className="break-words font-serif text-xl font-bold sm:text-2xl">{title}</h1>
+        <h1 className="break-words text-xl font-black sm:text-2xl">{title}</h1>
         <p className="mt-2 text-xs leading-6 text-white/70">{schedule}</p>
       </div>
       <div className="flex shrink-0 items-center gap-4">

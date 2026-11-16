@@ -260,18 +260,18 @@ export function TaskBoard() {
   }
 
   return (
-    <main className="min-h-screen bg-cream">
-      <header className="sticky top-0 z-40 border-b border-border bg-cream/95 backdrop-blur-xl">
+    <main className="min-h-screen bg-paper">
+      <header className="sticky top-0 z-40 border-b border-border bg-paper/95 backdrop-blur-xl">
         <div className="mx-auto flex min-h-[62px] max-w-7xl flex-wrap items-center justify-between gap-3 px-[5%] py-3">
           <Logo />
           <nav aria-label="主要導覽" className="flex min-w-0 items-center gap-2 text-sm max-[640px]:w-full max-[640px]:overflow-x-auto max-[640px]:pb-1 [&>a]:shrink-0 [&>a]:whitespace-nowrap [&>a]:min-h-11">
-            <Link className="inline-flex min-h-11 items-center justify-center whitespace-nowrap rounded-full border border-border px-4 py-0 font-semibold text-muted no-underline hover:border-muted" href="/my-sessions">
+            <Link className="inline-flex min-h-11 items-center justify-center whitespace-nowrap rounded-lg border border-border px-4 py-0 font-semibold text-muted no-underline hover:bg-cream" href="/my-sessions">
               已預約場次
             </Link>
-            <Link className="inline-flex min-h-11 items-center justify-center whitespace-nowrap rounded-full border border-border px-4 py-0 font-semibold text-muted no-underline hover:border-muted" href="/sessions">
+            <Link className="inline-flex min-h-11 items-center justify-center whitespace-nowrap rounded-lg border border-border px-4 py-0 font-semibold text-muted no-underline hover:bg-cream" href="/sessions">
               可預約場次
             </Link>
-            <Link className="inline-flex min-h-11 items-center justify-center whitespace-nowrap rounded-full bg-terracotta-lt px-4 py-0 font-bold text-terracotta no-underline" href="/tasks">
+            <Link className="inline-flex min-h-11 items-center justify-center whitespace-nowrap rounded-lg bg-terracotta-lt px-4 py-0 font-bold text-terracotta no-underline" href="/tasks">
               我的待辦清單
             </Link>
           </nav>
@@ -282,22 +282,22 @@ export function TaskBoard() {
         <section className="mb-5">
           <div className="flex items-end justify-between gap-5 max-[760px]:block">
             <div>
-              <h1 className="font-serif text-4xl font-black leading-tight tracking-normal">我的待辦清單</h1>
+              <h1 className="text-4xl font-black leading-tight tracking-normal">我的待辦清單</h1>
               <p className="mt-2 max-w-[620px] text-[.96rem] leading-[1.7] text-muted">
                 把一直卡著的小事先放進來。預約場次時，可以直接從這裡挑今天要處理哪幾件。
               </p>
             </div>
             <div className="mt-4 grid grid-cols-3 gap-2 text-center text-sm max-[760px]:grid-cols-3">
-              <div className="rounded-xl border border-border bg-white px-4 py-3">
-                <div className="font-serif text-2xl font-black text-terracotta">{unfinishedTasks.length}</div>
+              <div className="rounded-lg border border-border bg-cream px-4 py-3">
+                <div className="text-2xl font-black text-terracotta">{unfinishedTasks.length}</div>
                 <div className="text-light">未完成</div>
               </div>
-              <div className="rounded-xl border border-border bg-white px-4 py-3">
-                <div className="font-serif text-2xl font-black text-[#E24B4A]">{overdueCount}</div>
+              <div className="rounded-lg border border-border bg-cream px-4 py-3">
+                <div className="text-2xl font-black text-[#E24B4A]">{overdueCount}</div>
                 <div className="text-light">已過期</div>
               </div>
-              <div className="rounded-xl border border-border bg-white px-4 py-3">
-                <div className="font-serif text-2xl font-black text-terracotta">{urgentCount}</div>
+              <div className="rounded-lg border border-border bg-cream px-4 py-3">
+                <div className="text-2xl font-black text-terracotta">{urgentCount}</div>
                 <div className="text-light">快到期</div>
                 <div className="mt-1 text-[.68rem] leading-tight text-light">今天起 3 天內</div>
               </div>
@@ -314,9 +314,9 @@ export function TaskBoard() {
           }}>匯入舊待辦</button>
         </details> : null}
         <fieldset disabled={taskSync.loading || taskSync.saving || !!taskSync.error || !taskSync.userId} className="min-w-0 border-0 p-0 m-0">
-        <form className="mb-5 rounded-2xl border-[1.5px] border-border bg-white p-4 shadow-soft" onSubmit={handleAddTask}>
+        <form className="mb-5 rounded-lg border border-border bg-paper p-4" onSubmit={handleAddTask}>
           <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-            <h2 className="font-serif text-xl font-bold">新增待辦</h2>
+            <h2 className="text-xl font-black">新增待辦</h2>
             <div className="flex rounded-full bg-cream p-1" aria-label="待辦類型">
               {[["once", "一次性"], ["weekly", "每週重複"]].map(([value, label]) => (
                 <button type="button" key={value} disabled={creatingWeekly} aria-pressed={taskKind === value}
@@ -354,7 +354,7 @@ export function TaskBoard() {
             </label>}
             <div className="block">
               <span className="mb-1 block text-xs font-bold text-transparent">加入</span>
-              <button disabled={creatingWeekly} className="h-12 w-full rounded-full bg-terracotta px-6 text-base font-bold text-white transition-colors hover:bg-terracotta-d" type="submit">
+              <button disabled={creatingWeekly} className="h-12 w-full rounded-lg bg-terracotta px-6 text-base font-bold text-ink transition-colors hover:bg-terracotta-d" type="submit">
                 {creatingWeekly ? "加入中…" : "加入"}
               </button>
             </div>
@@ -384,14 +384,14 @@ export function TaskBoard() {
         <WeeklyTasks refreshKey={weeklyRefresh} />
 
         {bookingIds.some(id => unfinishedTasks.some(t => t.id === id)) ? (
-          <div className="fixed bottom-4 left-1/2 z-40 flex w-[min(760px,94vw)] -translate-x-1/2 flex-wrap items-center justify-center gap-3 rounded-2xl border border-border bg-white p-4 shadow-lift" role="region" aria-label="已選待辦操作">
+          <div className="fixed bottom-4 left-1/2 z-40 flex w-[min(760px,94vw)] -translate-x-1/2 flex-wrap items-center justify-center gap-3 rounded-lg border border-border bg-paper p-4 shadow-lift" role="region" aria-label="已選待辦操作">
             <span className="text-sm font-bold">已選 {bookingIds.filter(id => unfinishedTasks.some(t => t.id === id)).length} 件</span>
-            <button type="button" className="rounded-full bg-forest px-4 py-2 text-sm font-bold text-white" onClick={async () => {
+            <button type="button" className="rounded-lg bg-forest px-4 py-2 text-sm font-bold text-white" onClick={async () => {
               const ids = bookingIds.filter(id => unfinishedTasks.some(t => t.id === id));
               if (!await setTasks(current => current.map(task => ids.includes(task.id) ? { ...task, completed: true } : task))) return;
               setUndoIds(ids); setBookingIds([]);
             }}>標記完成</button>
-            <button type="button" className="rounded-full bg-terracotta px-4 py-2 text-sm font-bold text-white" onClick={() => {
+            <button type="button" className="rounded-lg bg-terracotta px-4 py-2 text-sm font-bold text-ink" onClick={() => {
               const ids = bookingIds.filter(id => unfinishedTasks.some(t => t.id === id));
               router.push('/sessions?tasks=' + ids.join(','));
             }}>選擇場次（已選 {bookingIds.filter(id => unfinishedTasks.some(t => t.id === id)).length} 件）</button>
@@ -407,8 +407,8 @@ export function TaskBoard() {
         </div> : null}
         <p className="mb-3 text-sm text-muted">勾選事項後，可批次標記完成或選擇場次。拖曳左側把手調整順序。</p>
         <p role="status" className="sr-only">{sortNotice}</p>
-        <section className="rounded-2xl border-[1.5px] border-border bg-white shadow-soft">
-          <div className="grid grid-cols-[24px_44px_76px_minmax(0,1fr)_120px_76px_96px] items-center gap-3 rounded-t-2xl border-l-4 border-l-transparent border-b border-border bg-cream-d px-4 py-3 text-xs font-bold uppercase tracking-normal text-muted max-[900px]:grid-cols-[24px_44px_minmax(0,1fr)_auto] max-[900px]:gap-2">
+        <section className="overflow-hidden rounded-lg border border-border bg-paper">
+          <div className="grid grid-cols-[24px_44px_76px_minmax(0,1fr)_120px_76px_96px] items-center gap-3 border-l-4 border-l-transparent border-b border-border bg-cream-d px-4 py-3 text-xs font-bold uppercase tracking-normal text-muted max-[900px]:grid-cols-[24px_44px_minmax(0,1fr)_auto] max-[900px]:gap-2">
             <div />
             <label className="flex min-h-11 cursor-pointer flex-col items-center justify-center gap-1 text-xs font-bold text-muted">
           <input
@@ -471,10 +471,10 @@ export function TaskBoard() {
                         aria-label="修改預計完成日"
                       />
                       <div className="flex gap-2">
-                        <button className="rounded-full bg-terracotta px-4 text-sm font-bold text-white hover:bg-terracotta-d" type="submit">
+                        <button className="rounded-lg bg-terracotta px-4 text-sm font-bold text-ink hover:bg-terracotta-d" type="submit">
                           儲存
                         </button>
-                        <button className="rounded-full border border-border px-4 text-sm font-bold text-muted hover:border-muted" type="button" onClick={() => setEditingId(null)}>
+                        <button className="rounded-lg border border-border px-4 text-sm font-bold text-muted hover:border-muted" type="button" onClick={() => setEditingId(null)}>
                           取消
                         </button>
                       </div>

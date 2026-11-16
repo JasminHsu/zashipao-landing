@@ -53,12 +53,12 @@ export function LiveWaitingRoom({ sessionId }: { sessionId: string }) {
     });
     return () => { active = false; clearInterval(poll); clearInterval(clock); window.removeEventListener('focus', refresh); subscription.unsubscribe(); };
   }, [sessionId, retry]);
-  return <main className="min-h-screen bg-cream px-[5%] py-8"><div className="mx-auto max-w-3xl">
+  return <main className="min-h-screen bg-paper px-[5%] py-8"><div className="mx-auto max-w-3xl">
     <Logo /><Link href="/my-sessions" className="my-6 block text-sm text-muted">← 返回已預約場次</Link>
-    <section className="rounded-2xl border border-border bg-white p-6">
+    <section className="rounded-lg border border-border bg-paper p-6">
       <p className="text-sm font-bold text-forest">{data && seconds === 0 ? '進房前準備' : '等候區'}</p>
       {data ? <>
-        <h1 className="mt-3 font-serif text-3xl font-black">{data.title}</h1>
+        <h1 className="mt-3 text-3xl font-black">{data.title}</h1>
         <p className="mt-3 text-sm text-muted">{sessionDate(data.starts_at)} · {sessionTime(data.starts_at)}–{sessionTime(data.ends_at)}（台灣時間）</p>
         <p className="my-6 rounded-xl bg-forest-lt p-4 text-forest">{seconds > 0 ? `距離開場 ${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}` : '場次進行中，確認鏡頭後即可加入，不需要等待。'}</p>
         <NicknameEditor />
