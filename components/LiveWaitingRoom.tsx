@@ -71,7 +71,7 @@ export function LiveWaitingRoom({ sessionId }: { sessionId: string }) {
         }} className="mb-6 inline-flex rounded-full bg-terracotta px-6 py-3 font-bold text-white">進入房間</Link> : null}
         <RoomPresence sessionId={sessionId} />
         <h2 className="mb-3 font-bold">這場要完成的待辦</h2>
-        <ul className="grid gap-2">{data.tasks.map(task => <li className="rounded-xl bg-cream p-3" key={task.id}>{task.title}{task.completed ? '（已完成）' : ''}</li>)}</ul>
+        <ul className="grid gap-2">{data.tasks.map(task => <li className="flex flex-wrap items-center gap-2 rounded-xl bg-cream p-3" key={task.id}>{task.completed ? <span className="rounded bg-forest px-2 py-1 text-xs font-bold text-white">已完成</span> : null}<span>{task.title}</span></li>)}</ul>
         {!data.tasks.length ? <p className="text-muted">本場目前沒有待辦。</p> : null}
       </> : <div role="status"><p className="my-4">{message}</p><button onClick={() => setRetry(value => value + 1)} className="rounded-full border border-border px-4 py-2">重新確認</button></div>}
     </section>

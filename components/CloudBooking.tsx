@@ -34,8 +34,10 @@ export function CloudBooking({ session, initialIds }: { session: PublicSession; 
     <h1 className="text-3xl font-black">預約成功</h1>
     <h2 className="mt-4 text-xl font-bold">{session.title}</h2>
     <p className="mt-2 text-muted">{formatSessionRange(session.starts_at, session.ends_at, timeZone)}</p>
-    <AddToCalendar session={session} />
-    <Link href={`/my-sessions#${confirmed}`} className="inline-flex min-h-11 items-center rounded-lg bg-terracotta px-5 py-3 font-bold text-ink">查看已預約場次</Link>
+    <div className="mt-6 flex flex-wrap gap-3">
+      <Link href={`/my-sessions#${confirmed}`} className="inline-flex min-h-11 items-center rounded-lg bg-terracotta px-5 py-3 font-bold text-ink">查看已預約場次</Link>
+      <AddToCalendar session={session} />
+    </div>
   </section></div></main>;
 
   return <main className="min-h-screen bg-paper px-[5%] py-8"><div className="mx-auto max-w-3xl">
@@ -65,9 +67,9 @@ export function CloudBooking({ session, initialIds }: { session: PublicSession; 
           <label className="grid gap-1 text-sm">待辦名稱
             <input required value={title} onChange={event => setTitle(event.target.value)} placeholder="例如：買電池、預約看診" className="min-h-11 min-w-0 rounded-lg border border-border px-3 py-2" />
           </label>
-          <details className="mt-3 text-sm text-muted"><summary className="cursor-pointer py-2">補充日期與備註（選填）</summary>
+          <details className="mt-3 text-sm text-muted"><summary className="cursor-pointer py-2">補充日期與備注（選填）</summary>
             <label className="mt-2 grid gap-1">預計完成日期<input type="date" value={deadline} onChange={event => setDeadline(event.target.value)} className="min-w-0 rounded-lg border border-border px-3 py-2" /></label>
-            <label className="mt-3 grid gap-1">備註<textarea value={note} onChange={event => setNote(event.target.value)} rows={2} className="min-w-0 rounded-lg border border-border px-3 py-2" /></label>
+            <label className="mt-3 grid gap-1">備注<textarea value={note} onChange={event => setNote(event.target.value)} rows={2} className="min-w-0 rounded-lg border border-border px-3 py-2" /></label>
           </details>
           <button type="submit" disabled={!title.trim()} className="mt-3 min-h-11 rounded-lg bg-forest px-4 py-2 text-sm font-bold text-white disabled:opacity-40">{adding ? '新增中…' : '新增並勾選'}</button>
           <p className="mt-3 text-xs text-muted">新增與編輯會同步到「我的待辦清單」，即使最後沒有預約也會保留。</p>

@@ -86,8 +86,16 @@ export function MySessions() {
       const session = booking.sessions;
       if (view === 'past') return <article id={booking.id} key={booking.id} className="scroll-mt-8 rounded-lg border border-border bg-paper p-6">
         <div className="flex flex-wrap items-center justify-between gap-4"><div><h2 className="text-xl font-bold">{session ? displaySessionTitle(session.title) : '過往場次'}</h2>{session ? <p className="mt-2 text-sm text-muted">{formatSessionRange(session.starts_at, session.ends_at, timeZone)}</p> : null}</div>
-        <button aria-expanded={opened === booking.id} onClick={() => setOpened(opened === booking.id ? null : booking.id)} className="rounded-lg border border-border px-5 py-3 text-sm font-bold">{opened === booking.id ? '收起成果' : '查看成果'}</button></div>
-        {opened === booking.id ? <div className="mt-6 border-t border-border pt-6"><SessionResult sessionId={booking.session_id} /></div> : null}
+        <button
+          aria-expanded={opened === booking.id}
+          aria-label={opened === booking.id ? '收起成果' : '展開成果'}
+          title={opened === booking.id ? '收起成果' : '展開成果'}
+          onClick={() => setOpened(opened === booking.id ? null : booking.id)}
+          className="flex size-11 shrink-0 items-center justify-center rounded-lg border border-border text-muted transition-colors hover:bg-cream hover:text-ink"
+        >
+          <svg aria-hidden="true" className={`size-5 transition-transform ${opened === booking.id ? 'rotate-180' : ''}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="m6 9 6 6 6-6" /></svg>
+        </button></div>
+        {opened === booking.id ? <div className="mt-6 border-t border-border pt-6"><SessionResult sessionId={booking.session_id} showSessionHeading={false} /></div> : null}
       </article>;
       const started = !session || (now !== null && Date.parse(session.starts_at) <= now);
       return <article id={booking.id} key={booking.id} className="scroll-mt-8 rounded-lg border border-border bg-paper p-6">
@@ -117,12 +125,12 @@ export function MySessions() {
             }}><svg aria-hidden="true" className="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7"><path d="m6 6 12 12M18 6 6 18" /></svg></button> : null}
           </div>;
         })}</div>
-        {session && !started ? <AddToCalendar session={{ id: booking.session_id, ...session }} /> : null}
         <BookingTaskPicker bookingId={booking.id} taskIds={booking.booking_tasks.map(item => Number(item.task_id))} disabled={!!busy || started} onSaved={load} />
         <div className="mb-4">
           {session && now !== null && now >= Date.parse(session.starts_at) - 300000 && now < Date.parse(session.ends_at) ? <Link href={`/sessions/waiting/${booking.session_id}`} className="inline-flex rounded-lg bg-forest px-5 py-3 text-sm font-bold text-white">{started ? '進入房間' : '進入等候區'}</Link> : <p className="text-xs text-light">{session && now !== null && now >= Date.parse(session.ends_at) ? '這場活動已結束。' : '等候區於活動開始前五分鐘開放。'}</p>}
         </div>
-        <button disabled={!!busy || started} className="rounded-lg border border-border px-4 py-2 text-sm text-muted disabled:opacity-40" onClick={async () => {
+        <div className="flex flex-wrap gap-2">
+        <button disabled={!!busy || started} className="inline-flex min-h-11 items-center gap-2 rounded-lg border border-border px-4 py-2 text-sm font-bold text-muted disabled:opacity-40" onClick={async () => {
           if (!window.confirm('確定取消這場預約？待辦事項會保留。')) return;
           setBusy(booking.id); setError('');
           try {
@@ -131,7 +139,12 @@ export function MySessions() {
             await load();
           } catch (e) { setError(bookingError((e as { message?: string })?.message ?? '')); }
           finally { setBusy(null); }
-        }}>{busy === booking.id ? '取消中…' : started ? '場次已開始／已結束' : '取消預約'}</button>
+        }}>
+          <svg aria-hidden="true" className="size-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 11h18M9 15l6 6M15 15l-6 6"/></svg>
+          {busy === booking.id ? '取消中…' : started ? '場次已開始／已結束' : '取消預約'}
+        </button>
+        {session && !started ? <AddToCalendar session={{ id: booking.session_id, ...session }} /> : null}
+        </div>
       </article>;
     })}</div>
   </div></main>;

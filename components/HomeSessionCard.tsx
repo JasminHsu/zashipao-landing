@@ -23,7 +23,7 @@ export type HomeSessionCardProps = {
   member?: {
     consecutiveWeeks?: number;
     reservation?: HomeSession & {
-      tasks: string[];
+      tasks: { title: string; completed: boolean }[];
       detailsHref: string;
       waitingHref: string;
       roomHref: string;
@@ -84,7 +84,10 @@ export function HomeSessionCard({ upcomingSessions = [], member, preview = false
             <div className="mt-5 space-y-2">
               <h3 className="text-sm font-bold">這場的待辦事項</h3>
               {reservation.tasks.length ? reservation.tasks.map((task, index) => (
-                <div className="rounded-xl bg-cream p-3 text-sm" key={index}>{task}</div>
+                <div className="flex flex-wrap items-center gap-2 rounded-xl bg-cream p-3 text-sm" key={index}>
+                  {task.completed ? <span className="rounded bg-forest px-2 py-1 text-xs font-bold text-white">已完成</span> : null}
+                  <span>{task.title}</span>
+                </div>
               )) : <p className="text-sm text-muted">還沒安排待辦，可以在開場前補上。</p>}
               <p className="pt-2 text-sm text-muted">
                 {live ? `進行中 · 剩餘 ${Math.floor(remaining / 60)}:${String(remaining % 60).padStart(2, "0")}`

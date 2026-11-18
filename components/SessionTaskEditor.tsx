@@ -39,7 +39,10 @@ export function SessionTaskEditor({ sessionId, initialTasks }: { sessionId: stri
       <div className="text-xs font-bold text-light">這場要做的事</div>
       {selected.map(task => (
         <div className="flex items-center justify-between gap-2 rounded-xl bg-cream px-3 py-2 text-sm font-semibold text-muted" key={task.id}>
-          <span>{task.title}{task.completed ? "（已完成）" : task.archived ? "（已封存）" : ""}</span>
+          <span className="flex min-w-0 flex-wrap items-center gap-2">
+            {task.completed ? <span className="rounded bg-forest px-2 py-1 text-xs font-bold text-white">已完成</span> : task.archived ? <span className="rounded bg-cream-dd px-2 py-1 text-xs font-bold text-muted">已封存</span> : null}
+            <span className="min-w-0 break-words">{task.title}</span>
+          </span>
           {draft !== null ? <button type="button" className="shrink-0 p-1 text-terracotta" aria-label={`從本場移除${task.title}`} onClick={() => setDraft(draft.filter(id => id !== task.id))}>移除</button> : null}
         </div>
       ))}

@@ -24,9 +24,12 @@ export function WeeklyTasks({ refreshKey = 0 }: { refreshKey?: number }) {
       if (!active) return;
       if (result.error) { setError('每週重複待辦尚未就緒，請確認資料庫更新與連線。一般待辦仍可照常使用。'); return; }
       setGoals(result.data);
-      const generated = week < taipeiWeek() ? { error: null } : await client.rpc('ensure_weekly_tasks', { p_week: week });
+      const currentWeek = taipeiWeek();
+      const nextWeek = moveWeek(currentWeek, 1);
+      const canGenerate = week === currentWeek || week === nextWeek;
+      const generated = canGenerate ? await client.rpc('ensure_weekly_tasks', { p_week: week }) : { error: null };
       if (!active) return;
-      if (generated.error) { setError('無法準備這週的待辦，請重試。'); return; }
+      if (generated.error) { setError('這個週次目前無法建立重複待辦。請回到本週，或稍後確認資料庫設定。'); return; }
       setReady(true);
       window.dispatchEvent(new Event('zashipao-cloud-tasks-updated'));
     };
@@ -44,6 +47,10 @@ export function WeeklyTasks({ refreshKey = 0 }: { refreshKey?: number }) {
     finally { setBusy(false); }
   }
   if (ready && goals.length === 0) return null;
+  const currentWeek = taipeiWeek();
+  const nextWeek = moveWeek(currentWeek, 1);
+  const isPastWeek = week < currentWeek;
+  const isBeyondNextWeek = week > nextWeek;
   return <section aria-label="重複待辦" className="mb-6 rounded-lg border border-border bg-paper p-5">
     <div className="flex flex-wrap items-center justify-between gap-3">
       <h2 className="text-xl font-black text-ink">重複待辦</h2>
@@ -57,6 +64,7 @@ export function WeeklyTasks({ refreshKey = 0 }: { refreshKey?: number }) {
       </div>
     </div>
     <p className="mt-2 text-sm leading-6 text-muted">目前為每週頻率 · {week} 起的一週</p>
+    {isBeyondNextWeek ? <p className="mt-3 rounded-lg bg-cream px-3 py-2 text-sm text-muted">目前只能提前建立到下週。這個週次可先查看；待資料庫升級後才能產生新的重複待辦。</p> : null}
     {error && <p role="alert" className="mt-3 text-sm text-terracotta">{error} <button type="button" className="underline" onClick={() => setRevision(x=>x+1)}>重新載入</button></p>}
     {!ready && !error && <p role="status" className="mt-3 text-sm text-muted">正在準備每週待辦…</p>}
     <div className="mt-4 space-y-3">{goals.map(goal => {
@@ -68,7 +76,7 @@ export function WeeklyTasks({ refreshKey = 0 }: { refreshKey?: number }) {
           <div className="flex flex-wrap items-center justify-between gap-3"><label className="flex items-center gap-3 text-sm"><input type="checkbox" checked={!!task.completed} disabled={sync.loading||sync.saving||!!sync.error||busy} onChange={()=>void setTasks(current=>current.map(t=>t.id===task.id?{...t,completed:!t.completed}:t))} className="size-5 accent-[#4A7260]" />第{task.occurrenceNumber}次{task.completed?' · 已完成':''}</label>
           {!task.completed&&!task.archived&&<Link className="rounded-full border border-border px-3 py-2 text-sm text-forest" href={`/sessions?tasks=${task.id}`}>選擇場次</Link>}</div>
           <TaskSessionBadge taskId={task.id} />
-        </div>)}</div>
+        </div>)}{occurrences.length === 0 ? <p className="rounded-lg bg-white px-3 py-3 text-sm text-muted">{isPastWeek ? '這週沒有建立紀錄。過去週次不會事後補產生。' : !goal.active ? '已暫停，這週沒有建立新的次數。' : isBeyondNextWeek ? '這週尚未開放提前建立。' : '這週尚未建立次數。'}</p> : null}</div>
         <button type="button" disabled={busy||!ready} onClick={()=>void toggleGoal(goal)} className="mt-3 text-sm text-muted underline">{goal.active?'暫停未來重複':'恢復每週重複'}</button>
         {!goal.active&&<p className="mt-2 text-xs text-muted">已建立的次數與預約保留；暫停後不再產生新的週次。</p>}
       </details>;

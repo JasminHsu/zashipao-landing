@@ -4,6 +4,7 @@ import { browserAuth } from '@/lib/supabase/browser';
 import { bookingError } from '@/lib/bookingErrors';
 import { useSharedTasks } from './useSharedTasks';
 import { TaskSyncStatus } from './TaskSyncStatus';
+import { recurringTaskMeta, taskDisplayTitle } from '@/lib/taskPresentation';
 export function BookingTaskPicker({ bookingId, taskIds, disabled, onSaved }: {
   bookingId: string; taskIds: number[]; disabled: boolean; onSaved: () => Promise<void>;
 }) {
@@ -27,7 +28,8 @@ export function BookingTaskPicker({ bookingId, taskIds, disabled, onSaved }: {
     <TaskSyncStatus />
     <fieldset disabled={busy || adding || disabled || sync.loading || sync.saving || !!sync.error}>
       <div className="my-3 grid max-h-64 gap-2 overflow-y-auto">{available.map(task => <label key={task.id} className="flex items-center gap-3 rounded-lg bg-cream p-3 text-sm">
-        <input type="checkbox" className="size-5 accent-forest" checked={draft.includes(task.id)} onChange={event => setDraft(event.target.checked ? [...draft, task.id] : draft.filter(id => id !== task.id))} />{task.title}
+        <input type="checkbox" className="size-5 shrink-0 accent-forest" checked={draft.includes(task.id)} onChange={event => setDraft(event.target.checked ? [...draft, task.id] : draft.filter(id => id !== task.id))} />
+        <span className="min-w-0"><span className="block font-medium">{taskDisplayTitle(task)}</span>{recurringTaskMeta(task) ? <span className="mt-1 block text-xs font-medium text-forest">{recurringTaskMeta(task)}</span> : null}</span>
       </label>)}</div>
       {!available.length ? <p className="my-3 text-sm text-muted">目前沒有可選待辦，可以直接在下方新增。</p> : null}
       {showNew ? <form className="my-4 rounded-xl border border-border p-3" onSubmit={async event => {

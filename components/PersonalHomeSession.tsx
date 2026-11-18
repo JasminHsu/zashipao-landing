@@ -31,7 +31,7 @@ export function PersonalHomeSession(props: HomeSessionCardProps) {
         setMember(next ? { reservation: {
           title: next.sessions.title, startsAt: next.sessions.starts_at, endsAt: next.sessions.ends_at,
           capacity: next.sessions.capacity, bookingHref: `/sessions/book?session=${next.session_id}`,
-          tasks: next.booking_tasks.flatMap(item => item.tasks ? [item.tasks.title + (item.tasks.completed ? '（已完成）' : '')] : []),
+          tasks: next.booking_tasks.flatMap(item => item.tasks ? [{ title: item.tasks.title, completed: item.tasks.completed }] : []),
           detailsHref: `/my-sessions#${next.id}`, waitingHref: `/sessions/waiting/${next.session_id}`, roomHref: `/sessions/room/${next.session_id}`
         } } : {});
         setError(false);
