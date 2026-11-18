@@ -25,7 +25,6 @@ export default async function Home() {
   } catch { failed = true; }
   return (
     <>
-      <a href="#main-content" className="sr-only z-[100] bg-ink px-4 py-3 text-white focus:not-sr-only focus:fixed focus:left-4 focus:top-4">跳到主要內容</a>
       <RevealController />
       <Navbar />
       <main id="main-content" tabIndex={-1}>

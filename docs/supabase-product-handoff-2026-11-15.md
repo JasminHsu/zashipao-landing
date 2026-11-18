@@ -25,6 +25,7 @@
 
 - 現有 `weekly_goals`、`ensure_weekly_tasks` 與已執行的 weekly migration 只支援每週。
 - 實測 `ensure_weekly_tasks` 目前以台灣週界線驗證；在美西週日直接傳入美西當週 Monday 會失敗。前端因此暫時保留既有週期，不能只改顯示文字。
+- Production RPC 另有限制：`p_week` 只接受台灣時區的本週或下週。使用者選擇兩週後（例如五週後）會固定得到 `INVALID_WEEK`，重新載入無法解決；暫停前未產生的過去週次也無法回補。
 - UI 下一輪要能容納每日、每週、每月與自訂頻率，不能再把資料模型綁死在「週」。
 
 ### 建議資料模型
@@ -34,6 +35,7 @@
 - 每個實際 occurrence 仍建立一筆 task，並保留 parent goal id 與 occurrence identity，避免重新產生重複資料。
 - 月底 29／30／31 日、日光節約時間、暫停後恢復、編輯未來 occurrence 的行為需要先定義。
 - 建立通用 RPC 取代 `ensure_weekly_tasks`，並保留 production 既有 weekly 資料的 migration 路徑。
+- 在通用 recurring model 完成前，若要先開放較遠週次，建議以新 migration 放寬 `ensure_weekly_tasks`：只接受 Monday、不可早於本週、最多可提前 12 週。不要直接修改已執行的 migration 檔，也不要允許任意歷史回補。
 
 ## 3. 完成待辦與未來場次
 
@@ -80,3 +82,32 @@
 - 每日／每週／每月 occurrence 不重複產生。
 - 完成已排入未來場次的待辦後，未來場次移除且可復原；歷史成果不變。
 - 一般使用者無法修改他人的時區、重複待辦、場次主題或 booking 關聯。
+
+## 2026-11-17 Ching 正式資料庫唯讀盤點
+
+盤點基準為 `origin/main` `05e020b` 與正式 Supabase 專案 `fzwybliiubkynnjlvsmm`。本次只執行結構、權限相關的唯讀查詢；沒有執行 migration、寫入 RPC、讀取使用者資料列或完成跨帳號攻防測試。
+
+- Public schema 目前有 9 張表：`booking_events`、`booking_tasks`、`bookings`、`room_presence`、`session_result_tasks`、`session_results`、`sessions`、`tasks`、`weekly_goals`，全部已啟用 RLS。
+- 正式資料庫目前沒有 `profiles`、`user_preferences`、`recurring_goals`；`tasks` 沒有 `completed_at`；`sessions` 沒有 `owner_id`／`created_by`。`tasks.priority` 已存在。
+- 每週待辦結構、唯一索引與 `ensure_weekly_tasks(date)` 已存在，不可重跑舊的建表 migration。正式 RPC 只接受台灣時區本週／下週，且已限制為 `auth.uid()` 本人的 goal 與 task。
+- `track_result_task` 會同步未完成且未到期的成果項目，但不會移除未來 `booking_tasks`。完成、復原、未來場次關聯與既有成果觸發器必須一起設計成完整交易。
+- `sessions` 目前只有主鍵索引。是否新增 `starts_at` 索引，應等日期範圍查詢定案後以實際 query plan 判斷。
+- `supabase_migrations.schema_migrations` 不存在不能用來判斷 migration 是否執行；一律以實際 schema、函式與索引核對。
+
+## 帳號時區分支狀態與部署限制
+
+Ching 已從 `origin/main` `05e020b` 建立獨立的 `feature/account-time-zone`，程式與 `supabase/migrations/202611170001_user_time_zone.sql` 已準備，但 migration 尚未套用任何資料庫，也尚未完成跨裝置驗收。
+
+- 新 migration 建立 `user_preferences`，以 `user_id` 為主鍵並隨帳號刪除，時區 nullable；`null` 表示各裝置沿用自己的裝置時區。
+- 資料庫只接受 PostgreSQL 支援的 IANA 時區名稱，例如 `UTC`、`Asia/Taipei`、`America/Los_Angeles`，拒絕 `PST`／`PDT` 這類縮寫。
+- 登入後讀取帳號偏好；手動選擇必須在寫入成功後才更新畫面。匿名選擇只在當次頁面有效，不匯入舊 localStorage；登入、登出與換帳號需清除前一份選擇。
+- 這個分支不能先部署到正式站。先在獨立測試 Supabase 套用新 migration，再讓 Vercel Preview 指向該測試資料庫；Preview 若仍連正式專案，不算獨立驗證環境。
+- 驗收必須涵蓋雙瀏覽器跨裝置、快速切換帳號、斷網／拒絕寫入、匿名與跨帳號 RLS、無效時區、帳號刪除級聯、DST 與 Google Calendar 一致性。
+
+### 目前部署 gate
+
+1. 建立或確認獨立測試 Supabase。
+2. 只在測試資料庫執行 `202611170001_user_time_zone.sql`。
+3. 讓 `feature/account-time-zone` 的 Vercel Preview 指向測試資料庫。
+4. 完成上述時區與 RLS 驗收後，才可合併並部署正式站。
+5. Recurring、`completed_at`、完成後移除未來關聯、場次 ownership 分開設計與分開 PR，不和時區 migration 綁在一起。

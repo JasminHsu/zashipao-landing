@@ -43,10 +43,6 @@ const statusStyle: Record<TaskStatus, { label: string; className: string; rowCla
   }
 };
 
-function daysBetween(from: string, to = localDate()) {
-  return Math.max(0, calendarDay(to) - calendarDay(from));
-}
-
 function daysUntil(deadline: string, from = localDate()) {
   if (!deadline) return Number.POSITIVE_INFINITY;
   return calendarDay(deadline) - calendarDay(from);
@@ -348,7 +344,7 @@ export function TaskBoard() {
                 className="min-h-11 w-full rounded-xl border-[1.5px] border-border bg-cream px-3 text-sm outline-none focus:border-terracotta"
                 value={note}
                 onChange={(event) => setNote(event.target.value)}
-                placeholder="備註或第一步，不填也可以"
+                placeholder="備注或第一步，不填也可以"
               />
             </div>
           ) : null}
@@ -359,7 +355,7 @@ export function TaskBoard() {
             onClick={() => setShowDetails((current) => !current)}
           >
             <span>{showDetails ? "−" : "+"}</span>
-            {showDetails ? "收起補充細節" : "補充細節"}
+            {showDetails ? "收起備注" : "補充備注"}
           </button> : <p className="mt-3 text-sm text-muted">目前支援每週重複；每日、每月與自訂頻率會在資料升級後加入。</p>}
           {createError && <p role="alert" className="mt-3 text-sm text-terracotta">{createError}</p>}
         </form>
@@ -390,7 +386,7 @@ export function TaskBoard() {
         <p className="mb-3 text-sm text-muted">勾選事項後，可批次標記完成或選擇場次。拖曳左側把手調整順序。</p>
         <p role="status" className="sr-only">{sortNotice}</p>
         <section className="overflow-hidden rounded-lg border border-border bg-paper">
-          <div className="grid grid-cols-[24px_44px_minmax(0,1fr)_120px_90px_96px] items-center gap-3 border-l-4 border-l-transparent border-b border-border bg-cream-d px-4 py-3 text-xs font-bold uppercase tracking-normal text-muted max-[900px]:grid-cols-[24px_44px_minmax(0,1fr)_auto] max-[900px]:gap-2">
+          <div className="grid grid-cols-[24px_44px_minmax(0,1fr)_140px_96px] items-center gap-3 border-l-4 border-l-transparent border-b border-border bg-cream-d px-4 py-3 text-xs font-bold uppercase tracking-normal text-muted max-[900px]:grid-cols-[24px_44px_minmax(0,1fr)_auto] max-[900px]:gap-2">
             <div />
             <label className="flex min-h-11 cursor-pointer flex-col items-center justify-center gap-1 text-xs font-bold text-muted">
           <input
@@ -407,14 +403,12 @@ export function TaskBoard() {
         </label>
             <div>事項</div>
             <div className="max-[900px]:hidden">預計完成</div>
-            <div className="max-[900px]:hidden">加入清單</div>
             <div />
           </div>
 
           <div className="divide-y divide-border">
             {!taskSync.loading && !taskSync.error && tasks.length === 0 ? <p className="p-6 text-sm text-muted">還沒有待辦，先新增一件想完成的事。</p> : null}
             {sortedTasks.map((task) => {
-              const delayed = daysBetween(task.firstNoticed);
               const status = statusStyle[getTaskStatus(task)];
               const isEditing = editingId === task.id;
 
@@ -463,11 +457,11 @@ export function TaskBoard() {
                         className="col-span-2 min-h-11 rounded-xl border-[1.5px] border-border bg-cream px-3 text-sm outline-none focus:border-terracotta max-[900px]:col-span-1"
                         value={editNote}
                         onChange={(event) => setEditNote(event.target.value)}
-                        placeholder="備註"
+                        placeholder="備注"
                       />
                     </form>
                   ) : (
-                    <div className="grid min-h-[58px] grid-cols-[24px_44px_minmax(0,1fr)_120px_90px_96px] items-center gap-3 max-[900px]:grid-cols-[24px_44px_minmax(0,1fr)_auto] max-[900px]:gap-2">
+                    <div className="grid min-h-[58px] grid-cols-[24px_44px_minmax(0,1fr)_140px_96px] items-center gap-3 max-[900px]:grid-cols-[24px_44px_minmax(0,1fr)_auto] max-[900px]:gap-2">
                       {!task.completed ? (
                         <button type="button" draggable aria-label={`拖曳排序：${task.title}，可用鍵盤上下鍵調整`} title="拖曳調整順序"
                           className="flex h-10 w-6 cursor-grab items-center justify-center rounded text-xl text-light hover:text-muted focus-visible:outline-terracotta active:cursor-grabbing"
@@ -498,8 +492,8 @@ export function TaskBoard() {
                             className={`break-words text-[.95rem] font-bold leading-relaxed ${task.completed ? "text-forest line-through" : ""}`}
                             title={task.title}
                           >
-                            {task.completed || status.label ? <span className={`mr-2 inline-flex rounded px-1.5 py-0.5 text-[.68rem] font-bold ${task.completed ? "bg-forest text-white" : status.className}`}>
-                              {task.completed ? "已完成" : status.label}
+                            {task.completed || status.label === "快到期" ? <span className={`mr-2 inline-flex rounded px-1.5 py-0.5 text-[.68rem] font-bold ${task.completed ? "bg-forest text-white" : status.className}`}>
+                              {task.completed ? "已完成" : "快到期"}
                             </span> : null}
                             {task.title}
                           </div>
@@ -518,12 +512,9 @@ export function TaskBoard() {
                         {task.completed ? "完成" : task.deadline ? (
                           <>
                             <time dateTime={task.deadline}>{task.deadline.replaceAll("-", "/")}</time>
-                            <div className="mt-1 text-xs font-normal text-light">{formatDeadline(task.deadline)}</div>
+                            <div className={`mt-1 text-xs ${status.label === "已過期" ? "font-bold text-[#E24B4A]" : "font-normal text-light"}`}>{formatDeadline(task.deadline)}</div>
                           </>
                         ) : "未設定期限"}
-                      </div>
-                      <div className="text-sm font-normal text-muted max-[900px]:hidden">
-                        {task.completed ? "—" : `${delayed} 天前`}
                       </div>
                       <div className="flex flex-wrap justify-end gap-1 max-[900px]:col-span-4 max-[900px]:justify-end">
                         {task.completed ? (
